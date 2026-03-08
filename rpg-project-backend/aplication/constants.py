@@ -1,0 +1,1 @@
+AtributesModelsSheet = ["Carisma", "Ciência", "Constituição", "Destreza", "Espiritualidade", "Força", "Furtividade", "Inteligência", "Percepção", "Will"]
