@@ -8,6 +8,7 @@ import type {
   RegisterResponse,
   VerifyResponse,
   CurrentUserResponse,
+  GetUsersResponse,
 } from '../types/auth';
 import { AxiosError } from 'axios';
 
@@ -73,6 +74,19 @@ export const useCurrentUser = (): UseQueryResult<CurrentUserResponse, AxiosError
     enabled: authService.isAuthenticated(), // Only run if token exists
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+/**
+ * Hook for listing all users (admin only)
+ */
+export const useGetUsers = (enabled = true): UseQueryResult<GetUsersResponse, AxiosError> => {
+  return useQuery<GetUsersResponse, AxiosError>({
+    queryKey: ['users'],
+    queryFn: authService.getUsers,
+    enabled: authService.isAuthenticated() && enabled,
+    retry: false,
+    staleTime: 60 * 1000,
   });
 };
 

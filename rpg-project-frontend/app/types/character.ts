@@ -59,12 +59,16 @@ export interface CharacterAbility {
   id: number;
   name: string;
   description: string;
+  class_id?: number | null;
+  subclass_id?: number | null;
 }
 
 export interface CharacterClass {
   id: number;
   name: string;
   description: string;
+  abilities?: CharacterAbility[];
+  subclasses?: CharacterSubclass[];
 }
 
 export interface CharacterSubclass {
@@ -72,6 +76,7 @@ export interface CharacterSubclass {
   name: string;
   description: string;
   class_id: number;
+  abilities?: CharacterAbility[];
 }
 
 export interface CharacterRace {

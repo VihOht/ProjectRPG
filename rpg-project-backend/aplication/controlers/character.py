@@ -22,7 +22,13 @@ def get_abilities():
     abilities = AbilityService.get_all_abilities()
     return jsonify({
         'abilities': [
-            {'id': a.id, 'name': a.name, 'description': a.description}
+            {
+                'id': a.id,
+                'name': a.name,
+                'description': a.description,
+                'class_id': a.class_id,
+                'subclass_id': a.subclass_id,
+            }
             for a in abilities
         ]
     }), 200
@@ -38,12 +44,20 @@ def create_ability():
     
     ability = AbilityService.create_ability(
         name=data.get('name'),
-        description=data.get('description')
+        description=data.get('description'),
+        class_id=data.get('class_id'),
+        subclass_id=data.get('subclass_id'),
     )
     
     return jsonify({
         'message': 'Ability created successfully',
-        'ability': {'id': ability.id, 'name': ability.name, 'description': ability.description}
+        'ability': {
+            'id': ability.id,
+            'name': ability.name,
+            'description': ability.description,
+            'class_id': ability.class_id,
+            'subclass_id': ability.subclass_id,
+        }
     }), 201
 
 
@@ -56,7 +70,13 @@ def get_ability(ability_id):
         return jsonify({'message': 'Ability not found'}), 404
     
     return jsonify({
-        'ability': {'id': ability.id, 'name': ability.name, 'description': ability.description}
+        'ability': {
+            'id': ability.id,
+            'name': ability.name,
+            'description': ability.description,
+            'class_id': ability.class_id,
+            'subclass_id': ability.subclass_id,
+        }
     }), 200
 
 
@@ -76,7 +96,13 @@ def update_ability(ability_id):
     
     return jsonify({
         'message': 'Ability updated successfully',
-        'ability': {'id': ability.id, 'name': ability.name, 'description': ability.description}
+        'ability': {
+            'id': ability.id,
+            'name': ability.name,
+            'description': ability.description,
+            'class_id': ability.class_id,
+            'subclass_id': ability.subclass_id,
+        }
     }), 200
 
 
@@ -253,7 +279,40 @@ def get_classes():
     classes = ClassService.get_all_classes()
     return jsonify({
         'classes': [
-            {'id': c.id, 'name': c.name, 'description': c.description}
+            {
+                'id': c.id,
+                'name': c.name,
+                'description': c.description,
+                'abilities': [
+                    {
+                        'id': a.id,
+                        'name': a.name,
+                        'description': a.description,
+                        'class_id': a.class_id,
+                        'subclass_id': a.subclass_id,
+                    }
+                    for a in c.abilities
+                ],
+                'subclasses': [
+                    {
+                        'id': s.id,
+                        'name': s.name,
+                        'description': s.description,
+                        'class_id': s.class_id,
+                        'abilities': [
+                            {
+                                'id': sa.id,
+                                'name': sa.name,
+                                'description': sa.description,
+                                'class_id': sa.class_id,
+                                'subclass_id': sa.subclass_id,
+                            }
+                            for sa in s.abilities
+                        ],
+                    }
+                    for s in c.subclasses
+                ],
+            }
             for c in classes
         ]
     }), 200
@@ -290,7 +349,40 @@ def get_class(class_id):
         return jsonify({'message': 'Class not found'}), 404
     
     return jsonify({
-        'class': {'id': char_class.id, 'name': char_class.name, 'description': char_class.description}
+        'class': {
+            'id': char_class.id,
+            'name': char_class.name,
+            'description': char_class.description,
+            'abilities': [
+                {
+                    'id': a.id,
+                    'name': a.name,
+                    'description': a.description,
+                    'class_id': a.class_id,
+                    'subclass_id': a.subclass_id,
+                }
+                for a in char_class.abilities
+            ],
+            'subclasses': [
+                {
+                    'id': s.id,
+                    'name': s.name,
+                    'description': s.description,
+                    'class_id': s.class_id,
+                    'abilities': [
+                        {
+                            'id': sa.id,
+                            'name': sa.name,
+                            'description': sa.description,
+                            'class_id': sa.class_id,
+                            'subclass_id': sa.subclass_id,
+                        }
+                        for sa in s.abilities
+                    ],
+                }
+                for s in char_class.subclasses
+            ],
+        }
     }), 200
 
 
@@ -335,7 +427,17 @@ def get_subclasses():
         'subclasses': [
             {
                 'id': s.id, 'name': s.name, 'description': s.description,
-                'class_id': s.class_id
+                'class_id': s.class_id,
+                'abilities': [
+                    {
+                        'id': a.id,
+                        'name': a.name,
+                        'description': a.description,
+                        'class_id': a.class_id,
+                        'subclass_id': a.subclass_id,
+                    }
+                    for a in s.abilities
+                ],
             }
             for s in subclasses
         ]
@@ -509,6 +611,7 @@ def create_character(current_user):
         'message': 'Character created successfully',
         'character': {
             'id': character.id,
+            'own': character.own,
             'name': character.name,
             'charClass': character.charClass,
             'race': character.race,
@@ -537,6 +640,7 @@ def get_user_characters(current_user):
         'characters': [
             {
                 'id': c.id,
+                'own': c.own,
                 'name': c.name,
                 'charClass': c.charClass,
                 'race': c.race,
@@ -575,6 +679,7 @@ def get_character(current_user, character_id):
     return jsonify({
         'character': {
             'id': character.id,
+            'own': character.own,
             'name': character.name,
             'charClass': character.charClass,
             'subclass': character.subclass,
@@ -622,6 +727,7 @@ def update_character(current_user, character_id):
         'message': 'Character updated successfully',
         'character': {
             'id': character.id,
+            'own': character.own,
             'name': character.name,
             'charClass': character.charClass,
             'subclass': character.subclass,

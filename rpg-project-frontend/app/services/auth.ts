@@ -6,6 +6,7 @@ import type {
   RegisterResponse,
   VerifyResponse,
   CurrentUserResponse,
+  GetUsersResponse,
 } from '../types/auth';
 
 /**
@@ -51,6 +52,14 @@ export const authService = {
    */
   getCurrentUser: async (): Promise<CurrentUserResponse> => {
     const response = await api.get<CurrentUserResponse>('/auth/me');
+    return response.data;
+  },
+
+  /**
+   * Get all users (admin only)
+   */
+  getUsers: async (): Promise<GetUsersResponse> => {
+    const response = await api.get<GetUsersResponse>('/auth/users');
     return response.data;
   },
 

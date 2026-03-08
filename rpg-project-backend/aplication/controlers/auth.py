@@ -121,3 +121,25 @@ def get_current_user(current_user):
             'role': current_user.role
         }
     }), 200
+
+
+@auth_bp.route('/users', methods=['GET'])
+@token_required
+def get_users(current_user):
+    """Get all users (admin only)"""
+    if (getattr(current_user, 'role', 'USER') or 'USER').upper() != 'ADMIN':
+        return jsonify({'message': 'Unauthorized'}), 403
+
+    users = AuthService.get_all_users()
+
+    return jsonify({
+        'users': [
+            {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'role': user.role,
+            }
+            for user in users
+        ]
+    }), 200

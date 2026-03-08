@@ -89,3 +89,8 @@ class AuthService:
     def get_user_by_id(user_id):
         """Get user by ID"""
         return User.query.get(user_id)
+
+    @staticmethod
+    def get_all_users():
+        """Get all users"""
+        return User.query.all()
