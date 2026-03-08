@@ -68,14 +68,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
+    // Check if it's a 401 Unauthorized error
     if (error.response?.status === 401) {
       // Token expired or invalid - clear storage
       tokenStorage.removeToken();
       usernameStorage.removeUsername();
       
-      // Optionally redirect to login
-      // window.location.href = '/login';
-      
+      // Store error flag for components to detect and redirect
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('auth_error', 'token_invalid');
+      }
     }
     return Promise.reject(error);
   }

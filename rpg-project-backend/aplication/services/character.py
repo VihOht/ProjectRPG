@@ -2,7 +2,7 @@ from aplication import db
 from aplication.models.characters import Character, Race
 from aplication.models.classes import Class, Subclass, Ability
 from aplication.models.atributes import Attribute, CharacterAttributes, CharacterAttributeValue
-from aplication.constants import AtributesModelsSheet
+from aplication.constants import AtributesModelsSheet, STAT_CONVERSION_RULES
 
 
 class AbilityService:
@@ -139,12 +139,21 @@ class AttributeService:
         if not char_attrs:
             return None, "Character attributes not found"
 
+        def calc_total(base_value, bonus_value):
+            return int(base_value) + int(bonus_value)
+
+        def calc_dt(total):
+            return max(0, 20 - int(total))
+
         return [
             {
                 'attribute_id': value.attribute.id,
                 'name': value.attribute.name,
                 'description': value.attribute.description,
-                'value': value.value
+                'base': int(value.baseValue),
+                'bonus': int(value.bonusValue),
+                'total': calc_total(value.baseValue, value.bonusValue),
+                'dt': calc_dt(calc_total(value.baseValue, value.bonusValue)),
             }
             for value in char_attrs.values
         ], None
@@ -291,6 +300,14 @@ class SubclassService:
 
 class CharacterAttributesService:
     @staticmethod
+    def _calc_total(base_value, bonus_value):
+        return int(base_value) + int(bonus_value)
+
+    @staticmethod
+    def _calc_dt(total):
+        return max(0, 20 - int(total))
+
+    @staticmethod
     def create_character_attributes(character_id):
         """Create character attributes record"""
         char_attrs = CharacterAttributes(character_id=character_id)
@@ -303,7 +320,8 @@ class CharacterAttributesService:
                 CharacterAttributeValue(
                     character_attributes_id=char_attrs.id,
                     attribute_id=attribute.id,
-                    value=0
+                    baseValue=0,
+                    bonusValue=0,
                 )
             )
 
@@ -325,7 +343,12 @@ class CharacterAttributesService:
                     db.session.add(new_attr)
                     db.session.flush()
                     attribute = new_attr
-                new_attributeValue = CharacterAttributeValue(character_id, attribute.id, 0)
+                new_attributeValue = CharacterAttributeValue(
+                    character_attributes_id=charAttributes.id,
+                    attribute_id=attribute.id,
+                    baseValue=0,
+                    bonusValue=0,
+                )
                 db.session.add(new_attributeValue)
                 charAttributes = CharacterAttributes.query.filter_by(character_id=character_id).first()
     
@@ -338,7 +361,7 @@ class CharacterAttributesService:
     def bulk_update_character_attributes(character_id, attributes_data):
         """Bulk update all attributes for a character
         
-        attributes_data should be a list of dicts with attribute_id and value
+        attributes_data should be a list of dicts with attribute_id, base and bonus
         """
         char_attrs = CharacterAttributes.query.filter_by(character_id=character_id).first()
         if not char_attrs:
@@ -351,22 +374,32 @@ class CharacterAttributesService:
 
         for item in attributes_data:
             attribute_id = item.get('attribute_id')
-            value = item.get('value')
+            base_value = item.get('base')
+            bonus_value = item.get('bonus')
 
-            if attribute_id is None or value is None:
+            if attribute_id is None:
                 continue
+
+            if base_value is None:
+                base_value = 0
+
+            if bonus_value is None:
+                bonus_value = 0
 
             if not Attribute.query.get(attribute_id):
                 continue
 
             if attribute_id in existing_values:
-                existing_values[attribute_id].value = int(value)
+                existing_values[attribute_id].baseValue = int(base_value)
+                existing_values[attribute_id].bonusValue = int(bonus_value)
+                existing_values[attribute_id].sync_legacy_value()
             else:
                 db.session.add(
                     CharacterAttributeValue(
                         character_attributes_id=char_attrs.id,
                         attribute_id=attribute_id,
-                        value=int(value)
+                        baseValue=int(base_value),
+                        bonusValue=int(bonus_value),
                     )
                 )
 
@@ -387,22 +420,11 @@ class CharacterAttributesService:
 
 class CharacterService:
     @staticmethod
-    def create_character(user_id, name, char_class_id, race_id, gender, age):
+    def create_character(user_id, **kwargs):
         """Create a new character with default values"""
         character = Character(
             own=user_id,
-            name=name,
-            charClass=char_class_id,
-            race=race_id,
-            gender=gender,
-            age=age,
-            level=1,
-            # Default stats
-            life=100,
-            defense=10,
-            sanity=100,
-            ocultism=0,
-            mana=50
+            **kwargs
         )
         db.session.add(character)
         db.session.flush()
@@ -424,6 +446,11 @@ class CharacterService:
         return Character.query.filter_by(own=user_id).all()
 
     @staticmethod
+    def get_all_characters():
+        """Get all characters"""
+        return Character.query.all()
+
+    @staticmethod
     def update_character(character_id, **kwargs):
         """Update character fields"""
         character = Character.query.get(character_id)
@@ -432,7 +459,10 @@ class CharacterService:
         
         allowed_fields = [
             'name', 'charClass', 'subclass', 'second_class', 'race',
-            'gender', 'age', 'level', 'life', 'defense', 'sanity', 'ocultism', 'mana'
+            'gender', 'age', 'level', 'life', 'defense', 'sanity', 'ocultism', 'mana',
+            'base_life', 'base_defense', 'base_sanity', 'base_ocultism', 'base_mana',
+            'bonus_max_life', 'bonus_max_defense', 'bonus_max_sanity', 
+            'bonus_max_ocultism', 'bonus_max_mana'
         ]
         
         for key, value in kwargs.items():
@@ -455,3 +485,41 @@ class CharacterService:
         db.session.delete(character)
         db.session.commit()
         return True, None
+
+    @staticmethod
+    def calculate_stat_limits(character_id):
+        """Calculate base_max, bonus_max, and total_max for all character stats"""
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        # Get character attributes
+        attributes, error = AttributeService.get_attributes_by_character(character_id)
+        if error:
+            return None, error
+        
+        # Create a map of attribute name to total value
+        attribute_map = {attr['name']: attr['total'] for attr in attributes}
+        
+        # Calculate base_max, bonus_max, and total_max for each stat
+        stat_limits = {}
+        
+        for attribute_name, rule in STAT_CONVERSION_RULES.items():
+            stat_name = rule['stat']
+            rate = rule['rate']
+            attribute_total = attribute_map.get(attribute_name, 10)  # Default to 10 if not found
+            
+            # Base max comes only from base stat (no attribute contribution)
+            base_max = getattr(character, f'base_{stat_name}', 0)
+            # Bonus max = bonus_max field + attribute contribution (treated as bonus)
+            bonus_from_attribute = attribute_total * rate
+            bonus_max = getattr(character, f'bonus_max_{stat_name}', 0) + bonus_from_attribute
+            total_max = base_max + bonus_max
+            
+            stat_limits[stat_name] = {
+                'base_max': base_max,
+                'bonus_max': bonus_max,
+                'total_max': total_max
+            }
+        
+        return stat_limits, None

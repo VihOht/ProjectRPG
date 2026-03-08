@@ -4,10 +4,12 @@
 export type characterInformation = {
     nome: string;
     classe: string;
+    segunda_classe: string;
     raca: string;
     genero: string;
     idade: number;
     subclasse: string;
+    nivel: number;
 }
 
 export type characterStats = {
@@ -18,7 +20,22 @@ export type characterStats = {
     mana: number;
 }
 
+export type StatLimit = {
+    base_max: number;
+    bonus_max: number;
+    total_max: number;
+}
+
+export type CharacterStatLimits = {
+    life: StatLimit;
+    defense: StatLimit;
+    sanity: StatLimit;
+    ocultism: StatLimit;
+    mana: StatLimit;
+}
+
 export type characterAttribute = {
+  attribute_id?: number;
     nome: string;
     base: number;
     bonus: number;
@@ -89,17 +106,19 @@ export interface Character {
   sanity: number;
   ocultism: number;
   mana: number;
+  base_life?: number;
+  base_defense?: number;
+  base_sanity?: number;
+  base_ocultism?: number;
+  base_mana?: number;
+  stat_limits?: CharacterStatLimits;
   attributes?: CharacterAttributeValue[];
   abilities?: CharacterAbility[];
 }
 
 // Create Character Request
 export interface CreateCharacterRequest {
-  name: string;
-  charClass: number;
-  race: number;
-  gender: string;
-  age: number;
+  name?: string;
 }
 
 // Create Character Response
@@ -134,6 +153,11 @@ export interface UpdateCharacterRequest {
   sanity?: number;
   ocultism?: number;
   mana?: number;
+  base_life?: number;
+  base_defense?: number;
+  base_sanity?: number;
+  base_ocultism?: number;
+  base_mana?: number;
 }
 
 // Update Character Response
@@ -241,7 +265,10 @@ export interface CharacterAttributeItem {
   attribute_id: number;
   name: string;
   description: string;
-  value: number;
+  base: number;
+  bonus: number;
+  total: number;
+  dt: number;
 }
 
 export interface CreateAttributeRequest {
@@ -284,7 +311,8 @@ export interface GetCharacterAttributesResponse {
 export interface UpdateCharacterAttributesRequest {
   attributes: Array<{
     attribute_id: number;
-    value: number;
+    base: number;
+    bonus: number;
   }>;
 }
 

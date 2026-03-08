@@ -10,6 +10,10 @@ from aplication.constants import AtributesModelsSheet
 character_bp = Blueprint('character', __name__, url_prefix='/api')
 
 
+def _is_admin(user):
+    return (getattr(user, 'role', 'USER') or 'USER').upper() == 'ADMIN'
+
+
 # ==================== ABILITIES ====================
 
 @character_bp.route('/abilities', methods=['GET'])
@@ -421,6 +425,12 @@ def delete_subclass(subclass_id):
 @token_required
 def get_character_attributes(current_user, character_id):
     """Get all attributes for a character"""
+    character = CharacterService.get_character_by_id(character_id)
+    if not character:
+        return jsonify({'message': 'Character not found'}), 404
+    if character.own != current_user.id and not _is_admin(current_user):
+        return jsonify({'message': 'Unauthorized'}), 403
+
     char_attrs = CharacterAttributesService.get_character_attributes(character_id)
     
     if not char_attrs:
@@ -434,7 +444,10 @@ def get_character_attributes(current_user, character_id):
                 'attribute_id': item.attribute.id,
                 'name': item.attribute.name,
                 'description': item.attribute.description,
-                'value': item.value
+                'base': int(item.baseValue),
+                'bonus': int(item.bonusValue),
+                'total': item.total,
+                'dt': item.dt,
             }
             for item in char_attrs.values
         ]
@@ -447,7 +460,14 @@ def bulk_update_character_attributes(current_user, character_id):
     """Bulk update all attributes for a character
     
     Request body should contain 'attributes' array with attribute updates
+    in the format: [{"attribute_id": 1, "base": 10, "bonus": 2}]
     """
+    character = CharacterService.get_character_by_id(character_id)
+    if not character:
+        return jsonify({'message': 'Character not found'}), 404
+    if character.own != current_user.id and not _is_admin(current_user):
+        return jsonify({'message': 'Unauthorized'}), 403
+
     data = request.get_json(silent=True) or {}
     
     if not data or not data.get('attributes'):
@@ -475,18 +495,12 @@ def create_character(current_user):
     """Create a new character for the current user"""
     data = request.get_json(silent=True) or {}
     
-    required_fields = ['name', 'charClass', 'race', 'gender', 'age']
-    if not data or not all(data.get(field) for field in required_fields):
-        return jsonify({'message': f'Missing required fields: {", ".join(required_fields)}'}), 400
+    optional_fields = ['name', 'charClass', 'race', 'gender', 'age', 'subclass', 'second_class']
+    for key in data.keys():
+        if key not in optional_fields:
+            return jsonify({'message': f'Unexpected field: {key}'}), 400
     
-    character, error = CharacterService.create_character(
-        user_id=current_user.id,
-        name=data.get('name'),
-        char_class_id=data.get('charClass'),
-        race_id=data.get('race'),
-        gender=data.get('gender'),
-        age=data.get('age')
-    )
+    character, error = CharacterService.create_character(user_id=current_user.id, **data)
     
     if error:
         return jsonify({'message': error}), 400
@@ -514,7 +528,10 @@ def create_character(current_user):
 @token_required
 def get_user_characters(current_user):
     """Get all characters for the current user"""
-    characters = CharacterService.get_user_characters(current_user.id)
+    if _is_admin(current_user):
+        characters = CharacterService.get_all_characters()
+    else:
+        characters = CharacterService.get_user_characters(current_user.id)
     
     return jsonify({
         'characters': [
@@ -547,8 +564,13 @@ def get_character(current_user, character_id):
         return jsonify({'message': 'Character not found'}), 404
     
     # Check if character belongs to current user
-    if character.own != current_user.id:
+    if character.own != current_user.id and not _is_admin(current_user):
         return jsonify({'message': 'Unauthorized'}), 403
+    
+    # Calculate stat limits
+    stat_limits, error = CharacterService.calculate_stat_limits(character_id)
+    if error:
+        stat_limits = {}
     
     return jsonify({
         'character': {
@@ -565,7 +587,13 @@ def get_character(current_user, character_id):
             'defense': character.defense,
             'sanity': character.sanity,
             'ocultism': character.ocultism,
-            'mana': character.mana
+            'mana': character.mana,
+            'base_life': character.base_life,
+            'base_defense': character.base_defense,
+            'base_sanity': character.base_sanity,
+            'base_ocultism': character.base_ocultism,
+            'base_mana': character.base_mana,
+            'stat_limits': stat_limits
         }
     }), 200
 
@@ -580,7 +608,7 @@ def update_character(current_user, character_id):
         return jsonify({'message': 'Character not found'}), 404
     
     # Check if character belongs to current user
-    if character.own != current_user.id:
+    if character.own != current_user.id and not _is_admin(current_user):
         return jsonify({'message': 'Unauthorized'}), 403
     
     data = request.get_json(silent=True) or {}
@@ -606,7 +634,12 @@ def update_character(current_user, character_id):
             'defense': character.defense,
             'sanity': character.sanity,
             'ocultism': character.ocultism,
-            'mana': character.mana
+            'mana': character.mana,
+            'base_life': character.base_life,
+            'base_defense': character.base_defense,
+            'base_sanity': character.base_sanity,
+            'base_ocultism': character.base_ocultism,
+            'base_mana': character.base_mana
         }
     }), 200
 
@@ -621,7 +654,7 @@ def delete_character(current_user, character_id):
         return jsonify({'message': 'Character not found'}), 404
     
     # Check if character belongs to current user
-    if character.own != current_user.id:
+    if character.own != current_user.id and not _is_admin(current_user):
         return jsonify({'message': 'Unauthorized'}), 403
     
     success, error = CharacterService.delete_character(character_id)

@@ -53,7 +53,7 @@ def register():
     password = data.get('password')
     
     # Register user
-    user, error = AuthService.register_user(username, email, password)
+    user, error = AuthService.register_user(username, email, password, data.get('role', 'USER'))
     
     if error:
         return jsonify({'message': error}), 400
@@ -63,7 +63,8 @@ def register():
         'user': {
             'id': user.id,
             'username': user.username,
-            'email': user.email
+            'email': user.email,
+            'role': user.role
         }
     }), 201
 
@@ -102,7 +103,8 @@ def verify(current_user):
         'user': {
             'id': current_user.id,
             'username': current_user.username,
-            'email': current_user.email
+            'email': current_user.email,
+            'role': current_user.role
         }
     }), 200
 
@@ -115,6 +117,7 @@ def get_current_user(current_user):
         'user': {
             'id': current_user.id,
             'username': current_user.username,
-            'email': current_user.email
+            'email': current_user.email,
+            'role': current_user.role
         }
     }), 200

@@ -93,7 +93,7 @@ export const useLogout = () => {
       queryClient.clear();
       
       // Navigate to login page
-      navigate('/login');
+      navigate('/auth/login');
     },
   });
 };

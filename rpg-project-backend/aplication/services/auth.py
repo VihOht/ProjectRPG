@@ -9,7 +9,7 @@ from flask import current_app
 class AuthService:
     
     @staticmethod
-    def register_user(username, email, password):
+    def register_user(username, email, password, role='USER'):
         """Register a new user"""
         # Check if user already exists
         if User.query.filter_by(username=username).first():
@@ -23,7 +23,8 @@ class AuthService:
         new_user = User(
             username=username,
             email=email,
-            password=hashed_password
+            password=hashed_password,
+            role=(role or 'USER').upper()
         )
         
         db.session.add(new_user)
@@ -48,7 +49,8 @@ class AuthService:
         return {"token": token, "user": {
             "id": user.id,
             "username": user.username,
-            "email": user.email
+            "email": user.email,
+            "role": user.role
         }}, None
     
     @staticmethod

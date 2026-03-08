@@ -1,15 +1,17 @@
 import { useState } from "react";
-import type { characterAttribute, characterAttributes } from "../../types";
+import type { characterAttributes } from "../../types";
 import { FiEdit } from "react-icons/fi";
 
 interface characterAttributesProps {
     atributes: characterAttributes;
     handleAttributeChange: (index: number, field: string, value: number) => void;
+    update: () => void;
 }
 
 export function CharacterAttributes({
     atributes,
-    handleAttributeChange
+    handleAttributeChange,
+    update,
 }: characterAttributesProps) {
     const [isEditing, setIsEditing] = useState(false); 
 
@@ -25,7 +27,7 @@ export function CharacterAttributes({
                     <h2 className="text-2xl font-semibold mb-4 text-vaccineRed">
                         Atributos
                     </h2>
-                    <button onClick={() => setIsEditing(!isEditing)} className="mb-4 px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors">
+                    <button onClick={() => {setIsEditing(!isEditing); if (isEditing) {update();}}} className="mb-4 px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors">
                         {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                     </button>
                 </div>
@@ -46,7 +48,7 @@ export function CharacterAttributes({
                                     Total
                                 </th>
                                 <th className="border bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
-                                    DT
+                                    DT (20)
                                 </th>
                             </tr>
                         </thead>
@@ -90,30 +92,16 @@ export function CharacterAttributes({
                                         <input
                                             type="number"
                                             value={atributo.total}
-                                            onChange={(e) =>
-                                                handleChange(
-                                                    index,
-                                                    "total",
-                                                    parseInt(e.target.value) || 0
-                                                )
-                                            }
-                                            readOnly={!isEditing}
-                                            className={`w-full px-2 py-1 text-center ${isEditing ? 'border-gray-400 border' : ''} rounded focus:outline-none focus:ring-1 focus:ring-vaccineRed`}
+                                            readOnly={true}
+                                            className="w-full px-2 py-1 text-center rounded focus:outline-none"
                                         />
                                     </td>
                                     <td className="border bg-vaccineGray-300 border-gray-300 px-2 py-2">
                                         <input
                                             type="number"
                                             value={atributo.dt}
-                                            onChange={(e) =>
-                                                handleChange(
-                                                    index,
-                                                    "dt",
-                                                    parseInt(e.target.value) || 0
-                                                )
-                                            }
-                                            readOnly={!isEditing}
-                                            className={`w-full px-2 py-1 text-center ${isEditing ? 'border-gray-400 border' : ''} rounded focus:outline-none focus:ring-1 focus:ring-vaccineRed`}
+                                            readOnly={true}
+                                            className="w-full px-2 py-1 text-center rounded focus:outline-none"
                                         />
                                     </td>
                                 </tr>

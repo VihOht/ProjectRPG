@@ -1,13 +1,13 @@
-import { Link } from "react-router";
 import { Card } from "../components/Card";
 import { useAuthProvider } from "../providers";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useGetCharacters } from "../hooks";
+import { useGetCharacters, useCreateCharacter } from "../hooks";
+import { Header } from "../components/Header";
 
 
 export default function Index() {
-    const { isAuthenticated, user } = useAuthProvider();
+    const { isAuthenticated } = useAuthProvider();
     const navigate = useNavigate();
     useEffect(() => {
         if (!isAuthenticated) {
@@ -16,6 +16,7 @@ export default function Index() {
     }, [isAuthenticated, navigate]);
 
 
+    const { mutate: createCharacter } = useCreateCharacter()
     const { data: characterData, isLoading: characterLoading } = useGetCharacters();
 
     if (!isAuthenticated) {
@@ -34,21 +35,32 @@ export default function Index() {
     return (
         <div className="min-h-screen bg-gradient-to-r from-vaccineGray-500 to-vaccineGray-600 flex flex-col">
             {/* Header */}
-            <header className="text-vaccineBlack p-4 shadow-md flex justify-between items-center">
-                <h1 className="text-2xl  font-myFont">Insonia</h1>
-                <Link 
-                    to="/ficha" 
+            <Header>
+                <button 
+                    onClick={() => {
+                        createCharacter(
+                            { 
+                                name: "Novo Personagem",
+                            },
+                            {
+                                onSuccess: (data) => {
+                                    navigate(`/ficha/${data.character.id}`);
+                                },
+                            }
+                        );
+                    }}
                     className="px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors"
                 >
                     Nova Ficha
-                </Link>
-            </header>
+                </button>
+            </Header>
+                
             {/* Main Content */}
             <main className="flex-1 flex font-vollkorn items-center justify-center p-8">
                 {/* Centered Container */}
                 <div className="bg-vaccineGray-300 text-shadow-lg rounded-lg shadow-lg p-8 max-w-6xl w-full mx-auto">
                     {/* Title */}
-                    <h3 className="text-4xl w-full text-center font-bold mb-6 text-vaccineRed">Players</h3>
+                    <h3 className="text-4xl w-full text-center font-bold mb-6 text-vaccineRed">Fichas</h3>
 
                     {/* Cards Container */}
                     <div className="flex flex-wrap gap-4">
