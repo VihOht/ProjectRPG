@@ -9,7 +9,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
 
     return (
-        <header className="p-4 text-black shadow-md font-trajanPRegular flex justify-between items-center bg-infinite">
+        <header className="p-4 text-black shadow-md font-trajanPRegular flex justify-between items-center">
             <Link to="/" className="text-2xl text-white font-trajanPRegular hover:text-vaccineRed transition-colors">
                     Insonia
             </Link>

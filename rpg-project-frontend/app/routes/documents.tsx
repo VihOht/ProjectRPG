@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Header } from "../components/Header";
+import { StarSky } from "../components/StarSky";
 import { useAuthProvider } from "../providers";
 import {
     useCreateAttribute,
@@ -129,7 +130,13 @@ export default function DocumentsPage() {
             return;
         }
 
-        if ((adminCreateType === "lore_document" || adminCreateType === "lore_image" || adminCreateType === "lore_subdocument") && !adminSessionId && loreSessions.length > 0) {
+        if (
+            (adminCreateType === "lore_document" ||
+                adminCreateType === "lore_image" ||
+                adminCreateType === "lore_subdocument") &&
+            !adminSessionId &&
+            loreSessions.length > 0
+        ) {
             setAdminSessionId(String(loreSessions[0].id));
         }
 
@@ -162,7 +169,10 @@ export default function DocumentsPage() {
             return;
         }
 
-        if (!selectedLoreDocumentId || !selectedSession.documents.some((document) => document.id === selectedLoreDocumentId)) {
+        if (
+            !selectedLoreDocumentId ||
+            !selectedSession.documents.some((document) => document.id === selectedLoreDocumentId)
+        ) {
             setSelectedLoreDocumentId(selectedSession.documents[0]?.id ?? null);
             setSelectedLoreSubdocumentId(null);
         }
@@ -288,7 +298,7 @@ export default function DocumentsPage() {
                     description: adminDescription,
                     class_id: adminClassId ? Number(adminClassId) : undefined,
                 },
-                { onSuccess: closeAdminModal }
+                { onSuccess: closeAdminModal },
             );
             return;
         }
@@ -300,8 +310,12 @@ export default function DocumentsPage() {
             }
 
             createSubclass(
-                { name: adminName, description: adminDescription, class_id: Number(adminClassId) },
-                { onSuccess: closeAdminModal }
+                {
+                    name: adminName,
+                    description: adminDescription,
+                    class_id: Number(adminClassId),
+                },
+                { onSuccess: closeAdminModal },
             );
             return;
         }
@@ -323,7 +337,7 @@ export default function DocumentsPage() {
                     description: adminDescription,
                     attribute_id: Number(adminAttributeId),
                 },
-                { onSuccess: closeAdminModal }
+                { onSuccess: closeAdminModal },
             );
             return;
         }
@@ -340,8 +354,11 @@ export default function DocumentsPage() {
             }
 
             createLoreDocument(
-                { sessionId: Number(adminSessionId), data: { title: adminName, content: adminDescription } },
-                { onSuccess: closeAdminModal }
+                {
+                    sessionId: Number(adminSessionId),
+                    data: { title: adminName, content: adminDescription },
+                },
+                { onSuccess: closeAdminModal },
             );
             return;
         }
@@ -354,7 +371,7 @@ export default function DocumentsPage() {
 
             createLoreImage(
                 { sessionId: Number(adminSessionId), data: { url: adminUrl } },
-                { onSuccess: closeAdminModal }
+                { onSuccess: closeAdminModal },
             );
             return;
         }
@@ -366,38 +383,41 @@ export default function DocumentsPage() {
             }
 
             createLoreSubdocument(
-                { documentId: Number(adminDocumentId), data: { title: adminName, content: adminDescription } },
-                { onSuccess: closeAdminModal }
+                {
+                    documentId: Number(adminDocumentId),
+                    data: { title: adminName, content: adminDescription },
+                },
+                { onSuccess: closeAdminModal },
             );
         }
     };
 
     const handleDeleteClass = (classId: number) => {
-        if (window.confirm('Excluir esta classe? Isso também remove subclasses e habilidades ligadas a ela.')) {
+        if (window.confirm("Excluir esta classe? Isso também remove subclasses e habilidades ligadas a ela.")) {
             deleteClass(classId);
         }
     };
 
     const handleDeleteSubclass = (subclassId: number) => {
-        if (window.confirm('Excluir esta subclasse? Isso também remove habilidades ligadas a ela.')) {
+        if (window.confirm("Excluir esta subclasse? Isso também remove habilidades ligadas a ela.")) {
             deleteSubclass(subclassId);
         }
     };
 
     const handleDeleteAbility = (abilityId: number) => {
-        if (window.confirm('Excluir esta habilidade?')) {
+        if (window.confirm("Excluir esta habilidade?")) {
             deleteAbility(abilityId);
         }
     };
 
     const handleDeleteAttribute = (attributeId: number) => {
-        if (window.confirm('Excluir este atributo? Isso também remove perícias ligadas a ele.')) {
+        if (window.confirm("Excluir este atributo? Isso também remove perícias ligadas a ele.")) {
             deleteAttribute(attributeId);
         }
     };
 
     const handleDeletePericia = (periciaId: number) => {
-        if (window.confirm('Excluir esta perícia?')) {
+        if (window.confirm("Excluir esta perícia?")) {
             deletePericia(periciaId);
         }
     };
@@ -407,25 +427,25 @@ export default function DocumentsPage() {
     const loreModalActive = isAdminModalOpen && adminArea === "lore";
 
     const handleDeleteLoreSession = (sessionId: number) => {
-        if (window.confirm('Excluir esta sessão de lore? Isso remove documentos e imagens associados.')) {
+        if (window.confirm("Excluir esta sessão de lore? Isso remove documentos e imagens associados.")) {
             deleteLoreSession(sessionId);
         }
     };
 
     const handleDeleteLoreDocument = (documentId: number) => {
-        if (window.confirm('Excluir este documento? Isso remove os subdocumentos associados.')) {
+        if (window.confirm("Excluir este documento? Isso remove os subdocumentos associados.")) {
             deleteLoreDocument(documentId);
         }
     };
 
     const handleDeleteLoreImage = (imageId: number) => {
-        if (window.confirm('Excluir esta imagem?')) {
+        if (window.confirm("Excluir esta imagem?")) {
             deleteLoreImage(imageId);
         }
     };
 
     const handleDeleteLoreSubdocument = (subdocumentId: number) => {
-        if (window.confirm('Excluir este subdocumento?')) {
+        if (window.confirm("Excluir este subdocumento?")) {
             deleteLoreSubdocument(subdocumentId);
         }
     };
@@ -439,7 +459,7 @@ export default function DocumentsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-r from-vaccineGray-500 to-vaccineGray-600 flex flex-col">
+        <StarSky>
             <Header>
                 <Link
                     to="/"
@@ -497,11 +517,7 @@ export default function DocumentsPage() {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as DocumentsTab)}
-                                className={`px-4 py-2 rounded-md transition-colors ${
-                                    activeTab === tab.id
-                                        ? "bg-vaccineRed text-white"
-                                        : "bg-white text-vaccineBlack hover:bg-gray-100"
-                                }`}
+                                className={`px-4 py-2 rounded-md transition-colors ${activeTab === tab.id ? "bg-vaccineRed text-white" : "bg-white text-vaccineBlack hover:bg-gray-100"}`}
                             >
                                 {tab.label}
                             </button>
@@ -585,7 +601,9 @@ export default function DocumentsPage() {
                                 </select>
                             </label>
 
-                            {(adminCreateType === "class" || adminCreateType === "subclass" || adminCreateType === "ability") && (
+                            {(adminCreateType === "class" ||
+                                adminCreateType === "subclass" ||
+                                adminCreateType === "ability") && (
                                 <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                     Nome / Título
                                     <input
@@ -596,7 +614,9 @@ export default function DocumentsPage() {
                                 </label>
                             )}
 
-                            {(adminCreateType === "class" || adminCreateType === "subclass" || adminCreateType === "ability") && (
+                            {(adminCreateType === "class" ||
+                                adminCreateType === "subclass" ||
+                                adminCreateType === "ability") && (
                                 <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                     Descrição / Conteúdo
                                     <textarea
@@ -629,11 +649,7 @@ export default function DocumentsPage() {
                             <button
                                 type="button"
                                 onClick={submitAdminCreation}
-                                disabled={
-                                    isCreatingClass ||
-                                    isCreatingSubclass ||
-                                    isCreatingAbility
-                                }
+                                disabled={isCreatingClass || isCreatingSubclass || isCreatingAbility}
                                 className="rounded-md bg-vaccineRed px-4 py-2 text-white hover:opacity-90 disabled:opacity-60"
                             >
                                 Criar
@@ -651,7 +667,11 @@ export default function DocumentsPage() {
                                 <h2 className="text-2xl font-bold text-vaccineRed">Criar atributos e pericias</h2>
                                 <p className="text-vaccineBlack">Crie atributos ou perícias ligadas a um atributo.</p>
                             </div>
-                            <button type="button" onClick={closeAdminModal} className="rounded-md bg-white px-3 py-2 text-vaccineBlack hover:bg-gray-100">
+                            <button
+                                type="button"
+                                onClick={closeAdminModal}
+                                className="rounded-md bg-white px-3 py-2 text-vaccineBlack hover:bg-gray-100"
+                            >
                                 Fechar
                             </button>
                         </div>
@@ -671,21 +691,36 @@ export default function DocumentsPage() {
 
                             <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                 Nome / Título
-                                <input value={adminName} onChange={(event) => setAdminName(event.target.value)} className="rounded-md border border-gray-300 bg-white px-3 py-2" />
+                                <input
+                                    value={adminName}
+                                    onChange={(event) => setAdminName(event.target.value)}
+                                    className="rounded-md border border-gray-300 bg-white px-3 py-2"
+                                />
                             </label>
 
                             <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                 Descrição / Conteúdo
-                                <textarea value={adminDescription} onChange={(event) => setAdminDescription(event.target.value)} rows={5} className="rounded-md border border-gray-300 bg-white px-3 py-2" />
+                                <textarea
+                                    value={adminDescription}
+                                    onChange={(event) => setAdminDescription(event.target.value)}
+                                    rows={5}
+                                    className="rounded-md border border-gray-300 bg-white px-3 py-2"
+                                />
                             </label>
 
                             {adminCreateType === "pericia" && (
                                 <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                     Atributo pai
-                                    <select value={adminAttributeId} onChange={(event) => setAdminAttributeId(event.target.value)} className="rounded-md border border-gray-300 bg-white px-3 py-2">
+                                    <select
+                                        value={adminAttributeId}
+                                        onChange={(event) => setAdminAttributeId(event.target.value)}
+                                        className="rounded-md border border-gray-300 bg-white px-3 py-2"
+                                    >
                                         <option value="">Selecione</option>
                                         {attributes.map((attribute) => (
-                                            <option key={attribute.id} value={String(attribute.id)}>{attribute.name}</option>
+                                            <option key={attribute.id} value={String(attribute.id)}>
+                                                {attribute.name}
+                                            </option>
                                         ))}
                                     </select>
                                 </label>
@@ -710,9 +745,15 @@ export default function DocumentsPage() {
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <div>
                                 <h2 className="text-2xl font-bold text-vaccineRed">Criar lore</h2>
-                                <p className="text-vaccineBlack">Crie sessões, documentos, imagens e subdocumentos de lore.</p>
+                                <p className="text-vaccineBlack">
+                                    Crie sessões, documentos, imagens e subdocumentos de lore.
+                                </p>
                             </div>
-                            <button type="button" onClick={closeAdminModal} className="rounded-md bg-white px-3 py-2 text-vaccineBlack hover:bg-gray-100">
+                            <button
+                                type="button"
+                                onClick={closeAdminModal}
+                                className="rounded-md bg-white px-3 py-2 text-vaccineBlack hover:bg-gray-100"
+                            >
                                 Fechar
                             </button>
                         </div>
@@ -732,35 +773,56 @@ export default function DocumentsPage() {
                                 </select>
                             </label>
 
-                            {(adminCreateType === "lore_session" || adminCreateType === "lore_document" || adminCreateType === "lore_subdocument") && (
+                            {(adminCreateType === "lore_session" ||
+                                adminCreateType === "lore_document" ||
+                                adminCreateType === "lore_subdocument") && (
                                 <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                     Nome / Título
-                                    <input value={adminName} onChange={(event) => setAdminName(event.target.value)} className="rounded-md border border-gray-300 bg-white px-3 py-2" />
+                                    <input
+                                        value={adminName}
+                                        onChange={(event) => setAdminName(event.target.value)}
+                                        className="rounded-md border border-gray-300 bg-white px-3 py-2"
+                                    />
                                 </label>
                             )}
 
-                            {(adminCreateType === "lore_session" || adminCreateType === "lore_document" || adminCreateType === "lore_subdocument") && (
+                            {(adminCreateType === "lore_session" ||
+                                adminCreateType === "lore_document" ||
+                                adminCreateType === "lore_subdocument") && (
                                 <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                     Descrição / Conteúdo
-                                    <textarea value={adminDescription} onChange={(event) => setAdminDescription(event.target.value)} rows={5} className="rounded-md border border-gray-300 bg-white px-3 py-2" />
+                                    <textarea
+                                        value={adminDescription}
+                                        onChange={(event) => setAdminDescription(event.target.value)}
+                                        rows={5}
+                                        className="rounded-md border border-gray-300 bg-white px-3 py-2"
+                                    />
                                 </label>
                             )}
 
-                            {(adminCreateType === "lore_document" || adminCreateType === "lore_image" || adminCreateType === "lore_subdocument") && (
+                            {(adminCreateType === "lore_document" ||
+                                adminCreateType === "lore_image" ||
+                                adminCreateType === "lore_subdocument") && (
                                 <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                     Sessão de lore
                                     <select
                                         value={adminSessionId}
                                         onChange={(event) => {
                                             setAdminSessionId(event.target.value);
-                                            const session = loreSessions.find((item) => item.id === Number(event.target.value));
-                                            setAdminDocumentId(session?.documents[0]?.id ? String(session.documents[0].id) : "");
+                                            const session = loreSessions.find(
+                                                (item) => item.id === Number(event.target.value),
+                                            );
+                                            setAdminDocumentId(
+                                                session?.documents[0]?.id ? String(session.documents[0].id) : "",
+                                            );
                                         }}
                                         className="rounded-md border border-gray-300 bg-white px-3 py-2"
                                     >
                                         <option value="">Selecione</option>
                                         {loreSessions.map((session) => (
-                                            <option key={session.id} value={String(session.id)}>{session.name}</option>
+                                            <option key={session.id} value={String(session.id)}>
+                                                {session.name}
+                                            </option>
                                         ))}
                                     </select>
                                 </label>
@@ -769,10 +831,16 @@ export default function DocumentsPage() {
                             {adminCreateType === "lore_subdocument" && (
                                 <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                     Documento pai
-                                    <select value={adminDocumentId} onChange={(event) => setAdminDocumentId(event.target.value)} className="rounded-md border border-gray-300 bg-white px-3 py-2">
+                                    <select
+                                        value={adminDocumentId}
+                                        onChange={(event) => setAdminDocumentId(event.target.value)}
+                                        className="rounded-md border border-gray-300 bg-white px-3 py-2"
+                                    >
                                         <option value="">Selecione</option>
                                         {(selectedAdminSession?.documents ?? []).map((document) => (
-                                            <option key={document.id} value={String(document.id)}>{document.title}</option>
+                                            <option key={document.id} value={String(document.id)}>
+                                                {document.title}
+                                            </option>
                                         ))}
                                     </select>
                                 </label>
@@ -781,14 +849,23 @@ export default function DocumentsPage() {
                             {adminCreateType === "lore_image" && (
                                 <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
                                     URL da imagem
-                                    <input value={adminUrl} onChange={(event) => setAdminUrl(event.target.value)} className="rounded-md border border-gray-300 bg-white px-3 py-2" />
+                                    <input
+                                        value={adminUrl}
+                                        onChange={(event) => setAdminUrl(event.target.value)}
+                                        className="rounded-md border border-gray-300 bg-white px-3 py-2"
+                                    />
                                 </label>
                             )}
 
                             <button
                                 type="button"
                                 onClick={submitAdminCreation}
-                                disabled={isCreatingLoreSession || isCreatingLoreDocument || isCreatingLoreImage || isCreatingLoreSubdocument}
+                                disabled={
+                                    isCreatingLoreSession ||
+                                    isCreatingLoreDocument ||
+                                    isCreatingLoreImage ||
+                                    isCreatingLoreSubdocument
+                                }
                                 className="rounded-md bg-vaccineRed px-4 py-2 text-white hover:opacity-90 disabled:opacity-60"
                             >
                                 Criar
@@ -797,6 +874,6 @@ export default function DocumentsPage() {
                     </div>
                 </div>
             )}
-        </div>
+        </StarSky>
     );
 }

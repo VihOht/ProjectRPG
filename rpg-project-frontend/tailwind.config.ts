@@ -20,6 +20,8 @@ export default {
         },
         vaccineRed: "#6f0000",
         vaccineBlack: "#000000",
+        vaccineDarkBlue: "#010011",
+        vaccineBlue: "#02001c",
       },
       fontFamily: {
         myFont: ["MyFont", "sans-serif"],

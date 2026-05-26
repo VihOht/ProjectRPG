@@ -2,8 +2,9 @@
 @config "../tailwind.config.ts";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 html,
@@ -55,4 +56,77 @@ body {
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+}
+
+.star-sky {
+  --star-far-scroll-y: 0px;
+  --star-mid-scroll-y: 0px;
+  --star-near-scroll-y: 0px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.star-layer {
+  position: absolute;
+  inset: -35% -12%;
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.star-layer-far {
+  transform: translate3d(0, var(--star-far-scroll-y), 0);
+}
+
+.star-layer-mid {
+  transform: translate3d(0, var(--star-mid-scroll-y), 0);
+}
+
+.star-layer-near {
+  transform: translate3d(0, var(--star-near-scroll-y), 0);
+}
+
+.star-point {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 5px rgba(210, 230, 255, 0.45);
+  transform: translate(-50%, -50%);
+}
+
+.star-layer-far .star-point {
+  background: rgba(205, 225, 255, 0.8);
+  box-shadow: none;
+}
+
+.star-layer-mid .star-point {
+  background: rgba(225, 238, 255, 0.88);
+  box-shadow: 0 0 4px rgba(205, 225, 255, 0.35);
+}
+
+.star-layer-near .star-point {
+  animation: star-twinkle 5s ease-in-out infinite alternate;
+  box-shadow: 0 0 7px rgba(220, 235, 255, 0.6);
+}
+
+@keyframes star-twinkle {
+  from {
+    filter: brightness(0.75);
+  }
+
+  to {
+    filter: brightness(1.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star-layer {
+    transform: none;
+  }
+
+  .star-point {
+    animation: none;
+  }
 }
