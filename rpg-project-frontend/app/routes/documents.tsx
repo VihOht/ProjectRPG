@@ -470,7 +470,7 @@ export default function DocumentsPage() {
             </Header>
 
             <main className="flex-1 p-8">
-                <section className="max-w-6xl mx-auto bg-vaccineGray-300 rounded-lg shadow-lg p-6 space-y-6">
+                <section className="max-w-6xl mx-auto bg-vaccineGray-300  rounded-lg shadow-lg p-6 space-y-6">
                     <div>
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>

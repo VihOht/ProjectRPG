@@ -87,15 +87,15 @@ export function StarSky({ children }: { children: ReactNode }) {
 
       skyElement.style.setProperty(
         "--star-far-scroll-y",
-        `${(scrollY * -0.04).toFixed(2)}px`,
-      );
-      skyElement.style.setProperty(
-        "--star-mid-scroll-y",
         `${(scrollY * -0.1).toFixed(2)}px`,
       );
       skyElement.style.setProperty(
+        "--star-mid-scroll-y",
+        `${(scrollY * -0.15).toFixed(2)}px`,
+      );
+      skyElement.style.setProperty(
         "--star-near-scroll-y",
-        `${(scrollY * -0.18).toFixed(2)}px`,
+        `${(scrollY * -0.20).toFixed(2)}px`,
       );
     };
 
