@@ -143,3 +143,11 @@ def get_users(current_user):
             for user in users
         ]
     }), 200
+
+
+
+@auth_bp.route('/users/<int:user_id>', methods=['GET'])
+@token_required
+def get_user_by_id(user_id):
+    """Helper function to get user by ID"""
+    return AuthService.get_user_by_id(user_id)

@@ -1,6 +1,6 @@
 from aplication import db
 from aplication.models.classes import Class, Subclass, Ability
-from aplication.models.atributes import Attribute, CharacterAttributes
+from aplication.models.atributes import Attribute, CharacterAttributesPericias
 from aplication.models.user import User
 
 class Race(db.Model):
@@ -48,10 +48,13 @@ class Character(db.Model):
     bonus_max_mana = db.Column(db.Integer, nullable=False, default=0)
 
     # Atributes
-    attributes = db.relationship('CharacterAttributes', backref='character', lazy=True)
+    attributes = db.relationship('CharacterAttributesPericias', backref='character', lazy=True)
 
     # Char Abilities
     abilities = db.relationship('Ability', backref='character', lazy=True)
+
+    active = db.Column(db.Boolean, default=True)
+    is_player = db.Column(db.Boolean, default=True)
 
     
 

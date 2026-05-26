@@ -143,7 +143,7 @@ export default function ClassesPage() {
             <button
               type="submit"
               disabled={isCreatingClass}
-              className="px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+              className="px-4 py-2 bg-vaccineRed  rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
             >
               {isCreatingClass ? "Salvando..." : "Criar"}
             </button>
@@ -201,7 +201,7 @@ export default function ClassesPage() {
             <button
               type="submit"
               disabled={isCreatingSubclass}
-              className="px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+              className="px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
             >
               {isCreatingSubclass ? "Salvando..." : "Criar"}
             </button>
@@ -276,7 +276,7 @@ export default function ClassesPage() {
             <button
               type="submit"
               disabled={isCreatingAbility}
-              className="px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+              className="px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
             >
               {isCreatingAbility ? "Salvando..." : "Criar"}
             </button>

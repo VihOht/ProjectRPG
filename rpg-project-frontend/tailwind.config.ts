@@ -24,7 +24,15 @@ export default {
       fontFamily: {
         myFont: ["MyFont", "sans-serif"],
         vollkorn: ["Vollkorn", "serif"],
+        lor: ["lor", "serif"],
+        trajanPBold: ["trajanPBold", "serif"],
+        trajanPRegular: ["trajanPRegular", "serif"],
+        walthari: ["walthari", "serif"],
+      },
+      backgroundImage: {
+        "infinite": "url('/imgs/infinite.jpeg')",
       },
     },
   },
 } satisfies Config;
+

@@ -13,6 +13,10 @@ import type {
   GetAllCharactersResponse,
   UpdateCharacterRequest,
   UpdateCharacterResponse,
+  ActivateCharacterResponse,
+  DeactivateCharacterResponse,
+  TransferCharacterOwnershipResponse,
+  ReturnCharacterToAdminResponse,
   DeleteCharacterResponse,
   CreateAbilityRequest,
   CreateAbilityResponse,
@@ -35,9 +39,18 @@ import type {
   UpdateAttributeRequest,
   UpdateAttributeResponse,
   DeleteAttributeResponse,
+  CreatePericiaRequest,
+  CreatePericiaResponse,
+  GetPericiaResponse,
+  GetAllPericiasResponse,
+  UpdatePericiaRequest,
+  UpdatePericiaResponse,
+  DeletePericiaResponse,
   GetCharacterAttributesResponse,
   UpdateCharacterAttributesRequest,
   UpdateCharacterAttributesResponse,
+  UpdateCharacterPericiasRequest,
+  UpdateCharacterPericiasResponse,
   CreateClassRequest,
   CreateClassResponse,
   GetClassResponse,
@@ -141,6 +154,91 @@ export const useUpdateCharacter = (
     },
     onError: (error) => {
       console.error('Failed to update character:', error);
+    },
+  });
+};
+
+/**
+ * Hook to activate a character sheet
+ */
+export const useActivateCharacter = (
+  characterId: number | null
+): UseMutationResult<
+  ActivateCharacterResponse,
+  AxiosError<CharacterApiError>,
+  void
+> => {
+  const queryClient = useQueryClient();
+
+  return useMutation<ActivateCharacterResponse, AxiosError<CharacterApiError>, void>({
+    mutationFn: () => characterService.activateCharacter(characterId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['character', characterId] });
+      queryClient.invalidateQueries({ queryKey: ['characters'] });
+    },
+  });
+};
+
+/**
+ * Hook to deactivate a character sheet
+ */
+export const useDeactivateCharacter = (
+  characterId: number | null
+): UseMutationResult<
+  DeactivateCharacterResponse,
+  AxiosError<CharacterApiError>,
+  void
+> => {
+  const queryClient = useQueryClient();
+
+  return useMutation<DeactivateCharacterResponse, AxiosError<CharacterApiError>, void>({
+    mutationFn: () => characterService.deactivateCharacter(characterId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['character', characterId] });
+      queryClient.invalidateQueries({ queryKey: ['characters'] });
+    },
+  });
+};
+
+/**
+ * Hook to transfer character ownership
+ */
+export const useTransferCharacterOwnership = (
+  characterId: number | null
+): UseMutationResult<
+  TransferCharacterOwnershipResponse,
+  AxiosError<CharacterApiError>,
+  number
+> => {
+  const queryClient = useQueryClient();
+
+  return useMutation<TransferCharacterOwnershipResponse, AxiosError<CharacterApiError>, number>({
+    mutationFn: (newUserId) => characterService.transferCharacterOwnership(characterId!, newUserId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['character', characterId] });
+      queryClient.invalidateQueries({ queryKey: ['characters'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+};
+
+/**
+ * Hook to return character to admin and convert to NPC
+ */
+export const useReturnCharacterToAdmin = (
+  characterId: number | null
+): UseMutationResult<
+  ReturnCharacterToAdminResponse,
+  AxiosError<CharacterApiError>,
+  void
+> => {
+  const queryClient = useQueryClient();
+
+  return useMutation<ReturnCharacterToAdminResponse, AxiosError<CharacterApiError>, void>({
+    mutationFn: () => characterService.returnCharacterToAdmin(characterId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['character', characterId] });
+      queryClient.invalidateQueries({ queryKey: ['characters'] });
     },
   });
 };
@@ -436,8 +534,92 @@ export const useUpdateCharacterAttributes = (
 };
 
 /**
- * Hook to get all classes
+ * Hook to get all pericias
  */
+export const useGetPericias = (): UseQueryResult<GetAllPericiasResponse, AxiosError> => {
+  return useQuery<GetAllPericiasResponse, AxiosError>({
+    queryKey: ['pericias'],
+    queryFn: characterService.getAllPericias,
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useGetPericia = (
+  periciaId: number | null
+): UseQueryResult<GetPericiaResponse, AxiosError> => {
+  return useQuery<GetPericiaResponse, AxiosError>({
+    queryKey: ['pericia', periciaId],
+    queryFn: () => characterService.getPericiaById(periciaId!),
+    enabled: !!periciaId,
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useCreatePericia = (): UseMutationResult<
+  CreatePericiaResponse,
+  AxiosError<CharacterApiError>,
+  CreatePericiaRequest
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: characterService.createPericia,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pericias'] });
+    },
+  });
+};
+
+export const useUpdatePericia = (periciaId: number | null): UseMutationResult<
+  UpdatePericiaResponse,
+  AxiosError<CharacterApiError>,
+  UpdatePericiaRequest
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => characterService.updatePericia(periciaId!, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pericias'] });
+    },
+  });
+};
+
+export const useDeletePericia = (): UseMutationResult<
+  DeletePericiaResponse,
+  AxiosError<CharacterApiError>,
+  number
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: characterService.deletePericia,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pericias'] });
+    },
+  });
+};
+
+/**
+ * Hook for one character's pericia values
+ */
+export const useUpdateCharacterPericias = (
+  characterId: number | null
+): UseMutationResult<
+  UpdateCharacterPericiasResponse,
+  AxiosError<CharacterApiError>,
+  UpdateCharacterPericiasRequest
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => characterService.updateCharacterPericias(characterId!, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['characterAttributes', characterId] });
+      queryClient.invalidateQueries({ queryKey: ['character', characterId] });
+    },
+  });
+};
+
+// ==================== CLASSES ====================
 export const useGetClasses = (): UseQueryResult<GetAllClassesResponse, AxiosError> => {
   return useQuery<GetAllClassesResponse, AxiosError>({
     queryKey: ['classes'],
@@ -574,6 +756,7 @@ export const useCharacterMeta = () => {
   const abilitiesQuery = useGetAbilities();
   const racesQuery = useGetRaces();
   const attributesQuery = useGetAttributes();
+  const periciasQuery = useGetPericias();
   const classesQuery = useGetClasses();
   const subclassesQuery = useGetSubclasses();
 
@@ -581,18 +764,21 @@ export const useCharacterMeta = () => {
     abilities: abilitiesQuery.data?.abilities ?? [],
     races: racesQuery.data?.races ?? [],
     attributes: attributesQuery.data?.attributes ?? [],
+    pericias: periciasQuery.data?.pericias ?? [],
     classes: classesQuery.data?.classes ?? [],
     subclasses: subclassesQuery.data?.subclasses ?? [],
     isLoading:
       abilitiesQuery.isLoading ||
       racesQuery.isLoading ||
       attributesQuery.isLoading ||
+      periciasQuery.isLoading ||
       classesQuery.isLoading ||
       subclassesQuery.isLoading,
     errors: {
       abilities: abilitiesQuery.error,
       races: racesQuery.error,
       attributes: attributesQuery.error,
+      pericias: periciasQuery.error,
       classes: classesQuery.error,
       subclasses: subclassesQuery.error,
     },

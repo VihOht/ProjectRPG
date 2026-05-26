@@ -3,17 +3,13 @@ import { useParams, useNavigate } from "react-router";
 import { CharacterInformation } from "../components/character/Informations";
 import { CharacterStats } from "../components/character/Stats";
 import { CharacterAttributes } from "../components/character/Atributes";
-import type { characterInformation, characterStats, CharacterAttributeItem, CharacterPericiaItem, UpdateCharacterAttributesRequest, UpdateCharacterPericiasRequest, UpdateCharacterRequest } from "../types";
-import type { User } from "../types/auth";
-import { useGetCharacter, useGetCharacterAttributes, useGetClasses, useGetSubclasses, useGetRaces, useUpdateCharacter, useUpdateCharacterAttributes, useUpdateCharacterPericias, useDeleteCharacter, useGetUsers, useActivateCharacter, useDeactivateCharacter, useTransferCharacterOwnership, useReturnCharacterToAdmin } from "../hooks";
+import type { characterInformation, characterStats, characterAttributes, UpdateCharacterAttributesRequest, UpdateCharacterRequest } from "../types";
+import { useGetCharacter, useGetCharacterAttributes, useGetClasses, useGetSubclasses, useGetRaces, useUpdateCharacter, useUpdateCharacterAttributes, useDeleteCharacter } from "../hooks";
 import { Header } from "../components/Header";
-import { useAuthProvider } from "../providers";
 
 export default function RpgSheet() {
     const navigate = useNavigate();
-    const { user } = useAuthProvider();
     const [isEditingHeader, setIsEditingHeader] = useState(false);
-    const [transferTargetId, setTransferTargetId] = useState<string>("");
     const { mutate: deleteCharacter } = useDeleteCharacter();
 
     const { id } = useParams();
@@ -28,15 +24,8 @@ export default function RpgSheet() {
     const { data: racesData, isLoading: isRacesLoading } = useGetRaces();
     const { data: classesData, isLoading: isClassesLoading } = useGetClasses();
     const { data: subclassesData, isLoading: isSubclassesLoading } = useGetSubclasses();
-    const isAdmin = user?.role === "ADMIN";
-    const { data: usersData } = useGetUsers(isAdmin);
     const { mutate: updateCharacter } = useUpdateCharacter(Number(id))
     const { mutate: updateCharacterAttributes } = useUpdateCharacterAttributes(characterId)
-    const { mutate: updateCharacterPericias } = useUpdateCharacterPericias(characterId)
-    const { mutate: activateCharacter, isPending: isActivating } = useActivateCharacter(characterId);
-    const { mutate: deactivateCharacter, isPending: isDeactivating } = useDeactivateCharacter(characterId);
-    const { mutate: transferCharacterOwnership, isPending: isTransferring } = useTransferCharacterOwnership(characterId);
-    const { mutate: returnCharacterToAdmin, isPending: isReturning } = useReturnCharacterToAdmin(characterId);
 
     const [characterData, setCharacterData] = useState({
         // Section 1: Basic Info
@@ -61,31 +50,13 @@ export default function RpgSheet() {
         } as characterStats,
         
 
-        // Section 3: Attributes and Pericias
-        attributes: [] as CharacterAttributeItem[],
-        pericias: [] as CharacterPericiaItem[],
+        // Section 3: Attributes Table
+        atributos: [] as characterAttributes,
     });
-
-    const ownerUser = useMemo(() => {
-        if (!isAdmin) {
-            return null;
-        }
-
-        return usersData?.users.find((listedUser) => listedUser.id === characterDataQuerry?.character?.own) ?? null;
-    }, [characterDataQuerry?.character?.own, isAdmin, usersData?.users]);
-
-    const transferOptions = useMemo(() => {
-        if (!isAdmin) {
-            return [] as User[];
-        }
-
-        return (usersData?.users ?? []).filter((listedUser) => listedUser.role === "USER");
-    }, [isAdmin, usersData?.users]);
 
     useEffect(() => {
         if (characterDataQuerry) {
             const char = characterDataQuerry.character;
-            const initialTransferTarget = usersData?.users.find((listedUser) => listedUser.id === char.own);
             setCharacterData((prev) => ({
                 ...prev,
                 informations: {
@@ -105,23 +76,19 @@ export default function RpgSheet() {
                     san: char.sanity,
                     mana: char.mana,
                 },
-                attributes: characterAttributesData?.attributes ?? prev.attributes,
-                pericias: characterAttributesData?.pericias ?? prev.pericias,
+                atributos: characterAttributesData?.attributes
+                    ? characterAttributesData.attributes.map((attribute) => ({
+                          attribute_id: attribute.attribute_id,
+                          nome: attribute.name,
+                          base: attribute.base,
+                          bonus: attribute.bonus,
+                          total: attribute.total,
+                          dt: attribute.dt,
+                      }))
+                    : prev.atributos,
             }));
-
-            if (isAdmin) {
-                setTransferTargetId(initialTransferTarget ? String(initialTransferTarget.id) : String(char.own));
-            }
         }
-    }, [characterDataQuerry, characterAttributesData, usersData?.users, isAdmin]);
-
-    useEffect(() => {
-        if (!isAdmin || !characterDataQuerry?.character?.own || transferTargetId) {
-            return;
-        }
-
-        setTransferTargetId(String(characterDataQuerry.character.own));
-    }, [characterDataQuerry?.character?.own, isAdmin, transferTargetId]);
+    }, [characterDataQuerry, characterAttributesData]);
 
     function updateCharacterStats() {
         let characterRequestData = {
@@ -157,66 +124,16 @@ export default function RpgSheet() {
 
     function updateAttributes() {
         const payload: UpdateCharacterAttributesRequest = {
-            attributes: characterData.attributes
+            attributes: characterData.atributos
+                .filter((attribute) => attribute.attribute_id !== undefined)
                 .map((attribute) => ({
-                    attribute_id: attribute.attribute_id,
+                    attribute_id: attribute.attribute_id as number,
                     base: attribute.base,
                     bonus: attribute.bonus,
                 })),
         };
 
         updateCharacterAttributes(payload);
-    }
-
-    function updatePericias() {
-        const payload: UpdateCharacterPericiasRequest = {
-            pericias: characterData.pericias
-                .map((pericia) => ({
-                    pericia_id: pericia.pericia_id,
-                    base: pericia.base,
-                    bonus: pericia.bonus,
-                })),
-        };
-
-        updateCharacterPericias(payload);
-    }
-
-    function updateCharacterSheet() {
-        updateAttributes();
-        updatePericias();
-    }
-
-    function handleToggleActive() {
-        if (!characterDataQuerry?.character) {
-            return;
-        }
-
-        if (characterDataQuerry.character.active) {
-            deactivateCharacter();
-            return;
-        }
-
-        activateCharacter();
-    }
-
-    function handleTransferOwnership() {
-        if (!transferTargetId) {
-            return;
-        }
-
-        if (transferTargetId === "RETURN_TO_NPC") {
-            if (window.confirm('Converter esta ficha de player para NPC? Esta ação não pode ser desfeita.')) {
-                returnCharacterToAdmin();
-            }
-            return;
-        }
-
-        const newOwnerId = Number(transferTargetId);
-        if (Number.isNaN(newOwnerId)) {
-            return;
-        }
-
-        transferCharacterOwnership(newOwnerId);
     }
     const handleInfoChange = (field: keyof characterInformation, value: string) => {
         if (field === "classe") {
@@ -261,32 +178,16 @@ export default function RpgSheet() {
         });
     };
 
-    const handleAttributeChange = (attributeId: number, field: string, value: number) => {
-        const newAttributes = characterData.attributes.map((attr) => {
-            if (attr.attribute_id === attributeId) {
-                const updatedAttribute = { ...attr, [field]: value };
-                if (field === 'base') {
-                    updatedAttribute.total = updatedAttribute.base + updatedAttribute.bonus;
-                }
-                return updatedAttribute;
-            }
-            return attr;
-        });
-        setCharacterData({ ...characterData, attributes: newAttributes });
-    };
+    const handleAttributeChange = (index: number, field: string, value: number) => {
+        const newAtributos = [...characterData.atributos];
+        const updatedAttribute = { ...newAtributos[index], [field]: value };
 
-    const handlePericiaChange = (periciaId: number, field: string, value: number) => {
-        const newPericias = characterData.pericias.map((pericia) => {
-            if (pericia.pericia_id === periciaId) {
-                const updatedPericia = { ...pericia, [field]: value };
-                if (field === 'base') {
-                    updatedPericia.total = updatedPericia.base + updatedPericia.bonus;
-                }
-                return updatedPericia;
-            }
-            return pericia;
-        });
-        setCharacterData({ ...characterData, pericias: newPericias });
+        const nextTotal = updatedAttribute.base + updatedAttribute.bonus;
+        updatedAttribute.total = nextTotal;
+        updatedAttribute.dt = Math.max(0, 20 - nextTotal);
+
+        newAtributos[index] = updatedAttribute;
+        setCharacterData({ ...characterData, atributos: newAtributos });
     };
 
     // Calculate stat limits from backend data
@@ -341,7 +242,7 @@ export default function RpgSheet() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-r from-vaccineGray-500 to-vaccineGray-600 flex flex-col">
+        <div className="min-h-screen  bg-gradient-to-r from-vaccineGray-500 to-vaccineGray-600 flex flex-col">
             {/* Header */}
             <Header>
                 <button
@@ -354,83 +255,27 @@ export default function RpgSheet() {
                             });
                         }
                     }}
-                    className="px-4 py-2 bg-vaccineRed/40 hover:bg-vaccineRed/80 text-white rounded-md hover:bg-red-00 transition-colors"
+                    className="px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-00 transition-colors"
                 >
                     Deletar Ficha
                 </button>
             </Header>
             {/* Main Content */}
-            <main className="flex-1  p-8 text-sm text-vaccineBlack">
+            <main className="flex-1 p-8 font-arial">
                 <div className="max-w-5xl mx-auto bg-vaccineGray-400 rounded-lg shadow-lg p-8">
-                    <h1 className="text-3xl font-walthari font-bold text-center mb-8 text-vaccineBlack">
+                    <h1 className="text-3xl font-bold text-center mb-8 text-vaccineBlack font-myFont">
                         Ficha de Personagem
                     </h1>
 
-                    {isAdmin && characterDataQuerry?.character && (
-                        <section className="mb-8 rounded-lg border border-vaccineRed/30 bg-white/80 p-4 space-y-4">
-                            <div className="flex flex-wrap items-center justify-between gap-3">
-                                <div>
-                                    <p className="text-sm uppercase tracking-wide text-gray-600">Administração</p>
-                                    <p className="text-lg font-semibold text-vaccineBlack">
-                                        Dono: {ownerUser?.username ?? `Usuário #${characterDataQuerry.character.own}`}
-                                    </p>
-                                    <p className="text-gray-700">
-                                        Status: {characterDataQuerry.character.active ? "Ficha ativada" : "Ficha desativada"}
-                                    </p>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={handleToggleActive}
-                                    disabled={isActivating || isDeactivating}
-                                    className="px-4 py-2 rounded-md bg-vaccineRed text-white hover:opacity-90 disabled:opacity-60 transition-colors"
-                                >
-                                    {characterDataQuerry.character.active ? "Desativar ficha" : "Ativar ficha"}
-                                </button>
-                            </div>
-
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                                <label className="flex flex-col gap-2 text-sm font-medium text-vaccineBlack">
-                                    Transferir posse para
-                                    <select
-                                        value={transferTargetId}
-                                        onChange={(event) => setTransferTargetId(event.target.value)}
-                                        className="min-w-64 rounded-md border border-gray-300 bg-white px-3 py-2 text-vaccineBlack"
-                                    >
-                                        {transferOptions.map((listedUser) => (
-                                            <option key={listedUser.id} value={listedUser.id}>
-                                                {listedUser.username} ({listedUser.email})
-                                            </option>
-                                        ))}
-                                        {characterDataQuerry?.character?.is_player && (
-                                            <option value="RETURN_TO_NPC" className="text-vaccineRed font-semibold">
-                                                Devolver para NPC
-                                            </option>
-                                        )}
-                                    </select>
-                                </label>
-
-                                <button
-                                    type="button"
-                                    onClick={handleTransferOwnership}
-                                    disabled={isTransferring || isReturning || !transferTargetId}
-                                    className="px-4 py-2 rounded-md bg-vaccineBlack text-white hover:opacity-90 disabled:opacity-60 transition-colors"
-                                >
-                                    {transferTargetId === "RETURN_TO_NPC" ? "Devolver para NPC" : "Transferir posse"}
-                                </button>
-                            </div>
-                        </section>
-                    )}
-
                 {/* Character Name and Level Header */}
-                <div className="text-center font-trajanPBold mb-8 pb-6 border-b-2 border-vaccineRed relative">
+                <div className="text-center mb-8 pb-6 border-b-2 border-vaccineRed relative">
                     {isEditingHeader && (
                         <button 
                             onClick={() => {
                                 setIsEditingHeader(false);
                                 updateCharacterInformation();
                             }} 
-                            className="absolute top-0 right-0 px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors"
+                            className="absolute top-0 right-0 px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors"
                         >
                             Salvar
                         </button>
@@ -500,13 +345,11 @@ export default function RpgSheet() {
                     secondClassName={characterDataQuerry?.character?.second_class ? Object.values(classesData?.classes ?? []).find((c) => c.id === characterDataQuerry.character.second_class)?.name || "" : ""}
                 />
 
-                {/* Section 3: Attributes and Pericias Table */}
+                {/* Section 3: Attributes Table */}
                 <CharacterAttributes
-                    attributes={characterData.attributes}
-                    pericias={characterData.pericias}
-                    onAttributeChange={handleAttributeChange}
-                    onPericiaChange={handlePericiaChange}
-                    onUpdate={updateCharacterSheet}
+                    atributes={characterData.atributos}
+                    handleAttributeChange={handleAttributeChange}
+                    update={updateAttributes}
                 />
                 </div>
             </main>

@@ -119,6 +119,8 @@ export interface Character {
   stat_limits?: CharacterStatLimits;
   attributes?: CharacterAttributeValue[];
   abilities?: CharacterAbility[];
+  is_player: boolean;
+  active: boolean;
 }
 
 // Create Character Request
@@ -163,12 +165,29 @@ export interface UpdateCharacterRequest {
   base_sanity?: number;
   base_ocultism?: number;
   base_mana?: number;
+  active?: boolean;
 }
 
 // Update Character Response
 export interface UpdateCharacterResponse {
   message: string;
   character: Character;
+}
+
+export interface ActivateCharacterResponse {
+  message: string;
+}
+
+export interface DeactivateCharacterResponse {
+  message: string;
+}
+
+export interface TransferCharacterOwnershipResponse {
+  message: string;
+}
+
+export interface ReturnCharacterToAdminResponse {
+  message: string;
 }
 
 // Delete Character Response
@@ -308,9 +327,20 @@ export interface DeleteAttributeResponse {
   message: string;
 }
 
+export interface CharacterPericiaItem {
+  pericia_id: number;
+  attribute_id: number;
+  name: string;
+  description: string;
+  base: number;
+  bonus: number;
+  total: number;
+}
+
 export interface GetCharacterAttributesResponse {
   character_id: number;
   attributes: CharacterAttributeItem[];
+  pericias: CharacterPericiaItem[];
 }
 
 export interface UpdateCharacterAttributesRequest {
@@ -322,6 +352,19 @@ export interface UpdateCharacterAttributesRequest {
 }
 
 export interface UpdateCharacterAttributesResponse {
+  message: string;
+  character_id: number;
+}
+
+export interface UpdateCharacterPericiasRequest {
+  pericias: Array<{
+    pericia_id: number;
+    base: number;
+    bonus: number;
+  }>;
+}
+
+export interface UpdateCharacterPericiasResponse {
   message: string;
   character_id: number;
 }
@@ -398,5 +441,50 @@ export interface UpdateSubclassResponse {
 }
 
 export interface DeleteSubclassResponse {
+  message: string;
+}
+
+// ============================================
+// Pericia DTOs
+// ============================================
+
+export interface PericiaDefinition {
+  id: number;
+  name: string;
+  description: string;
+  attribute_id: number;
+}
+
+export interface CreatePericiaRequest {
+  name: string;
+  description: string;
+  attribute_id: number;
+}
+
+export interface UpdatePericiaRequest {
+  name?: string;
+  description?: string;
+  attribute_id?: number;
+}
+
+export interface GetPericiaResponse {
+  pericia: PericiaDefinition;
+}
+
+export interface GetAllPericiasResponse {
+  pericias: PericiaDefinition[];
+}
+
+export interface CreatePericiaResponse {
+  message: string;
+  pericia: PericiaDefinition;
+}
+
+export interface UpdatePericiaResponse {
+  message: string;
+  pericia: PericiaDefinition;
+}
+
+export interface DeletePericiaResponse {
   message: string;
 }

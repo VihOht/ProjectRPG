@@ -6,6 +6,10 @@ import type {
   GetAllCharactersResponse,
   UpdateCharacterRequest,
   UpdateCharacterResponse,
+  ActivateCharacterResponse,
+  DeactivateCharacterResponse,
+  TransferCharacterOwnershipResponse,
+  ReturnCharacterToAdminResponse,
   DeleteCharacterResponse,
   CreateAbilityRequest,
   CreateAbilityResponse,
@@ -28,9 +32,18 @@ import type {
   UpdateAttributeRequest,
   UpdateAttributeResponse,
   DeleteAttributeResponse,
+  CreatePericiaRequest,
+  CreatePericiaResponse,
+  GetPericiaResponse,
+  GetAllPericiasResponse,
+  UpdatePericiaRequest,
+  UpdatePericiaResponse,
+  DeletePericiaResponse,
   GetCharacterAttributesResponse,
   UpdateCharacterAttributesRequest,
   UpdateCharacterAttributesResponse,
+  UpdateCharacterPericiasRequest,
+  UpdateCharacterPericiasResponse,
   CreateClassRequest,
   CreateClassResponse,
   GetClassResponse,
@@ -84,6 +97,33 @@ export const characterService = {
     data: UpdateCharacterRequest
   ): Promise<UpdateCharacterResponse> => {
     const response = await api.put<UpdateCharacterResponse>(`/api/characters/${characterId}`, data);
+    return response.data;
+  },
+
+  activateCharacter: async (characterId: number): Promise<ActivateCharacterResponse> => {
+    const response = await api.post<ActivateCharacterResponse>(`/api/characters/${characterId}/activate`);
+    return response.data;
+  },
+
+  deactivateCharacter: async (characterId: number): Promise<DeactivateCharacterResponse> => {
+    const response = await api.post<DeactivateCharacterResponse>(`/api/characters/${characterId}/deactivate`);
+    return response.data;
+  },
+
+  transferCharacterOwnership: async (
+    characterId: number,
+    newUserId: number
+  ): Promise<TransferCharacterOwnershipResponse> => {
+    const response = await api.post<TransferCharacterOwnershipResponse>(
+      `/api/characters/${characterId}/transfer-ownership/${newUserId}`
+    );
+    return response.data;
+  },
+
+  returnCharacterToAdmin: async (characterId: number): Promise<ReturnCharacterToAdminResponse> => {
+    const response = await api.post<ReturnCharacterToAdminResponse>(
+      `/api/characters/${characterId}/return-to-admin`
+    );
     return response.data;
   },
 
@@ -182,6 +222,36 @@ export const characterService = {
     return response.data;
   },
 
+  // ==================== PERICIAS ====================
+
+  getAllPericias: async (): Promise<GetAllPericiasResponse> => {
+    const response = await api.get<GetAllPericiasResponse>('/api/pericias');
+    return response.data;
+  },
+
+  createPericia: async (data: CreatePericiaRequest): Promise<CreatePericiaResponse> => {
+    const response = await api.post<CreatePericiaResponse>('/api/pericias', data);
+    return response.data;
+  },
+
+  getPericiaById: async (periciaId: number): Promise<GetPericiaResponse> => {
+    const response = await api.get<GetPericiaResponse>(`/api/pericias/${periciaId}`);
+    return response.data;
+  },
+
+  updatePericia: async (
+    periciaId: number,
+    data: UpdatePericiaRequest
+  ): Promise<UpdatePericiaResponse> => {
+    const response = await api.put<UpdatePericiaResponse>(`/api/pericias/${periciaId}`, data);
+    return response.data;
+  },
+
+  deletePericia: async (periciaId: number): Promise<DeletePericiaResponse> => {
+    const response = await api.delete<DeletePericiaResponse>(`/api/pericias/${periciaId}`);
+    return response.data;
+  },
+
   getCharacterAttributes: async (characterId: number): Promise<GetCharacterAttributesResponse> => {
     const response = await api.get<GetCharacterAttributesResponse>(`/api/characters/${characterId}/attributes`);
     return response.data;
@@ -193,6 +263,17 @@ export const characterService = {
   ): Promise<UpdateCharacterAttributesResponse> => {
     const response = await api.put<UpdateCharacterAttributesResponse>(
       `/api/characters/${characterId}/attributes`,
+      data
+    );
+    return response.data;
+  },
+
+  updateCharacterPericias: async (
+    characterId: number,
+    data: UpdateCharacterPericiasRequest
+  ): Promise<UpdateCharacterPericiasResponse> => {
+    const response = await api.put<UpdateCharacterPericiasResponse>(
+      `/api/characters/${characterId}/pericias`,
       data
     );
     return response.data;

@@ -1,114 +1,162 @@
 import { useState } from "react";
-import type { characterAttributes } from "../../types";
+import type { CharacterAttributeItem, CharacterPericiaItem } from "../../types";
 import { FiEdit } from "react-icons/fi";
 
-interface characterAttributesProps {
-    atributes: characterAttributes;
-    handleAttributeChange: (index: number, field: string, value: number) => void;
-    update: () => void;
+interface CharacterAttributesProps {
+    attributes: CharacterAttributeItem[];
+    pericias: CharacterPericiaItem[];
+    onAttributeChange: (attributeId: number, field: string, value: number) => void;
+    onPericiaChange: (periciaId: number, field: string, value: number) => void;
+    onUpdate: () => void;
 }
 
 export function CharacterAttributes({
-    atributes,
-    handleAttributeChange,
-    update,
-}: characterAttributesProps) {
-    const [isEditing, setIsEditing] = useState(false); 
+    attributes,
+    pericias,
+    onAttributeChange,
+    onPericiaChange,
+    onUpdate,
+}: CharacterAttributesProps) {
+    const [isEditing, setIsEditing] = useState(false);
 
-    function handleChange(index: number, field: string, value: number) {
+    // Group pericias by attribute_id
+    const periciasByAttribute: Record<number, CharacterPericiaItem[]> = {};
+    pericias.forEach((pericia) => {
+        if (!periciasByAttribute[pericia.attribute_id]) {
+            periciasByAttribute[pericia.attribute_id] = [];
+        }
+        periciasByAttribute[pericia.attribute_id].push(pericia);
+    });
+
+    function handleAttributeChange(attributeId: number, field: string, value: number) {
         if (isEditing) {
-            handleAttributeChange(index, field, value);
+            onAttributeChange(attributeId, field, value);
+        }
+    }
+
+    function handlePericiaChange(periciaId: number, field: string, value: number) {
+        if (isEditing) {
+            onPericiaChange(periciaId, field, value);
         }
     }
 
     return (
-    <section className="mb-8">
-                <div className="itens-center flex justify-between mb-4">
-                    <h2 className="text-2xl font-semibold mb-4 text-vaccineRed">
-                        Atributos
-                    </h2>
-                    <button onClick={() => {setIsEditing(!isEditing); if (isEditing) {update();}}} className="mb-4 px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors">
-                        {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
-                    </button>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse border border-gray-300">
-                        <thead>
-                            <tr className="bg-vaccineGray text-vaccineBlack">
-                                <th className="border bg-vaccineGray-300 color-black border-gray-300 px-4 py-2 text-left">
-                                    Atributo
-                                </th>
-                                <th className="border bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
-                                    Base
-                                </th>
-                                <th className="border bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
-                                    Bônus
-                                </th>
-                                <th className="border bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
-                                    Total
-                                </th>
-                                <th className="border bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
-                                    DT (20)
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {atributes.map((atributo, index) => (
-                                <tr key={index} className="hover:bg-gray-50">
-                                    <td className="border bg-vaccineGray-300 border-gray-300 px-4 py-2 font-medium">
-                                        {atributo.nome}
+        <section className="mb-8">
+            <div className="items-center flex justify-between mb-4">
+                <h2 className="text-2xl font-semibold mb-4 text-vaccineRed">
+                    Atributos e Perícias
+                </h2>
+                <button
+                    onClick={() => {
+                        setIsEditing(!isEditing);
+                        if (isEditing) {
+                            onUpdate();
+                        }
+                    }}
+                    className="mb-4 px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors"
+                >
+                    {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
+                </button>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-300">
+                    <thead>
+                        <tr className="bg-vaccineGray text-vaccineBlack">
+                            <th className="border font-trajanPBold bg-vaccineGray-300 color-black border-gray-300 px-4 py-2 text-left">
+                                Atributo
+                            </th>
+                            <th className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
+                                Base
+                            </th>
+                            <th className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
+                                Total
+                            </th>
+                            <th className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 text-left">
+                                Perícia
+                            </th>
+                            <th className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
+                                Valor
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {attributes.map((attribute) => {
+                            const attributePericias = periciasByAttribute[attribute.attribute_id] || [];
+                            const hasNoPericias = attributePericias.length === 0;
+
+                            return (
+                                
+                                <tr>
+                                    <td className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 font-medium">
+                                        {attribute.name}
                                     </td>
                                     <td className="border bg-vaccineGray-300 border-gray-300 px-2 py-2">
                                         <input
                                             type="number"
-                                            value={atributo.base}
+                                            value={attribute.base}
                                             onChange={(e) =>
-                                                handleChange(
-                                                    index,
+                                                handleAttributeChange(
+                                                    attribute.attribute_id,
                                                     "base",
                                                     parseInt(e.target.value) || 0
                                                 )
                                             }
                                             readOnly={!isEditing}
-                                            className={`w-full px-2 py-1 text-center ${isEditing ? 'border-gray-400 border' : ''} rounded focus:outline-none focus:ring-1 focus:ring-vaccineRed`}
+                                            className={`w-full px-2 py-1 text-center ${
+                                                isEditing ? "border-gray-400 border" : ""
+                                            } rounded focus:outline-none focus:ring-1 focus:ring-vaccineRed`}
                                         />
                                     </td>
                                     <td className="border bg-vaccineGray-300 border-gray-300 px-2 py-2">
                                         <input
                                             type="number"
-                                            value={atributo.bonus}
-                                            onChange={(e) =>
-                                                handleChange(
-                                                    index,
-                                                    "bonus",
-                                                    parseInt(e.target.value) || 0
-                                                )
-                                            }
-                                            readOnly={!isEditing}
-                                            className={`w-full px-2 py-1 text-center ${isEditing ? 'border-gray-400 border' : ''} rounded focus:outline-none focus:ring-1 focus:ring-vaccineRed`}
-                                        />
-                                    </td>
-                                    <td className="border bg-vaccineGray-300 border-gray-300 px-2 py-2">
-                                        <input
-                                            type="number"
-                                            value={atributo.total}
+                                            value={attribute.total}
                                             readOnly={true}
-                                            className="w-full px-2 py-1 text-center rounded focus:outline-none"
+                                            className="w-full px-2 py-1 text-center font-bold rounded focus:outline-none bg-gray-100"
                                         />
                                     </td>
-                                    <td className="border bg-vaccineGray-300 border-gray-300 px-2 py-2">
-                                        <input
-                                            type="number"
-                                            value={atributo.dt}
-                                            readOnly={true}
-                                            className="w-full px-2 py-1 text-center rounded focus:outline-none"
-                                        />
-                                    </td>
+                                    {/* Pericia header cell */}
+                                    {hasNoPericias ? (
+                                        <td className="border bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center" colSpan={2}>
+                                            Sem perícias
+                                        </td>
+                                    ) : (
+                                        <>
+                                        <td className="border font-trajanPRegular bg-vaccineGray-300 border-gray-300 px-4 py-2 text-left">
+                                            {attributePericias.map((pericia) => (
+                                                <div key={pericia.pericia_id} className="mb-2">
+                                                    {pericia.name}
+                                                </div>
+                                            ))}
+                                        </td>
+                                        <td className="border font-trajanPRegular bg-vaccineGray-300 border-gray-300 px-4 py-2 text-left">
+                                            {attributePericias.map((pericia) => (
+                                                <input
+                                                    key={pericia.pericia_id}
+                                                    type="number"
+                                                    value={pericia.total}
+                                                    onChange={(e) =>
+                                                        handlePericiaChange(
+                                                            pericia.pericia_id,
+                                                            "value",
+                                                            parseInt(e.target.value) || 0
+                                                        )
+                                                    }
+                                                    readOnly={!isEditing}
+                                                    className={`w-full px-2 py-1 text-center ${
+                                                        isEditing ? "border-gray-400 border" : ""
+                                                    } rounded focus:outline-none focus:ring-1 focus:ring-vaccineRed`}
+                                                />
+                                            ))}
+                                        </td>
+                                        </>
+                                    )}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-    )
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    );
 }

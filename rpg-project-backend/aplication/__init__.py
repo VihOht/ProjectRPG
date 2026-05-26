@@ -23,8 +23,10 @@ jwt = JWTManager(app)
 # Register blueprints
 from aplication.controlers.auth import auth_bp
 from aplication.controlers.character import character_bp
+from aplication.controlers.lore import lore_bp
 app.register_blueprint(auth_bp)
 app.register_blueprint(character_bp)
+app.register_blueprint(lore_bp)
 
 @app.route('/health')
 def health_check():

@@ -45,7 +45,7 @@ export function CharacterStats({
                         <h2 className="text-2xl font-semibold mb-4 text-vaccineRed">
                             Estatísticas
                         </h2>
-                        <button onClick={() => {setIsEditing(!isEditing); if (isEditing) {update()}}} className="mb-4 px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors">
+                        <button onClick={() => {setIsEditing(!isEditing); if (isEditing) {update()}}} className="mb-4 px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors">
                             {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                         </button>
                     </div>

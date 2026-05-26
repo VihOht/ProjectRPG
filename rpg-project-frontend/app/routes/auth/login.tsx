@@ -41,7 +41,7 @@ export default function LoginPage() {
 		: "Nao foi possivel entrar. Tente novamente.";
 
 	return (
-		<div className="min-h-screen bg-gradient-to-r from-vaccineGray-500 to-vaccineGray-600 flex items-center justify-center p-4 font-vollkorn">
+		<div className="min-h-screen bg-gradient-to-r from-vaccineGray-500 to-vaccineGray-600 text-vaccineBlack flex items-center justify-center p-4 font-vollkorn">
 			<div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
 				<h1 className="text-4xl text-center font-myFont text-vaccineRed mb-2">Insonia</h1>
 				<p className="text-center text-vaccineBlack mb-6">Entrar na sua conta</p>
@@ -82,7 +82,7 @@ export default function LoginPage() {
 					<button
 						type="submit"
 						disabled={loginMutation.isPending}
-						className="w-full px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+						className="w-full px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
 					>
 						{loginMutation.isPending ? "Entrando..." : "Entrar"}
 					</button>

@@ -1,8 +1,8 @@
 from aplication import db
 from aplication.models.characters import Character, Race
 from aplication.models.classes import Class, Subclass, Ability
-from aplication.models.atributes import Attribute, CharacterAttributes, CharacterAttributeValue
-from aplication.constants import AtributesModelsSheet, STAT_CONVERSION_RULES
+from aplication.models.atributes import Attribute, Attribute, CharacterAttributesPericias, CharacterAttributeValue, CharacterAttributesPericias, CharacterPericiaValue, Pericia
+from aplication.constants import ATRIBUTES_PERICIAS_SHEET, PERICIAS_DESCRIPTION, STAT_CONVERSION_RULES, ATTRUBUTES_DESCRIPTION, PERICIAS_ATRIBUTES_SHEET
 
 
 class AbilityService:
@@ -113,6 +113,56 @@ class RaceService:
         return True, None
 
 
+class PericiasService:
+    @staticmethod
+    def create_pericia(name, description, attribute_id):
+        """Create a new pericia"""
+        pericia = Pericia(name=name, description=description, attribute_id=attribute_id)
+        db.session.add(pericia)
+        db.session.commit()
+        return pericia
+
+    @staticmethod
+    def get_all_pericias():
+        """Get all pericias"""
+        return Pericia.query.all()
+
+    @staticmethod
+    def get_pericia_by_id(pericia_id):
+        """Get pericia by ID"""
+        return Pericia.query.get(pericia_id)
+
+    @staticmethod
+    def update_pericia(pericia_id, name=None, description=None, attribute_id=None):
+        """Update pericia"""
+        pericia = Pericia.query.get(pericia_id)
+        if not pericia:
+            return None, "Pericia not found"
+        
+        if name:
+            pericia.name = name
+        if description:
+            pericia.description = description
+        if attribute_id:
+            pericia.attribute_id = attribute_id
+        
+        db.session.commit()
+        return pericia, None
+
+    @staticmethod
+    def delete_pericia(pericia_id):
+        """Delete pericia"""
+        pericia = Pericia.query.get(pericia_id)
+        if not pericia:
+            return False, "Pericia not found"
+
+        CharacterPericiaValue.query.filter_by(pericia_id=pericia_id).delete(synchronize_session=False)
+        
+        db.session.delete(pericia)
+        db.session.commit()
+        return True, None
+
+
 class AttributeService:
     @staticmethod
     def create_attribute(name, description):
@@ -135,7 +185,7 @@ class AttributeService:
     @staticmethod
     def get_attributes_by_character(character_id):
         """Get attributes for a character"""
-        char_attrs = CharacterAttributes.query.filter_by(character_id=character_id).first()
+        char_attrs = CharacterAttributesPericias.query.filter_by(character_id=character_id).first()
         if not char_attrs:
             return None, "Character attributes not found"
 
@@ -155,7 +205,7 @@ class AttributeService:
                 'total': calc_total(value.baseValue, value.bonusValue),
                 'dt': calc_dt(calc_total(value.baseValue, value.bonusValue)),
             }
-            for value in char_attrs.values
+            for value in char_attrs.attributes
         ], None
 
     @staticmethod
@@ -179,6 +229,14 @@ class AttributeService:
         attribute = Attribute.query.get(attribute_id)
         if not attribute:
             return False, "Attribute not found"
+
+        pericias = Pericia.query.filter_by(attribute_id=attribute_id).all()
+        pericia_ids = [pericia.id for pericia in pericias]
+        if pericia_ids:
+            CharacterPericiaValue.query.filter(CharacterPericiaValue.pericia_id.in_(pericia_ids)).delete(synchronize_session=False)
+            Pericia.query.filter(Pericia.id.in_(pericia_ids)).delete(synchronize_session=False)
+
+        CharacterAttributeValue.query.filter_by(attribute_id=attribute_id).delete(synchronize_session=False)
         
         db.session.delete(attribute)
         db.session.commit()
@@ -233,6 +291,13 @@ class ClassService:
         char_class = Class.query.get(class_id)
         if not char_class:
             return False, "Class not found"
+
+        subclass_ids = [subclass.id for subclass in Subclass.query.filter_by(class_id=class_id).all()]
+        if subclass_ids:
+            Ability.query.filter(Ability.subclass_id.in_(subclass_ids)).delete(synchronize_session=False)
+            Subclass.query.filter(Subclass.id.in_(subclass_ids)).delete(synchronize_session=False)
+
+        Ability.query.filter_by(class_id=class_id).delete(synchronize_session=False)
         
         db.session.delete(char_class)
         db.session.commit()
@@ -292,6 +357,8 @@ class SubclassService:
         subclass = Subclass.query.get(subclass_id)
         if not subclass:
             return False, "Subclass not found"
+
+        Ability.query.filter_by(subclass_id=subclass_id).delete(synchronize_session=False)
         
         db.session.delete(subclass)
         db.session.commit()
@@ -304,26 +371,61 @@ class CharacterAttributesService:
         return int(base_value) + int(bonus_value)
 
     @staticmethod
-    def _calc_dt(total):
-        return max(0, 20 - int(total))
-
-    @staticmethod
     def create_character_attributes(character_id):
         """Create character attributes record"""
-        char_attrs = CharacterAttributes(character_id=character_id)
+        char_attrs = CharacterAttributesPericias(character_id=character_id)
         db.session.add(char_attrs)
         db.session.flush()
 
         # Create one value row per known base attribute for bulk update operations.
-        for attribute in Attribute.query.all():
-            db.session.add(
-                CharacterAttributeValue(
-                    character_attributes_id=char_attrs.id,
-                    attribute_id=attribute.id,
-                    baseValue=0,
-                    bonusValue=0,
-                )
+        for attribute, description in ATTRUBUTES_DESCRIPTION.items():
+            if (attribute_obj := Attribute.query.filter_by(name=attribute).first()) is None:
+                attribute_obj = Attribute(name=attribute, description=description)
+                db.session.add(attribute_obj)
+                db.session.flush()
+            if (CharacterAttributeValue.query.filter_by(character_attributes_pericias_id=char_attrs.id, attribute_id=attribute_obj.id).first() is not None):
+                continue
+            new_attributeValue = CharacterAttributeValue(
+                character_attributes_pericias_id=char_attrs.id,
+                attribute_id=attribute_obj.id,
+                baseValue=0,
+                bonusValue=0,
             )
+            db.session.add(new_attributeValue)
+
+
+        db.session.commit()
+        return char_attrs
+    
+    @staticmethod
+    def create_character_pericias(character_id):
+        """Create character pericias record"""
+        char_attrs = CharacterAttributesPericias(character_id=character_id)
+        db.session.add(char_attrs)
+        db.session.flush()
+
+        # Create one value row per known base attribute for bulk update operations.
+        for pericia, description in PERICIAS_DESCRIPTION.items():
+            if (pericia_obj := Pericia.query.filter_by(name=pericia).first()) is None:
+                attribute = PERICIAS_ATRIBUTES_SHEET.get(pericia)
+                if attribute is not None:
+                    attribute_obj = Attribute.query.filter_by(name=attribute).first()
+                    if attribute_obj is None:
+                        attribute_obj = Attribute(name=attribute, description=ATTRUBUTES_DESCRIPTION.get(attribute, ""))
+                        db.session.add(attribute_obj)
+                        db.session.flush()
+                pericia_obj = Pericia(name=pericia, description=description, attribute_id=attribute_obj.id if attribute is not None else None)
+                db.session.add(pericia_obj)
+                db.session.flush()
+            if (CharacterPericiaValue.query.filter_by(character_attributes_pericias_id=char_attrs.id, pericia_id=pericia_obj.id).first() is not None):
+                continue
+            new_periciaValue = CharacterPericiaValue(
+                character_attributes_pericias_id=char_attrs.id,
+                pericia_id=pericia_obj.id,
+                baseValue=0,
+                bonusValue=0,
+            )
+            db.session.add(new_periciaValue)
 
         db.session.commit()
         return char_attrs
@@ -331,30 +433,50 @@ class CharacterAttributesService:
     @staticmethod
     def get_character_attributes(character_id):
         """Get all attributes for a character"""
-        charAttributes = CharacterAttributes.query.filter_by(character_id=character_id).first()
-        if not charAttributes:
-            return None, "Character attributes not found"
+        charAttributesPericias = CharacterAttributesPericias.query.filter_by(character_id=character_id).first()
+        if not charAttributesPericias:
+            return None, "Character attributes/pericias not found"
 
-        for item in AtributesModelsSheet:
-            if not any(value is not None and value.attribute.name == item for value in charAttributes.values):
-                attribute = Attribute.query.filter_by(name=item).first()
-                if attribute is None:
-                    new_attr = Attribute(name=item, description="")
-                    db.session.add(new_attr)
+        for attribute_name, pericias in ATRIBUTES_PERICIAS_SHEET.items():
+            if not any(value is not None and value.attribute.name == attribute_name for value in charAttributesPericias.attributes):
+                attribute_obj = Attribute.query.filter_by(name=attribute_name).first()
+                if attribute_obj is None:
+                    attribute_obj = Attribute(name=attribute_name, description=ATTRUBUTES_DESCRIPTION.get(attribute_name, ""))
+                    db.session.add(attribute_obj)
                     db.session.flush()
-                    attribute = new_attr
                 new_attributeValue = CharacterAttributeValue(
-                    character_attributes_id=charAttributes.id,
-                    attribute_id=attribute.id,
+                    character_attributes_pericias_id=charAttributesPericias.id,
+                    attribute_id=attribute_obj.id,
                     baseValue=0,
                     bonusValue=0,
                 )
                 db.session.add(new_attributeValue)
-                charAttributes = CharacterAttributes.query.filter_by(character_id=character_id).first()
+                charAttributesPericias = CharacterAttributesPericias.query.filter_by(character_id=character_id).first()
+            for pericia in pericias:
+                if any(value is not None and value.pericia.name == pericia for value in charAttributesPericias.pericias):
+                    continue
+                pericia_obj = Pericia.query.filter_by(name=pericia).first()
+                if pericia_obj is None:
+                    new_pericia = Pericia(
+                        name=pericia,
+                        description=PERICIAS_DESCRIPTION.get(pericia, ""),
+                        attribute_id=Attribute.query.filter_by(name=attribute_name).first().id if Attribute.query.filter_by(name=attribute_name).first() else attribute_obj.id,
+                    )
+                    db.session.add(new_pericia)
+                    db.session.flush()
+                    pericia_obj = new_pericia
+                new_periciaValue = CharacterPericiaValue(
+                    character_attributes_pericias_id=charAttributesPericias.id,
+                    pericia_id=pericia_obj.id,
+                    baseValue=0,
+                    bonusValue=0,
+                )
+                db.session.add(new_periciaValue)
+                charAttributesPericias = CharacterAttributesPericias.query.filter_by(character_id=character_id).first()
     
         db.session.commit()
 
-        return charAttributes
+        return charAttributesPericias
     
 
     @staticmethod
@@ -363,7 +485,7 @@ class CharacterAttributesService:
         
         attributes_data should be a list of dicts with attribute_id, base and bonus
         """
-        char_attrs = CharacterAttributes.query.filter_by(character_id=character_id).first()
+        char_attrs = CharacterAttributesPericias.query.filter_by(character_id=character_id).first()
         if not char_attrs:
             return None, "Character attributes not found"
 
@@ -407,9 +529,57 @@ class CharacterAttributesService:
         return char_attrs, None
 
     @staticmethod
+    def bulk_update_character_pericias(character_id, pericias_data):
+        """Bulk update all pericias for a character
+        
+        pericias_data should be a list of dicts with pericia_id, base and bonus
+        """
+        char_attrs = CharacterAttributesPericias.query.filter_by(character_id=character_id).first()
+        if not char_attrs:
+            return None, "Character pericias not found"
+
+        existing_values = {
+            item.pericia_id: item
+            for item in CharacterPericiaValue.query.filter_by(character_attributes_pericias_id=char_attrs.id).all()
+        }
+
+        for item in pericias_data:
+            pericia_id = item.get('pericia_id')
+            base_value = item.get('base')
+            bonus_value = item.get('bonus')
+
+            if pericia_id is None:
+                continue
+
+            if base_value is None:
+                base_value = 0
+
+            if bonus_value is None:
+                bonus_value = 0
+
+            if not Pericia.query.get(pericia_id):
+                continue
+
+            if pericia_id in existing_values:
+                existing_values[pericia_id].baseValue = int(base_value)
+                existing_values[pericia_id].bonusValue = int(bonus_value)
+            else:
+                db.session.add(
+                    CharacterPericiaValue(
+                        character_attributes_pericias_id=char_attrs.id,
+                        pericia_id=pericia_id,
+                        baseValue=int(base_value),
+                        bonusValue=int(bonus_value),
+                    )
+                )
+
+        db.session.commit()
+        return char_attrs, None
+
+    @staticmethod
     def delete_character_attributes(character_id):
         """Delete character attributes"""
-        char_attrs = CharacterAttributes.query.filter_by(character_id=character_id).first()
+        char_attrs = CharacterAttributesPericias.query.filter_by(character_id=character_id).first()
         if not char_attrs:
             return False, "Character attributes not found"
         
@@ -462,7 +632,7 @@ class CharacterService:
             'gender', 'age', 'level', 'life', 'defense', 'sanity', 'ocultism', 'mana',
             'base_life', 'base_defense', 'base_sanity', 'base_ocultism', 'base_mana',
             'bonus_max_life', 'bonus_max_defense', 'bonus_max_sanity', 
-            'bonus_max_ocultism', 'bonus_max_mana'
+            'bonus_max_ocultism', 'bonus_max_mana', "active", "is_player"
         ]
         
         for key, value in kwargs.items():
@@ -523,3 +693,16 @@ class CharacterService:
             }
         
         return stat_limits, None
+
+
+    @staticmethod
+    def transferCharacterOwnership(character_id, new_user_id):
+        """Transfer character ownership to another user"""
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        character.own = new_user_id
+        character.is_player = True
+        db.session.commit()
+        return character, None

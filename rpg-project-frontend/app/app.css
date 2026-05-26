@@ -10,6 +10,8 @@ html,
 body {
   @apply bg-white dark:bg-gray-950;
 
+  @apply text-vaccineBlack dark:text-black;
+
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
@@ -18,6 +20,38 @@ body {
 @font-face {
   font-family: "MyFont";
   src: url("/fonts/DragonHunter.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "lor";
+  src: url("/fonts/ring.TTF") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "trajanPBold";
+  src: url("/fonts/TrajanPro-Bold.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "trajanPRegular";
+  src: url("/fonts/TrajanPro-Regular.ttf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "walthari";
+  src: url("/fonts/Walthari.ttf") format("opentype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
