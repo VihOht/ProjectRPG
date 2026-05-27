@@ -347,10 +347,12 @@ export default function RpgSheet() {
 
                 {/* Section 3: Attributes Table */}
                 <CharacterAttributes
-                    atributes={characterData.atributos}
-                    handleAttributeChange={handleAttributeChange}
-                    update={updateAttributes}
-                />
+                        attributes={characterData.atributos}
+                        pericias={characterData.pericias}
+                        onAttributeChange={handleAttributeChange}
+                        onPericiaChange={handlePericiaChange}
+                        onUpdate={updateCharacterSheet}
+                    />
                 </div>
             </main>
         </div>

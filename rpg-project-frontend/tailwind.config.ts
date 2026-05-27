@@ -18,10 +18,22 @@ export default {
             100: "#f9f9f9",
 
         },
-        vaccineRed: "#6f0000",
+        // vaccineRed: {
+        //   1000: "#6f0000",
+        //   900: "#c40000",
+        // },
+        vaccineRed: "#c40000",
         vaccineBlack: "#000000",
         vaccineDarkBlue: "#010011",
         vaccineBlue: "#02001c",
+        vaccineBlueTones: {
+          1000: "#050233",
+          900: "#0c0759",
+          800: "#140d72",
+          700: "#1c1574",
+          600: "#0b2494",
+          500: "#1935b1",
+        },
       },
       fontFamily: {
         myFont: ["MyFont", "sans-serif"],

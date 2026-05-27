@@ -51,7 +51,7 @@ export function CharacterStats({
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-vaccineGray-300 mb-1">
                                 Vida
                             </label>
                             <input
@@ -66,7 +66,7 @@ export function CharacterStats({
                             <p className="text-xs text-gray-500">Base {statLimits.pv.base} + Bonus {statLimits.pv.bonus}</p>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-vaccineGray-300 mb-1">
                                 Defesa
                             </label>
                             <input
@@ -82,7 +82,7 @@ export function CharacterStats({
                         </div>
                         {isWitch && (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-vaccineGray-300 mb-1">
                                     Ocultismo
                                 </label>
                                 <input
@@ -98,7 +98,7 @@ export function CharacterStats({
                             </div>
                         )}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-vaccineGray-300 mb-1">
                                 Sanidade
                             </label>
                             <input
@@ -114,7 +114,7 @@ export function CharacterStats({
                         </div>
                         {isMage && (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-vaccineGray-300 mb-1">
                                     Mana
                                 </label>
                                 <input

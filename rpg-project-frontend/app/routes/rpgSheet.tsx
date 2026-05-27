@@ -363,8 +363,8 @@ export default function RpgSheet() {
                 </Header>
                 {/* Main Content */}
                 <main className="flex-1  p-8 text-sm text-vaccineBlack">
-                    <div className="max-w-5xl mx-auto  rounded-lg shadow-lg p-8">
-                        <h1 className="text-3xl font-walthari font-bold text-center mb-8 text-vaccineBlack">
+                    <div className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50  rounded-lg shadow-lg p-8">
+                        <h1 className="text-3xl font-walthari font-bold text-center mb-8 text-vaccineRed">
                             Ficha de Personagem
                         </h1>
 
@@ -425,7 +425,7 @@ export default function RpgSheet() {
                         )}
 
                     {/* Character Name and Level Header */}
-                    <div className="text-center font-trajanPBold mb-8 pb-6 border-b-2 border-vaccineRed relative">
+                    <div className="text-center font-trajanPBold mb-8 pb-6 border-b-2 border-vaccineGray-300 relative">
                         {isEditingHeader && (
                             <button 
                                 onClick={() => {
@@ -444,18 +444,18 @@ export default function RpgSheet() {
                                     type="text"
                                     value={characterData.informations.nome}
                                     onChange={(e) => handleInfoChange("nome", e.target.value)}
-                                    className="text-4xl font-bold text-vaccineRed text-center bg-vaccineGray-300 px-4 py-2 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccineRed"
+                                    className="text-4xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-4 py-2 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccineRed"
                                     placeholder="Nome do Personagem"
                                     autoFocus
                                 />
                                 <div className="flex items-center justify-center gap-2">
-                                    <label className="text-lg font-medium text-gray-700">Nível:</label>
+                                    <label className="text-lg font-medium text-white">Nível:</label>
                                     <input
                                         type="number"
                                         min="1"
                                         value={characterData.informations.nivel}
                                         onChange={(e) => handleInfoChange("nivel", e.target.value)}
-                                        className="text-2xl font-bold text-vaccineBlack text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccineRed w-20"
+                                        className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccineRed w-20"
                                     />
                                 </div>
                             </div>
@@ -463,7 +463,7 @@ export default function RpgSheet() {
                             <>
                                 <h2 
                                     onClick={() => setIsEditingHeader(true)}
-                                    className="text-4xl font-bold text-vaccineRed mb-3 cursor-pointer hover:opacity-80 transition-opacity"
+                                    className="text-4xl  font-bold text-vaccineRed mb-3 cursor-pointer hover:opacity-80 transition-opacity"
                                     title="Clique para editar"
                                 >
                                     {characterData.informations.nome || "Nome do Personagem"}
@@ -473,8 +473,8 @@ export default function RpgSheet() {
                                     className="flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
                                     title="Clique para editar"
                                 >
-                                    <span className="text-lg font-medium text-gray-700">Nível:</span>
-                                    <span className="text-2xl font-bold text-vaccineBlack">
+                                    <span className="text-lg font-medium text-vaccineGray-600">Nível:</span>
+                                    <span className="text-2xl font-bold text-vaccineGray-600">
                                         {characterData.informations.nivel}
                                     </span>
                                 </div>

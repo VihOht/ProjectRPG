@@ -48,13 +48,13 @@ export function CharacterInformation({
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
-                            <label className="block font-trajanPBold text-sm font-medium text-gray-700 mb-1">
+                            <label className="block font-trajanPBold text-sm font-medium text-vaccineGray-300 mb-1">
                                 Classe
                             </label>
                             <select
                                 value={charInformations.classe}
                                 onChange={(e) => handleChange("classe", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineGray-300 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineRed`}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-900 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineRed text-white`}
                                 disabled={!isEditing}
                             >
                                 <option value="">Selecione uma classe</option>
@@ -66,7 +66,7 @@ export function CharacterInformation({
                             </select>
                         </div>
                         <div>
-                            <label className="block font-trajanPBold text-sm font-medium text-gray-700 mb-1">
+                            <label className="block font-trajanPBold text-sm font-medium text-vaccineGray-300 mb-1">
                                 Subclasse
                             </label>
                             <select
@@ -84,7 +84,7 @@ export function CharacterInformation({
                             </select>
                         </div>
                         <div>
-                            <label className="block font-trajanPBold text-sm font-medium text-gray-700 mb-1">
+                            <label className="block font-trajanPBold text-sm font-medium text-vaccineGray-300 mb-1">
                                 Segunda Classe
                             </label>
                             <select
@@ -102,7 +102,7 @@ export function CharacterInformation({
                             </select>
                         </div>
                         <div>
-                            <label className="block font-trajanPBold text-sm font-medium text-gray-700 mb-1">
+                            <label className="block font-trajanPBold text-sm font-medium text-vaccineGray-300 mb-1">
                                 Raça
                             </label>
                             <select
@@ -120,7 +120,7 @@ export function CharacterInformation({
                             </select>
                         </div>
                         <div>
-                            <label className="block font-trajanPBold text-sm font-medium text-gray-700 mb-1">
+                            <label className="block font-trajanPBold text-sm font-medium text-vaccineGray-300 mb-1">
                                 Gênero
                             </label>
                             <input
@@ -132,7 +132,7 @@ export function CharacterInformation({
                             />
                         </div>
                         <div>
-                            <label className="block font-trajanPBold text-sm font-medium text-gray-700 mb-1">
+                            <label className="block font-trajanPBold text-sm font-medium text-vaccineGray-300 mb-1">
                                 Idade
                             </label>
                             <input
