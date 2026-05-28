@@ -42,10 +42,10 @@ export function CharacterStats({
     return (
         <section className="mb-8">
                     <div className="itens-center flex justify-between mb-4">
-                        <h2 className="text-2xl font-semibold mb-4 text-vaccineRed">
+                        <h2 className="text-3xl font-walthari font-semibold mb-4 text-vaccineGray-300">
                             Estatísticas
                         </h2>
-                        <button onClick={() => {setIsEditing(!isEditing); if (isEditing) {update()}}} className="mb-4 px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors">
+                        <button onClick={() => {setIsEditing(!isEditing); if (isEditing) {update()}}} className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-red-700 transition-colors">
                             {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                         </button>
                     </div>
@@ -60,7 +60,7 @@ export function CharacterStats({
                                 onChange={(e) => handleChange("pv", parseInt(e.target.value) || 0)}
                                 readOnly={!isEditing}
                                 min={0}
-                                className={`w-full bg-vaccineGray-300 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineRed`}
+                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100`}
                             />
                             <p className="mt-1 text-sm text-gray-600">{charStats.pv}/{statLimits.pv.total}</p>
                             <p className="text-xs text-gray-500">Base {statLimits.pv.base} + Bonus {statLimits.pv.bonus}</p>
@@ -75,7 +75,7 @@ export function CharacterStats({
                                 onChange={(e) => handleChange("defesa", parseInt(e.target.value) || 0)}
                                 readOnly={!isEditing}
                                 min={0}
-                                className={`w-full bg-vaccineGray-300 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineRed`}
+                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100`}
                             />
                             <p className="mt-1 text-sm text-gray-600">{charStats.defesa}/{statLimits.defesa.total}</p>
                             <p className="text-xs text-gray-500">Base {statLimits.defesa.base} + Bonus {statLimits.defesa.bonus}</p>
@@ -91,7 +91,7 @@ export function CharacterStats({
                                     onChange={(e) => handleChange("ocult", parseInt(e.target.value) || 0)}
                                     readOnly={!isEditing}
                                     min={0}
-                                    className={`w-full bg-vaccineGray-300 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineRed`}
+                                    className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100`}
                                 />
                                 <p className="mt-1 text-sm text-gray-600">{charStats.ocult}/{statLimits.ocult.total}</p>
                                 <p className="text-xs text-gray-500">Base {statLimits.ocult.base} + Bonus {statLimits.ocult.bonus}</p>
@@ -107,7 +107,7 @@ export function CharacterStats({
                                 onChange={(e) => handleChange("san", parseInt(e.target.value) || 0)}
                                 readOnly={!isEditing}
                                 min={0}
-                                className={`w-full bg-vaccineGray-300 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineRed`}
+                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100`}
                             />
                             <p className="mt-1 text-sm text-gray-600">{charStats.san}/{statLimits.san.total}</p>
                             <p className="text-xs text-gray-500">Base {statLimits.san.base} + Bonus {statLimits.san.bonus}</p>
@@ -123,7 +123,7 @@ export function CharacterStats({
                                     onChange={(e) => handleChange("mana", parseInt(e.target.value) || 0)}
                                     readOnly={!isEditing}
                                     min={0}
-                                    className={`w-full bg-vaccineGray-300 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineRed`}
+                                    className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100`}
                                 />
                                 <p className="mt-1 text-sm text-gray-600">{charStats.mana}/{statLimits.mana.total}</p>
                                 <p className="text-xs text-gray-500">Base {statLimits.mana.base} + Bonus {statLimits.mana.bonus}</p>

@@ -470,11 +470,11 @@ export default function DocumentsPage() {
             </Header>
 
             <main className="flex-1 p-8">
-                <section className="max-w-6xl mx-auto bg-vaccineGray-300  rounded-lg shadow-lg p-6 space-y-6">
+                <section className="max-w-6xl font-trajanPRegular mx-auto bg-vaccineGray-300/0 border-1 border-vaccineGray-300/50 rounded-lg shadow-lg p-6 space-y-6">
                     <div>
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
-                                <h1 className="text-3xl font-bold text-vaccineRed mb-2">Documentos</h1>
+                                <h1 className="text-3xl font-trajanPBold font-bold text-vaccineRed mb-2">Documentos</h1>
                                 <p className="text-vaccineBlack">
                                     Classes, atributos, perícias e lore centralizados em abas.
                                 </p>

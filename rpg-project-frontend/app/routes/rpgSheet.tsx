@@ -364,7 +364,7 @@ export default function RpgSheet() {
                 {/* Main Content */}
                 <main className="flex-1  p-8 text-sm text-vaccineBlack">
                     <div className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50  rounded-lg shadow-lg p-8">
-                        <h1 className="text-3xl font-walthari font-bold text-center mb-8 text-vaccineRed">
+                        <h1 className="text-3xl font-walthari font-bold text-center mb-8 text-vaccineGray-300">
                             Ficha de Personagem
                         </h1>
 

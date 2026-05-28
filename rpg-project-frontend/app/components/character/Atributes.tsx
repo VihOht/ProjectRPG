@@ -43,7 +43,7 @@ export function CharacterAttributes({
     return (
         <section className="mb-8">
             <div className="items-center flex justify-between mb-4">
-                <h2 className="text-2xl font-semibold mb-4 text-vaccineRed">
+                <h2 className="text-3xl font-walthari font-semibold mb-4 text-vaccineGray-300">
                     Atributos e Perícias
                 </h2>
                 <button
@@ -53,7 +53,7 @@ export function CharacterAttributes({
                             onUpdate();
                         }
                     }}
-                    className="mb-4 px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors"
+                    className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-red-700 transition-colors"
                 >
                     {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                 </button>

@@ -82,7 +82,7 @@ export default function Index() {
       </Header>
 
       <main className="flex-1 flex font-vollkorn items-center justify-center p-8">
-        <div className="bg-vaccineGray-300 text-shadow-lg rounded-lg shadow-lg p-8 max-w-6xl w-full mx-auto">
+        <div className="bg-vaccineGray-300/0 border-1 border-vaccineGray-300/50 text-shadow-lg rounded-lg shadow-lg p-8 max-w-6xl w-full mx-auto">
           <h3 className="text-4xl w-full text-center font-bold mb-6 text-vaccineRed">
             Fichas
           </h3>
@@ -205,7 +205,7 @@ export default function Index() {
             </div>
           ) : (
             <div>
-              <h4 className="text-2xl font-bold mb-3 text-vaccineBlack">
+              <h4 className="text-2xl font-bold mb-3 text-vaccineGray-300">
                 Fichas
               </h4>
               <div className="flex flex-wrap gap-4">
