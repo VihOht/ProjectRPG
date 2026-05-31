@@ -28,15 +28,15 @@ export function AttributesTab({
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-semibold text-vaccineBlack">Atributos</h2>
-                <p className="text-gray-700">
+                <h2 className="text-2xl font-semibold text-vaccineGray-300">Atributos</h2>
+                <p className="text-vaccineGray-600">
                     Clique no nome de um atributo para ver sua descrição e as perícias ligadas a ele.
                     Clique em uma perícia para ver a descrição dela.
                 </p>
             </div>
 
             <div className="">
-                <h3 className="text-lg font-semibold text-vaccineBlack mb-3">Atributos</h3>
+                <h3 className="text-lg font-semibold text-vaccineBlack mb-3"></h3>
                 {isLoading ? (
                     <p className="text-gray-600">Carregando atributos...</p>
                 ) : attributes.length === 0 ? (
@@ -56,7 +56,7 @@ export function AttributesTab({
                                         className={`flex-1 text-left px-3 py-2 border transition-colors ${
                                             isSelected
                                                 ? "bg-vaccineRed text-white border-vaccineRed"
-                                                : "text-vaccineBlack border-gray-300 hover:border-vaccineRed"
+                                                : "text-vaccineGray-300 border-gray-300 hover:border-vaccineRed"
                                         }`}
                                     >
                                         {attribute.name}
@@ -75,7 +75,7 @@ export function AttributesTab({
                                 {isSelected && (
                                     <div className="mt-3 space-y-3 pl-2 border-l-4 border-vaccineRed">
                                         <div>
-                                            <p className="text-gray-700">{attribute.description}</p>
+                                            <p className="text-gray-300">{attribute.description}</p>
                                         </div>
 
                                         <div>

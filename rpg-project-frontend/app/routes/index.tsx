@@ -81,24 +81,24 @@ export default function Index() {
         </button>
       </Header>
 
-      <main className="flex-1 flex font-vollkorn items-center justify-center p-8">
+      <main className="flex-1 flex font-vollkorn items-center justify-center p-8 ">
         <div className="bg-vaccineGray-300/0 border-1 border-vaccineGray-300/50 text-shadow-lg rounded-lg shadow-lg p-8 max-w-6xl w-full mx-auto">
-          <h3 className="text-4xl w-full text-center font-bold mb-6 text-vaccineRed">
+          <h3 className="text-4xl w-full text-center font-bold mb-6 text-vaccineRed ">
             Fichas
           </h3>
 
           {characterLoading ? (
-            <p className="text-center w-full text-gray-500">
+            <p className="text-center w-full text-gray-500 ">
               Loading characters...
             </p>
           ) : isAdmin ? (
             <div className="space-y-8">
               <section>
-                <h4 className="text-2xl font-bold mb-3 text-vaccineBlack">
+                <h4 className="text-2xl font-bold mb-3 text-vaccineBlack ">
                   Players
                 </h4>
                 <div className="overflow-x-auto rounded-lg border border-gray-300 bg-white">
-                  <table className="w-full border-collapse">
+                  <table className="w-full border-collapse ">
                     <thead className="bg-vaccineGray-400 text-vaccineBlack">
                       <tr>
                         <th className="px-4 py-3 text-left">Nome</th>

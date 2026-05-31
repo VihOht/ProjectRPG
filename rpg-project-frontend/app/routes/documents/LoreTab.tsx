@@ -34,8 +34,8 @@ export function LoreTab({
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-semibold text-vaccineBlack">Lore</h2>
-                <p className="text-gray-700">
+                <h2 className="text-2xl font-semibold text-vaccineGray-300">Lore</h2>
+                <p className="text-gray-400">
                     Clique em uma sessão para expandir os documentos, imagens e subdocumentos relacionados.
                 </p>
             </div>

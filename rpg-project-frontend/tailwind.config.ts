@@ -12,16 +12,14 @@ export default {
             700: "#737373",
             600: "#adadad",
             500: "#cfcfcf",
+            // descricoes
             400: "#d9d9d9",
+            // titulos secundarios de importancia
             300: "#e5e5e5",
             200: "#f2f2f2",
             100: "#f9f9f9",
 
         },
-        // vaccineRed: {
-        //   1000: "#6f0000",
-        //   900: "#c40000",
-        // },
         vaccineRed: "#c40000",
         vaccineBlack: "#000000",
         vaccineDarkBlue: "#010011",
@@ -41,6 +39,7 @@ export default {
           200: "#3349ab",
           100: "#5069db",
           
+          // gray-600 --> usado para carregamentos e erros; "Nenhum atributo cadastrado"
         },
       },
       fontFamily: {
