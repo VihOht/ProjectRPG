@@ -4,6 +4,9 @@ import { useParams, useNavigate } from "react-router";
 import { CharacterInformation } from "../components/character/Informations";
 import { CharacterStats } from "../components/character/Stats";
 import { CharacterAttributes } from "../components/character/Atributes";
+import { CharacterBackstory } from "../components/character/Backstory";
+import { CharacterPhysicaldesc } from "../components/character/PhysicalDesc";
+import { CharacterPsycDesc } from "../components/character/PsycDesc";
 import type { characterInformation, characterStats, CharacterAttributeItem, CharacterPericiaItem, UpdateCharacterAttributesRequest, UpdateCharacterPericiasRequest, UpdateCharacterRequest } from "../types";
 import type { User } from "../types/auth";
 import { useGetCharacter, useGetCharacterAttributes, useGetClasses, useGetSubclasses, useGetRaces, useUpdateCharacter, useUpdateCharacterAttributes, useUpdateCharacterPericias, useDeleteCharacter, useGetUsers, useActivateCharacter, useDeactivateCharacter, useTransferCharacterOwnership, useReturnCharacterToAdmin } from "../hooks";
@@ -61,10 +64,20 @@ export default function RpgSheet() {
             mana: 0,
         } as characterStats,
         
-
         // Section 3: Attributes and Pericias
         attributes: [] as CharacterAttributeItem[],
         pericias: [] as CharacterPericiaItem[],
+        
+        // Section 4: Backstory
+        backstory: "",
+
+        // Section 5: Physical description
+        physical_description: "",
+
+        // Section 6: Psycological description
+        Psycological_description: "",
+
+
     });
 
     const ownerUser = useMemo(() => {
@@ -106,6 +119,8 @@ export default function RpgSheet() {
                     san: char.sanity,
                     mana: char.mana,
                 },
+                backstory: char.backstory ?? "",
+                physical_description: char.physical_description ?? "",
                 attributes: characterAttributesData?.attributes ?? prev.attributes,
                 pericias: characterAttributesData?.pericias ?? prev.pericias,
             }));
@@ -289,6 +304,45 @@ export default function RpgSheet() {
         });
         setCharacterData({ ...characterData, pericias: newPericias });
     };
+
+    const handleBackstoryChange = (value: string) => {
+        setCharacterData({
+            ...characterData,
+            backstory: value,
+        });
+    };
+
+    function updateCharacterBackstory() {
+        updateCharacter({
+            backstory: characterData.backstory,
+        } as UpdateCharacterRequest);
+    }
+
+    const handlePhysicalDescChange = (value: string) => {
+        setCharacterData({
+            ...characterData,
+            physical_description: value,
+        });
+    };
+
+    function updateCharacterPhysicalDesc() {
+        updateCharacter({
+            physical_description: characterData.physical_description,
+        } as UpdateCharacterRequest);
+    }
+
+    const handlePsycDescChange = (value: string) => {
+        setCharacterData({
+            ...characterData,
+            Psycological_description: value,
+        });
+    };
+
+    function updateCharacterPsycDesc() {
+        updateCharacter({
+            Psycological_description: characterData.Psycological_description,
+        } as UpdateCharacterRequest);
+    }
 
     // Calculate stat limits from backend data
     const statLimits = useMemo(() => {
@@ -509,6 +563,24 @@ export default function RpgSheet() {
                         onAttributeChange={handleAttributeChange}
                         onPericiaChange={handlePericiaChange}
                         onUpdate={updateCharacterSheet}
+                    />
+
+                    <CharacterBackstory
+                        backstory={characterData.backstory}
+                        handleBackstoryChange={handleBackstoryChange}
+                        update={updateCharacterBackstory}
+                    />
+
+                    <CharacterPhysicaldesc
+                        physicaldesc={characterData.physical_description}
+                        handlePhysicaldescChange={handlePhysicalDescChange}
+                        update={updateCharacterPhysicalDesc}
+                    />
+
+                    <CharacterPsycDesc
+                        psycDesc={characterData.Psycological_description}
+                        handlePsycDescChange={handlePsycDescChange}
+                        update={updateCharacterPhysicalDesc}
                     />
                     </div>
                 </main>

@@ -2,6 +2,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { useRegister } from "../../hooks";
 import { useAuthProvider } from "../../providers";
+import { StarSky } from "../../components/StarSky";
 
 export default function RegisterPage() {
   const { isAuthenticated, isLoading } = useAuthProvider()
@@ -42,74 +43,76 @@ export default function RegisterPage() {
     : "Nao foi possivel registrar. Tente novamente.";
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-vaccineGray-500 to-vaccineGray-600 flex items-center justify-center p-4 font-vollkorn">
-      <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
-        <h1 className="text-4xl text-center font-myFont text-vaccineRed mb-2">Vaccine</h1>
-        <p className="text-center text-vaccineBlack mb-6">Criar nova conta</p>
+    <StarSky>
+      <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
+        <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
+          <h1 className="text-4xl text-center font-myFont text-vaccineRed mb-2">Vaccine</h1>
+          <p className="text-center text-vaccineBlack mb-6">Criar nova conta</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="username">
-              Username
-            </label>
-            <input
-              id="username"
-              type="text"
-              required
-              value={form.username}
-              onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
-              className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="username">
+                Username
+              </label>
+              <input
+                id="username"
+                type="text"
+                required
+                value={form.username}
+                onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
+                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="email">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={form.email}
-              onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-              className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="email">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={form.email}
+                onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="password">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={form.password}
-              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-              className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="password">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={form.password}
+                onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
+              />
+            </div>
 
-          {registerMutation.isError ? (
-            <p className="text-sm text-vaccineRed font-semibold">{errorMessage}</p>
-          ) : null}
+            {registerMutation.isError ? (
+              <p className="text-sm text-vaccineRed font-semibold">{errorMessage}</p>
+            ) : null}
 
-          <button
-            type="submit"
-            disabled={registerMutation.isPending}
-            className="w-full px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
-          >
-            {registerMutation.isPending ? "Registrando..." : "Registrar"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={registerMutation.isPending}
+              className="w-full px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+            >
+              {registerMutation.isPending ? "Registrando..." : "Registrar"}
+            </button>
+          </form>
 
-        <p className="text-center text-sm text-vaccineBlack mt-6">
-          Ja tem conta?{" "}
-          <Link to="/auth/login" className="font-semibold text-vaccineRed hover:underline">
-            Entrar
-          </Link>
-        </p>
+          <p className="text-center text-sm text-vaccineBlack mt-6">
+            Ja tem conta?{" "}
+            <Link to="/auth/login" className="font-semibold text-vaccineRed hover:underline">
+              Entrar
+            </Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </StarSky>
   );
 }

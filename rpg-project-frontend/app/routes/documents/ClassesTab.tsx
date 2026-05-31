@@ -20,8 +20,8 @@ export function ClassesTab({
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-semibold text-vaccineBlack">Classes</h2>
-                <p className="text-gray-700">
+                <h2 className="text-2xl font-semibold text-vaccineGray-300">Classes</h2>
+                <p className="text-vaccineGray-600">
                     Visualização hierárquica de classes, habilidades e subclasses.
                 </p>
             </div>
@@ -33,7 +33,7 @@ export function ClassesTab({
             ) : (
                 <div className="space-y-5">
                     {classes.map((charClass) => (
-                        <article key={charClass.id} className="bg-white/80 rounded-md p-4 border border-gray-200">
+                        <article key={charClass.id} className="bg-vaccineBlueTones-1000 rounded-md p-4 border border-white ">
                             <div className="flex items-start justify-between gap-3">
                                 <h3 className="text-2xl font-semibold text-vaccineRed">{charClass.name}</h3>
                                 {isAdmin && (
@@ -46,10 +46,10 @@ export function ClassesTab({
                                     </button>
                                 )}
                             </div>
-                            <p className="text-gray-700 mb-3">{charClass.description}</p>
+                            <p className="text-vaccineGray-400">{charClass.description}</p>
 
                             <div className="mb-3">
-                                <h4 className="font-semibold text-vaccineBlack">Habilidades da Classe</h4>
+                                <h4 className="font-semibold text-vaccineGray-300">Habilidades da Classe</h4>
                                 {charClass.abilities && charClass.abilities.length > 0 ? (
                                     <ul className="space-y-2 pl-2 text-gray-800">
                                         {charClass.abilities.map((ability) => (
@@ -70,12 +70,12 @@ export function ClassesTab({
                                         ))}
                                     </ul>
                                 ) : (
-                                    <p className="text-gray-600">Sem habilidades de classe.</p>
+                                    <p className="text-vaccineGray-600">Sem habilidades de classe.</p>
                                 )}
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-vaccineBlack">Subclasses</h4>
+                                <h4 className="font-semibold text-vaccineGray-300">Subclasses</h4>
                                 {charClass.subclasses && charClass.subclasses.length > 0 ? (
                                     <div className="space-y-3 mt-2">
                                         {charClass.subclasses.map((subclass) => (
@@ -121,7 +121,7 @@ export function ClassesTab({
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-gray-600">Sem subclasses.</p>
+                                    <p className="text-vaccineGray-600">Sem subclasses.</p>
                                 )}
                             </div>
                         </article>

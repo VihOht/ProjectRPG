@@ -121,6 +121,9 @@ export interface Character {
   abilities?: CharacterAbility[];
   is_player: boolean;
   active: boolean;
+  backstory?: string;
+  physical_description?: string;
+  Psycological_description?: string;
 }
 
 // Create Character Request
@@ -166,6 +169,9 @@ export interface UpdateCharacterRequest {
   base_ocultism?: number;
   base_mana?: number;
   active?: boolean;
+  backstory?: string;
+  physical_description?: string;
+  Psycological_description?: string;
 }
 
 // Update Character Response

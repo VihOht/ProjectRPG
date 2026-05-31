@@ -43,7 +43,7 @@ export function CharacterInformation({
                         <h2 className="text-3xl font-walthari font-semibold mb-4 text-vaccineGray-300">
                             Informações Básicas
                         </h2>
-                        <button onClick={() => {setIsEditing(!isEditing); if (isEditing) {update();}}} className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-red-700 transition-colors">
+                        <button onClick={() => {setIsEditing(!isEditing); if (isEditing) {update();}}} className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100">
                             {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                         </button>
                     </div>

@@ -53,7 +53,7 @@ export function CharacterAttributes({
                             onUpdate();
                         }
                     }}
-                    className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-red-700 transition-colors"
+                    className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100"
                 >
                     {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                 </button>
@@ -61,20 +61,20 @@ export function CharacterAttributes({
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse border border-gray-300">
                     <thead>
-                        <tr className="bg-vaccineGray text-vaccineBlack">
-                            <th className="border font-trajanPBold bg-vaccineGray-300 color-black border-gray-300 px-4 py-2 text-left">
+                        <tr className="bg-vaccineGray text-vaccineGray-200">
+                            <th className="border font-trajanPBold bg-vaccineBlueTones-1000/70 color-black border-vaccineGray-300 px-4 py-2 text-left">
                                 Atributo
                             </th>
-                            <th className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
+                            <th className="border font-trajanPBold bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-center">
                                 Base
                             </th>
-                            <th className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
+                            <th className="border font-trajanPBold bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-center">
                                 Total
                             </th>
-                            <th className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 text-left">
+                            <th className="border font-trajanPBold bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-left">
                                 Perícia
                             </th>
-                            <th className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center">
+                            <th className="border font-trajanPBold bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-center">
                                 Valor
                             </th>
                         </tr>
@@ -87,10 +87,10 @@ export function CharacterAttributes({
                             return (
                                 
                                 <tr>
-                                    <td className="border font-trajanPBold bg-vaccineGray-300 border-gray-300 px-4 py-2 font-medium">
+                                    <td className="border font-trajanPBold bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 font-medium text-vaccineGray-200">
                                         {attribute.name}
                                     </td>
-                                    <td className="border bg-vaccineGray-300 border-gray-300 px-2 py-2">
+                                    <td className="border bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-2 py-2 text-vaccineGray-400">
                                         <input
                                             type="number"
                                             value={attribute.base}
@@ -107,29 +107,29 @@ export function CharacterAttributes({
                                             } rounded focus:outline-none focus:ring-1 focus:ring-vaccineRed`}
                                         />
                                     </td>
-                                    <td className="border bg-vaccineGray-300 border-gray-300 px-2 py-2">
+                                    <td className="border bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-2 py-2 ">
                                         <input
                                             type="number"
                                             value={attribute.total}
                                             readOnly={true}
-                                            className="w-full px-2 py-1 text-center font-bold rounded focus:outline-none bg-gray-100"
+                                            className="w-full px-2 py-1 text-center font-bold rounded focus:outline-none bg-gray-300 "
                                         />
                                     </td>
                                     {/* Pericia header cell */}
                                     {hasNoPericias ? (
-                                        <td className="border bg-vaccineGray-300 border-gray-300 px-4 py-2 text-center" colSpan={2}>
+                                        <td className="border bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-center text-vaccineGray-400" colSpan={2}>
                                             Sem perícias
                                         </td>
                                     ) : (
                                         <>
-                                        <td className="border font-trajanPRegular bg-vaccineGray-300 border-gray-300 px-4 py-2 text-left">
+                                        <td className="border font-trajanPRegular bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-left text-vaccineGray-400">
                                             {attributePericias.map((pericia) => (
                                                 <div key={pericia.pericia_id} className="mb-2">
                                                     {pericia.name}
                                                 </div>
                                             ))}
                                         </td>
-                                        <td className="border font-trajanPRegular bg-vaccineGray-300 border-gray-300 px-4 py-2 text-left">
+                                        <td className="border font-trajanPRegular bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-left text-vaccineGray-400">
                                             {attributePericias.map((pericia) => (
                                                 <input
                                                     key={pericia.pericia_id}

@@ -44,7 +44,7 @@ export default function ClassesPage() {
       <main className="flex-1 p-8 space-y-6">
         <section className="max-w-6xl mx-auto bg-vaccineGray-300 rounded-lg shadow-lg p-6">
           <h1 className="text-3xl font-bold text-vaccineRed mb-2">Classes</h1>
-          <p className="text-vaccineBlack mb-6">
+          <p className="text-vaccineGray-500 mb-6">
             Visualizacao hierarquica: classe, habilidades da classe, subclasses e habilidades das subclasses.
           </p>
 
@@ -70,7 +70,7 @@ export default function ClassesPage() {
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-gray-600">Sem habilidades de classe.</p>
+                      <p className="text-vaccineGray-400">Sem habilidades de classe.</p>
                     )}
                   </div>
 
