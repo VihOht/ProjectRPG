@@ -18,7 +18,7 @@ export function CharacterBackstory({
         <section className="mb-8">
             <div className="items-center flex justify-between mb-4">
                 <h2 className="text-3xl font-walthari font-semibold mb-4 text-vaccineGray-300">
-                    História
+                    Lore
                 </h2>
 
                 <button
@@ -36,7 +36,7 @@ export function CharacterBackstory({
                 <textarea
                     value={backstory}
                     onChange={(e) => handleBackstoryChange(e.target.value)}
-                    className="w-full min-h-40 rounded-md border border-vaccineGray-300 bg-vaccineBlueTones-900 p-4 text-white"
+                    className="w-full min-h-40 rounded-md border border-vaccineGray-300 bg-vaccineBlueTones-900 p-4 text-white placeholder:text-vaccineBlueTones-300"
                     placeholder="Digite a história do personagem..."
                 />
             ) : (

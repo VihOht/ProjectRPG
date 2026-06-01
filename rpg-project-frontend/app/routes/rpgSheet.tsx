@@ -270,12 +270,23 @@ export default function RpgSheet() {
             return;
         }
 
-        if (field === "idade" || field === "nivel") {
+        if (field === "nivel") {
             setCharacterData({
                 ...characterData,
                 informations: {
                     ...characterData.informations,
-                    [field]: Number(value) || 0,
+                    [field]: (Number(value) && Number(value) >= 0 && Number(value) <= 50 || Number(value) == 888 || Number(value) == 88) ? Number(value) : 0,
+                }
+            });
+            return;
+        }
+
+        if (field === "idade") {
+            setCharacterData({
+                ...characterData,
+                informations: {
+                    ...characterData.informations,
+                    [field]: (Number(value) && Number(value) >= 0) ? Number(value) : 0,
                 }
             });
             return;
@@ -613,12 +624,6 @@ export default function RpgSheet() {
                         onUpdate={updateCharacterSheet}
                     />
 
-                    <CharacterBackstory
-                        backstory={characterData.backstory}
-                        handleBackstoryChange={handleBackstoryChange}
-                        update={updateCharacterBackstory}
-                    />
-
                     <CharacterPhysicaldesc
                         physicaldesc={characterData.physical_description}
                         handlePhysicaldescChange={handlePhysicalDescChange}
@@ -629,6 +634,12 @@ export default function RpgSheet() {
                         psycDesc={characterData.Psycological_description}
                         handlePsycDescChange={handlePsycDescChange}
                         update={updateCharacterPsycDesc}
+                    />
+
+                    <CharacterBackstory
+                        backstory={characterData.backstory}
+                        handleBackstoryChange={handleBackstoryChange}
+                        update={updateCharacterBackstory}
                     />
                     </div>
                 </main>
