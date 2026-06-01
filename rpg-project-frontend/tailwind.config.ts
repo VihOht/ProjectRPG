@@ -20,7 +20,7 @@ export default {
             100: "#f9f9f9",
 
         },
-        vaccinePurple: "#a61bc2",
+        vaccinePurple: "rgb(159, 6, 214)",
         vaccineBlack: "#000000",
         vaccineDarkBlue: "#010011",
         vaccineBlue: "#02001c",
