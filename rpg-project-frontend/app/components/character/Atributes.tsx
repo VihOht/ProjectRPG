@@ -28,6 +28,14 @@ export function CharacterAttributes({
         periciasByAttribute[pericia.attribute_id].push(pericia);
     });
 
+    const periciaTotalByAttribute: Record<number, number> = {};
+    pericias.forEach((pericia) => {
+        if (!periciaTotalByAttribute[pericia.attribute_id]) {
+            periciaTotalByAttribute[pericia.attribute_id] = 0;
+        }
+        periciaTotalByAttribute[pericia.attribute_id] += pericia.base + pericia.bonus;
+    });
+
     function handleAttributeChange(attributeId: number, field: string, value: number) {
         if (isEditing) {
             onAttributeChange(attributeId, field, value);
@@ -83,10 +91,10 @@ export function CharacterAttributes({
                         {attributes.map((attribute) => {
                             const attributePericias = periciasByAttribute[attribute.attribute_id] || [];
                             const hasNoPericias = attributePericias.length === 0;
+                            const computedTotal = Math.max(attribute.base, periciaTotalByAttribute[attribute.attribute_id] ?? 0);
 
                             return (
-                                
-                                <tr>
+                                <tr key={attribute.attribute_id}>
                                     <td className="border font-trajanPBold bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 font-medium text-vaccineGray-200">
                                         {attribute.name}
                                     </td>
@@ -110,7 +118,7 @@ export function CharacterAttributes({
                                     <td className="border bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-2 py-2 ">
                                         <input
                                             type="number"
-                                            value={attribute.total}
+                                            value={computedTotal}
                                             readOnly={true}
                                             className="w-full px-2 py-1 text-center font-bold rounded focus:outline-none bg-gray-300 "
                                         />
@@ -134,11 +142,11 @@ export function CharacterAttributes({
                                                 <input
                                                     key={pericia.pericia_id}
                                                     type="number"
-                                                    value={pericia.total}
+                                                    value={pericia.base + pericia.bonus}
                                                     onChange={(e) =>
                                                         handlePericiaChange(
                                                             pericia.pericia_id,
-                                                            "value",
+                                                            "total",
                                                             parseInt(e.target.value) || 0
                                                         )
                                                     }

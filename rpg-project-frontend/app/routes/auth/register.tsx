@@ -46,7 +46,7 @@ export default function RegisterPage() {
     <StarSky>
       <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
         <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
-          <h1 className="text-4xl text-center font-myFont text-vaccineRed mb-2">Vaccine</h1>
+          <h1 className="text-4xl text-center font-myFont text-vaccineRed mb-2">Insonia</h1>
           <p className="text-center text-vaccineBlack mb-6">Criar nova conta</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

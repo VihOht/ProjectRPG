@@ -80,6 +80,29 @@ export default function RpgSheet() {
 
     });
 
+    function getPericiaTotal(pericia: CharacterPericiaItem) {
+        return (pericia.base ?? 0) + (pericia.bonus ?? 0);
+    }
+
+    function recalculateAttributes(attributes: CharacterAttributeItem[], pericias: CharacterPericiaItem[]) {
+        const periciaTotalsByAttributeId = pericias.reduce<Record<number, number>>((accumulator, pericia) => {
+            accumulator[pericia.attribute_id] = (accumulator[pericia.attribute_id] ?? 0) + getPericiaTotal(pericia);
+            return accumulator;
+        }, {});
+
+        return attributes.map((attribute) => {
+            const periciaTotal = periciaTotalsByAttributeId[attribute.attribute_id] ?? 0;
+            // Bonus cannot be negative: attribute total must be at least the base value
+            const bonus = Math.max(0, periciaTotal - attribute.base);
+
+            return {
+                ...attribute,
+                bonus,
+                total: attribute.base + bonus,
+            };
+        });
+    }
+
     const ownerUser = useMemo(() => {
         if (!isAdmin) {
             return null;
@@ -278,31 +301,56 @@ export default function RpgSheet() {
     };
 
     const handleAttributeChange = (attributeId: number, field: string, value: number) => {
-        const newAttributes = characterData.attributes.map((attr) => {
-            if (attr.attribute_id === attributeId) {
-                const updatedAttribute = { ...attr, [field]: value };
-                if (field === 'base') {
-                    updatedAttribute.total = updatedAttribute.base + updatedAttribute.bonus;
+        setCharacterData((prev) => {
+            const updatedAttributes = prev.attributes.map((attr) => {
+                if (attr.attribute_id !== attributeId) {
+                    return attr;
                 }
-                return updatedAttribute;
-            }
-            return attr;
+
+                return {
+                    ...attr,
+                    [field]: value,
+                };
+            });
+
+            return {
+                ...prev,
+                attributes: recalculateAttributes(updatedAttributes, prev.pericias),
+            };
         });
-        setCharacterData({ ...characterData, attributes: newAttributes });
     };
 
     const handlePericiaChange = (periciaId: number, field: string, value: number) => {
-        const newPericias = characterData.pericias.map((pericia) => {
-            if (pericia.pericia_id === periciaId) {
-                const updatedPericia = { ...pericia, [field]: value };
-                if (field === 'base') {
-                    updatedPericia.total = updatedPericia.base + updatedPericia.bonus;
+        setCharacterData((prev) => {
+            const updatedPericias = prev.pericias.map((pericia) => {
+                if (pericia.pericia_id !== periciaId) {
+                    return pericia;
                 }
-                return updatedPericia;
-            }
-            return pericia;
+
+                if (field === 'base') {
+                    return {
+                        ...pericia,
+                        base: value,
+                        total: value + pericia.bonus,
+                    };
+                }
+
+                const totalValue = value;
+                const baseValue = totalValue - pericia.bonus;
+
+                return {
+                    ...pericia,
+                    base: baseValue,
+                    total: totalValue,
+                };
+            });
+
+            return {
+                ...prev,
+                pericias: updatedPericias,
+                attributes: recalculateAttributes(prev.attributes, updatedPericias),
+            };
         });
-        setCharacterData({ ...characterData, pericias: newPericias });
     };
 
     const handleBackstoryChange = (value: string) => {
@@ -580,7 +628,7 @@ export default function RpgSheet() {
                     <CharacterPsycDesc
                         psycDesc={characterData.Psycological_description}
                         handlePsycDescChange={handlePsycDescChange}
-                        update={updateCharacterPhysicalDesc}
+                        update={updateCharacterPsycDesc}
                     />
                     </div>
                 </main>

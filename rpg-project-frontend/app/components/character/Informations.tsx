@@ -55,7 +55,7 @@ export function CharacterInformation({
                             <select
                                 value={charInformations.classe}
                                 onChange={(e) => handleChange("classe", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 ${charInformations.classe != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 ${charInformations.classe != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
                                 disabled={!isEditing}
                             >
                                 <option  value="">Selecione uma classe</option>
@@ -73,7 +73,7 @@ export function CharacterInformation({
                             <select
                                 value={charInformations.subclasse}
                                 onChange={(e) => handleChange("subclasse", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border border-gray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300`}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border border-gray-400 text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${charInformations.subclasse != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
                                 disabled={!isEditing || !charInformations.classe}
                             >
                                 <option value="">Selecione uma subclasse</option>
@@ -91,7 +91,7 @@ export function CharacterInformation({
                             <select
                                 value={charInformations.segunda_classe}
                                 onChange={(e) => handleChange("segunda_classe", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300`}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${charInformations.segunda_classe != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
                                 disabled={!isEditing}
                             >
                                 <option value="">Selecione uma segunda classe</option>
@@ -109,7 +109,7 @@ export function CharacterInformation({
                             <select
                                 value={charInformations.raca}
                                 onChange={(e) => handleChange("raca", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000  px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300`}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000  px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${charInformations.raca != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
                                 disabled={!isEditing}
                             >
                                 <option value="">Selecione uma raça</option>
@@ -128,7 +128,7 @@ export function CharacterInformation({
                                 type="text"
                                 value={charInformations.genero}
                                 onChange={(e) => handleChange("genero", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineBlueTones-300`}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineBlueTones-300 ${charInformations.genero != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
                                 readOnly={!isEditing}
                             />
                         </div>
@@ -140,7 +140,7 @@ export function CharacterInformation({
                                 type="text"
                                 value={charInformations.idade}
                                 onChange={(e) => handleChange("idade", e.target.value)}
-                                className={`w-full font-trajanPRegular   bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border border-gray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-400`}
+                                className={`w-full font-trajanPRegular   bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border border-gray-400 text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-400`}
                                 readOnly={!isEditing}
                             />
                         </div>
