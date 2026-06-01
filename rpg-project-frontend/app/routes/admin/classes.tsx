@@ -28,7 +28,7 @@ export default function AdminClassesPage() {
       <Header />
       <main className="flex-1 p-8">
         <div className="max-w-2xl mx-auto bg-vaccineGray-300 rounded-lg shadow-lg p-6">
-          <h1 className="text-3xl font-bold text-vaccineRed mb-4">Criar Classe</h1>
+          <h1 className="text-3xl font-bold text-vaccinePurple mb-4">Criar Classe</h1>
           <form
             className="flex flex-col gap-3"
             onSubmit={(e) => {
@@ -62,7 +62,7 @@ export default function AdminClassesPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+              className="px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-purple-700 transition-colors disabled:opacity-60"
             >
               {isPending ? "Salvando..." : "Criar Classe"}
             </button>

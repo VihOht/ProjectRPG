@@ -45,7 +45,7 @@ export default function LoginPage() {
 		<StarSky>
 			<div className="min-h-screen  text-vaccineBlack flex items-center justify-center p-4 font-vollkorn">
 				<div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
-					<h1 className="text-4xl text-center font-myFont text-vaccineRed mb-2">Insonia</h1>
+					<h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
 					<p className="text-center text-vaccineBlack mb-6">Entrar na sua conta</p>
 
 					<form onSubmit={handleSubmit} className="space-y-4">
@@ -59,7 +59,7 @@ export default function LoginPage() {
 								required
 								value={form.username}
 								onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
-								className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
+								className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccinePurple"
 							/>
 						</div>
 
@@ -73,18 +73,18 @@ export default function LoginPage() {
 								required
 								value={form.password}
 								onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-								className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
+								className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccinePurple"
 							/>
 						</div>
 
 						{loginMutation.isError ? (
-							<p className="text-sm text-vaccineRed font-semibold">{errorMessage}</p>
+							<p className="text-sm text-vaccinePurple font-semibold">{errorMessage}</p>
 						) : null}
 
 						<button
 							type="submit"
 							disabled={loginMutation.isPending}
-							className="w-full px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+							className="w-full px-4 py-2 bg-vaccinePurple rounded-md hover:bg-purple-700 transition-colors disabled:opacity-60 text-white"
 						>
 							{loginMutation.isPending ? "Entrando..." : "Entrar"}
 						</button>
@@ -92,7 +92,7 @@ export default function LoginPage() {
 
 					<p className="text-center text-sm text-vaccineBlack mt-6">
 						Nao tem conta?{" "}
-						<Link to="/auth/register" className="font-semibold text-vaccineRed hover:underline">
+						<Link to="/auth/register" className="font-semibold text-vaccinePurple hover:underline">
 							Registrar
 						</Link>
 					</p>

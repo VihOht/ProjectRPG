@@ -75,7 +75,7 @@ export default function Index() {
               },
             );
           }}
-          className="px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors"
+          className="px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-purple-700 transition-colors"
         >
           Nova Ficha
         </button>
@@ -83,7 +83,7 @@ export default function Index() {
 
       <main className="flex-1 flex font-vollkorn items-center justify-center p-8 ">
         <div className="bg-vaccineGray-300/0 border-1 border-vaccineGray-300/50 text-shadow-lg rounded-lg shadow-lg p-8 max-w-6xl w-full mx-auto">
-          <h3 className="text-4xl w-full text-center font-bold mb-6 text-vaccineRed ">
+          <h3 className="text-4xl w-full text-center font-bold mb-6 text-vaccinePurple ">
             Fichas
           </h3>
 
@@ -128,7 +128,7 @@ export default function Index() {
                                 onClick={() =>
                                   navigate(`/ficha/${character.id}`)
                                 }
-                                className="px-3 py-1.5 rounded-md bg-vaccineRed text-white hover:bg-red-700 transition-colors"
+                                className="px-3 py-1.5 rounded-md bg-vaccinePurple text-white hover:bg-purple-700 transition-colors"
                               >
                                 Abrir
                               </button>
@@ -181,7 +181,7 @@ export default function Index() {
                                 onClick={() =>
                                   navigate(`/ficha/${character.id}`)
                                 }
-                                className="px-3 py-1.5 rounded-md bg-vaccineRed text-white hover:bg-red-700 transition-colors"
+                                className="px-3 py-1.5 rounded-md bg-vaccinePurple text-white hover:bg-purple-700 transition-colors"
                               >
                                 Abrir
                               </button>

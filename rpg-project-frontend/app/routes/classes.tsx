@@ -43,7 +43,7 @@ export default function ClassesPage() {
 
       <main className="flex-1 p-8 space-y-6">
         <section className="max-w-6xl mx-auto bg-vaccineGray-300 rounded-lg shadow-lg p-6">
-          <h1 className="text-3xl font-bold text-vaccineRed mb-2">Classes</h1>
+          <h1 className="text-3xl font-bold text-vaccinePurple mb-2">Classes</h1>
           <p className="text-vaccineGray-500 mb-6">
             Visualizacao hierarquica: classe, habilidades da classe, subclasses e habilidades das subclasses.
           </p>
@@ -56,7 +56,7 @@ export default function ClassesPage() {
             <div className="space-y-5">
               {classes.map((charClass) => (
                 <article key={charClass.id} className="bg-white/70 rounded-md p-4 border border-gray-200">
-                  <h2 className="text-2xl font-semibold text-vaccineRed">{charClass.name}</h2>
+                  <h2 className="text-2xl font-semibold text-vaccinePurple">{charClass.name}</h2>
                   <p className="text-gray-700 mb-3">{charClass.description}</p>
 
                   <div className="mb-3">
@@ -79,7 +79,7 @@ export default function ClassesPage() {
                     {charClass.subclasses && charClass.subclasses.length > 0 ? (
                       <div className="space-y-3 mt-2">
                         {charClass.subclasses.map((subclass) => (
-                          <div key={subclass.id} className="border-l-4 border-vaccineRed pl-4 py-1">
+                          <div key={subclass.id} className="border-l-4 border-vaccinePurple pl-4 py-1">
                             <h4 className="font-semibold text-vaccineBlack">{subclass.name}</h4>
                             <p className="text-gray-700">{subclass.description}</p>
 
@@ -124,7 +124,7 @@ export default function ClassesPage() {
               );
             }}
           >
-            <h3 className="text-xl font-semibold text-vaccineRed">Criar Classe</h3>
+            <h3 className="text-xl font-semibold text-vaccinePurple">Criar Classe</h3>
             <input
               className="bg-white border border-gray-300 rounded-md px-3 py-2"
               placeholder="Nome"
@@ -143,7 +143,7 @@ export default function ClassesPage() {
             <button
               type="submit"
               disabled={isCreatingClass}
-              className="px-4 py-2 bg-vaccineRed  rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+              className="px-4 py-2 bg-vaccinePurple  rounded-md hover:bg-purple-700 transition-colors disabled:opacity-60"
             >
               {isCreatingClass ? "Salvando..." : "Criar"}
             </button>
@@ -169,7 +169,7 @@ export default function ClassesPage() {
               );
             }}
           >
-            <h3 className="text-xl font-semibold text-vaccineRed">Criar Subclasse</h3>
+            <h3 className="text-xl font-semibold text-vaccinePurple">Criar Subclasse</h3>
             <select
               className="bg-white border border-gray-300 rounded-md px-3 py-2"
               value={subclassClassId}
@@ -201,7 +201,7 @@ export default function ClassesPage() {
             <button
               type="submit"
               disabled={isCreatingSubclass}
-              className="px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+              className="px-4 py-2 bg-vaccinePurple rounded-md hover:bg-purple-700 transition-colors disabled:opacity-60"
             >
               {isCreatingSubclass ? "Salvando..." : "Criar"}
             </button>
@@ -229,7 +229,7 @@ export default function ClassesPage() {
               );
             }}
           >
-            <h3 className="text-xl font-semibold text-vaccineRed">Criar Ability</h3>
+            <h3 className="text-xl font-semibold text-vaccinePurple">Criar Ability</h3>
             <input
               className="bg-white border border-gray-300 rounded-md px-3 py-2"
               placeholder="Nome"
@@ -276,7 +276,7 @@ export default function ClassesPage() {
             <button
               type="submit"
               disabled={isCreatingAbility}
-              className="px-4 py-2 bg-vaccineRed rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+              className="px-4 py-2 bg-vaccinePurple rounded-md hover:bg-purple-700 transition-colors disabled:opacity-60"
             >
               {isCreatingAbility ? "Salvando..." : "Criar"}
             </button>

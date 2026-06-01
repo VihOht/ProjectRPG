@@ -421,7 +421,7 @@ export default function RpgSheet() {
                                 });
                             }
                         }}
-                        className="px-4 py-2 bg-vaccineRed/40 hover:bg-vaccineRed/80 text-white rounded-md hover:bg-red-00 transition-colors"
+                        className="px-4 py-2 bg-vaccinePurple/40 hover:bg-vaccinePurple/80 text-white rounded-md hover:bg-purple-00 transition-colors"
                     >
                         Deletar Ficha
                     </button>
@@ -434,7 +434,7 @@ export default function RpgSheet() {
                         </h1>
 
                         {isAdmin && characterDataQuerry?.character && (
-                            <section className="mb-8 rounded-lg border border-vaccineRed/30 bg-white/80 p-4 space-y-4">
+                            <section className="mb-8 rounded-lg border border-vaccinePurple/30 bg-white/80 p-4 space-y-4">
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                     <div>
                                         <p className="text-sm uppercase tracking-wide text-gray-600">Administração</p>
@@ -450,7 +450,7 @@ export default function RpgSheet() {
                                         type="button"
                                         onClick={handleToggleActive}
                                         disabled={isActivating || isDeactivating}
-                                        className="px-4 py-2 rounded-md bg-vaccineRed text-white hover:opacity-90 disabled:opacity-60 transition-colors"
+                                        className="px-4 py-2 rounded-md bg-vaccinePurple text-white hover:opacity-90 disabled:opacity-60 transition-colors"
                                     >
                                         {characterDataQuerry.character.active ? "Desativar ficha" : "Ativar ficha"}
                                     </button>
@@ -470,7 +470,7 @@ export default function RpgSheet() {
                                                 </option>
                                             ))}
                                             {characterDataQuerry?.character?.is_player && (
-                                                <option value="RETURN_TO_NPC" className="text-vaccineRed font-semibold">
+                                                <option value="RETURN_TO_NPC" className="text-vaccinePurple font-semibold">
                                                     Devolver para NPC
                                                 </option>
                                             )}
@@ -497,7 +497,7 @@ export default function RpgSheet() {
                                     setIsEditingHeader(false);
                                     updateCharacterInformation();
                                 }} 
-                                className="absolute top-0 right-0 px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors"
+                                className="absolute top-0 right-0 px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-purple-700 transition-colors"
                             >
                                 Salvar
                             </button>
@@ -509,7 +509,7 @@ export default function RpgSheet() {
                                     type="text"
                                     value={characterData.informations.nome}
                                     onChange={(e) => handleInfoChange("nome", e.target.value)}
-                                    className="text-4xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-4 py-2 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccineRed"
+                                    className="text-4xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-4 py-2 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple"
                                     placeholder="Nome do Personagem"
                                     autoFocus
                                 />
@@ -520,7 +520,7 @@ export default function RpgSheet() {
                                         min="1"
                                         value={characterData.informations.nivel}
                                         onChange={(e) => handleInfoChange("nivel", e.target.value)}
-                                        className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccineRed w-20"
+                                        className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple w-20"
                                     />
                                 </div>
                             </div>
@@ -528,7 +528,7 @@ export default function RpgSheet() {
                             <>
                                 <h2 
                                     onClick={() => setIsEditingHeader(true)}
-                                    className="text-4xl  font-bold text-vaccineRed mb-3 cursor-pointer hover:opacity-80 transition-opacity"
+                                    className="text-4xl  font-bold text-vaccinePurple mb-3 cursor-pointer hover:opacity-80 transition-opacity"
                                     title="Clique para editar"
                                 >
                                     {characterData.informations.nome || "Nome do Personagem"}

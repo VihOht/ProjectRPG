@@ -35,12 +35,12 @@ export function ClassesTab({
                     {classes.map((charClass) => (
                         <article key={charClass.id} className="bg-vaccineBlueTones-1000 rounded-md p-4 border border-white ">
                             <div className="flex items-start justify-between gap-3">
-                                <h3 className="text-2xl font-semibold text-vaccineRed">{charClass.name}</h3>
+                                <h3 className="text-2xl font-semibold text-vaccinePurple">{charClass.name}</h3>
                                 {isAdmin && (
                                     <button
                                         type="button"
                                         onClick={() => onDeleteClass(charClass.id)}
-                                        className="rounded-md bg-vaccineRed px-3 py-1 text-sm text-white hover:opacity-90"
+                                        className="rounded-md bg-vaccinePurple px-3 py-1 text-sm text-white hover:opacity-90"
                                     >
                                         Excluir classe
                                     </button>
@@ -61,7 +61,7 @@ export function ClassesTab({
                                                     <button
                                                         type="button"
                                                         onClick={() => onDeleteAbility(ability.id)}
-                                                        className="rounded-md bg-vaccineRed px-3 py-1 text-xs text-white hover:opacity-90"
+                                                        className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
                                                     >
                                                         Excluir
                                                     </button>
@@ -79,14 +79,14 @@ export function ClassesTab({
                                 {charClass.subclasses && charClass.subclasses.length > 0 ? (
                                     <div className="space-y-3 mt-2">
                                         {charClass.subclasses.map((subclass) => (
-                                            <div key={subclass.id} className="border-l-4 border-vaccineRed pl-4 py-1">
+                                            <div key={subclass.id} className="border-l-4 border-vaccinePurple pl-4 py-1">
                                                 <div className="flex items-start justify-between gap-3">
                                                     <h5 className="font-semibold text-vaccineBlack">{subclass.name}</h5>
                                                     {isAdmin && (
                                                         <button
                                                             type="button"
                                                             onClick={() => onDeleteSubclass(subclass.id)}
-                                                            className="rounded-md bg-vaccineRed px-3 py-1 text-xs text-white hover:opacity-90"
+                                                            className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
                                                         >
                                                             Excluir subclasse
                                                         </button>
@@ -106,7 +106,7 @@ export function ClassesTab({
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => onDeleteAbility(ability.id)}
-                                                                        className="rounded-md bg-vaccineRed px-3 py-1 text-xs text-white hover:opacity-90"
+                                                                        className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
                                                                     >
                                                                         Excluir
                                                                     </button>
