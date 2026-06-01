@@ -138,6 +138,11 @@ class PericiasService:
         pericia = Pericia.query.get(pericia_id)
         if not pericia:
             return None, "Pericia not found"
+
+        impacted_character_attributes_ids = [
+            item.character_attributes_pericias_id
+            for item in CharacterPericiaValue.query.filter_by(pericia_id=pericia_id).all()
+        ]
         
         if name:
             pericia.name = name
@@ -146,6 +151,11 @@ class PericiasService:
         if attribute_id:
             pericia.attribute_id = attribute_id
         
+        db.session.commit()
+
+        CharacterAttributesService.sync_attribute_bonuses_for_character_attributes_ids(
+            impacted_character_attributes_ids
+        )
         db.session.commit()
         return pericia, None
 
@@ -156,9 +166,19 @@ class PericiasService:
         if not pericia:
             return False, "Pericia not found"
 
+        impacted_character_attributes_ids = [
+            item.character_attributes_pericias_id
+            for item in CharacterPericiaValue.query.filter_by(pericia_id=pericia_id).all()
+        ]
+
         CharacterPericiaValue.query.filter_by(pericia_id=pericia_id).delete(synchronize_session=False)
         
         db.session.delete(pericia)
+        db.session.commit()
+
+        CharacterAttributesService.sync_attribute_bonuses_for_character_attributes_ids(
+            impacted_character_attributes_ids
+        )
         db.session.commit()
         return True, None
 
@@ -371,6 +391,41 @@ class CharacterAttributesService:
         return int(base_value) + int(bonus_value)
 
     @staticmethod
+    def sync_attribute_bonuses(char_attrs):
+        """Recalculate attribute bonuses so totals match the sum of related pericias."""
+        pericia_totals_by_attribute_id = {}
+
+        for pericia_value in char_attrs.pericias:
+            pericia = pericia_value.pericia
+            if pericia is None or pericia.attribute_id is None:
+                continue
+
+            pericia_total = int(pericia_value.baseValue) + int(pericia_value.bonusValue)
+            pericia_totals_by_attribute_id[pericia.attribute_id] = (
+                pericia_totals_by_attribute_id.get(pericia.attribute_id, 0) + pericia_total
+            )
+
+        for attribute_value in char_attrs.attributes:
+            base_value = int(attribute_value.baseValue)
+            pericia_total = int(pericia_totals_by_attribute_id.get(attribute_value.attribute_id, 0))
+            # Bonus cannot be negative: attribute total should be at least the base.
+            attribute_value.bonusValue = max(0, pericia_total - base_value)
+            attribute_value.sync_legacy_value()
+
+    @staticmethod
+    def sync_attribute_bonuses_for_character_attributes_ids(character_attributes_ids):
+        """Recalculate attribute bonuses for a set of character attribute containers."""
+        if not character_attributes_ids:
+            return
+
+        char_attrs_list = CharacterAttributesPericias.query.filter(
+            CharacterAttributesPericias.id.in_(character_attributes_ids)
+        ).all()
+
+        for char_attrs in char_attrs_list:
+            CharacterAttributesService.sync_attribute_bonuses(char_attrs)
+
+    @staticmethod
     def create_character_attributes(character_id):
         """Create character attributes record"""
         char_attrs = CharacterAttributesPericias(character_id=character_id)
@@ -491,7 +546,7 @@ class CharacterAttributesService:
 
         existing_values = {
             item.attribute_id: item
-            for item in CharacterAttributeValue.query.filter_by(character_attributes_id=char_attrs.id).all()
+            for item in CharacterAttributeValue.query.filter_by(character_attributes_pericias_id=char_attrs.id).all()
         }
 
         for item in attributes_data:
@@ -518,7 +573,7 @@ class CharacterAttributesService:
             else:
                 db.session.add(
                     CharacterAttributeValue(
-                        character_attributes_id=char_attrs.id,
+                        character_attributes_pericias_id=char_attrs.id,
                         attribute_id=attribute_id,
                         baseValue=int(base_value),
                         bonusValue=int(bonus_value),
@@ -543,6 +598,9 @@ class CharacterAttributesService:
             for item in CharacterPericiaValue.query.filter_by(character_attributes_pericias_id=char_attrs.id).all()
         }
 
+
+        max_values = {}
+
         for item in pericias_data:
             pericia_id = item.get('pericia_id')
             base_value = item.get('base')
@@ -556,9 +614,11 @@ class CharacterAttributesService:
 
             if bonus_value is None:
                 bonus_value = 0
-
+            
             if not Pericia.query.get(pericia_id):
                 continue
+            
+
 
             if pericia_id in existing_values:
                 existing_values[pericia_id].baseValue = int(base_value)
@@ -573,6 +633,7 @@ class CharacterAttributesService:
                     )
                 )
 
+        CharacterAttributesService.sync_attribute_bonuses(char_attrs)
         db.session.commit()
         return char_attrs, None
 
