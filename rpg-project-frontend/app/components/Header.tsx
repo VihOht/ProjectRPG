@@ -10,7 +10,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
     return (
         <header className="p-4 text-black shadow-md border-b-1 border-vaccineGray-1000 font-trajanPRegular flex justify-between items-center">
-            <Link to="/" className="text-2xl text-white font-trajanPRegular hover:text-vaccineRed transition-colors">
+            <Link to="/" className="text-2xl text-white font-trajanPRegular hover:text-vaccinePurple transition-colors">
                     Insonia
             </Link>
             <div className="flex items-center gap-2">

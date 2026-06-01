@@ -60,7 +60,7 @@ export default function RegisterPage() {
                 required
                 value={form.username}
                 onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
-                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
+                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccinePurple"
               />
             </div>
 
@@ -74,7 +74,7 @@ export default function RegisterPage() {
                 required
                 value={form.email}
                 onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
+                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccinePurple"
               />
             </div>
 
@@ -88,18 +88,18 @@ export default function RegisterPage() {
                 required
                 value={form.password}
                 onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccineRed"
+                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccinePurple"
               />
             </div>
 
             {registerMutation.isError ? (
-              <p className="text-sm text-vaccineRed font-semibold">{errorMessage}</p>
+              <p className="text-sm text-vaccinePurple font-semibold">{errorMessage}</p>
             ) : null}
 
             <button
               type="submit"
               disabled={registerMutation.isPending}
-              className="w-full px-4 py-2 bg-vaccineRed text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60"
+              className="w-full px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-purple-700 transition-colors disabled:opacity-60"
             >
               {registerMutation.isPending ? "Registrando..." : "Registrar"}
             </button>
@@ -107,7 +107,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm text-vaccineBlack mt-6">
             Ja tem conta?{" "}
-            <Link to="/auth/login" className="font-semibold text-vaccineRed hover:underline">
+            <Link to="/auth/login" className="font-semibold text-vaccinePurple hover:underline">
               Entrar
             </Link>
           </p>

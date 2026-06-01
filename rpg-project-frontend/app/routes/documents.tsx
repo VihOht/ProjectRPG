@@ -474,7 +474,7 @@ export default function DocumentsPage() {
                     <div>
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
-                                <h1 className="text-3xl font-trajanPBold font-bold text-vaccineRed mb-2">Documentos</h1>
+                                <h1 className="text-3xl font-trajanPBold font-bold text-vaccinePurple mb-2">Documentos</h1>
                                 <p className="text-vaccineBlack">
                                     Classes, atributos, perícias e lore centralizados em abas.
                                 </p>
@@ -485,7 +485,7 @@ export default function DocumentsPage() {
                                     <button
                                         type="button"
                                         onClick={() => openAdminModal("class")}
-                                        className="rounded-md bg-vaccineRed px-4 py-2 text-white hover:opacity-90"
+                                        className="rounded-md bg-vaccinePurple px-4 py-2 text-white hover:opacity-90"
                                     >
                                         Criar classes
                                     </button>
@@ -499,7 +499,7 @@ export default function DocumentsPage() {
                                     <button
                                         type="button"
                                         onClick={() => openAdminModal("lore_session")}
-                                        className="rounded-md bg-vaccineRed px-4 py-2 text-white hover:opacity-90"
+                                        className="rounded-md bg-vaccinePurple px-4 py-2 text-white hover:opacity-90"
                                     >
                                         Criar lore
                                     </button>
@@ -517,7 +517,7 @@ export default function DocumentsPage() {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as DocumentsTab)}
-                                className={`px-4 py-2 rounded-md transition-colors ${activeTab === tab.id ? "bg-vaccineRed text-white" : "bg-white text-vaccineBlack hover:bg-gray-100"}`}
+                                className={`px-4 py-2 rounded-md transition-colors ${activeTab === tab.id ? "bg-vaccinePurple text-white" : "bg-white text-vaccineBlack hover:bg-gray-100"}`}
                             >
                                 {tab.label}
                             </button>
@@ -575,7 +575,7 @@ export default function DocumentsPage() {
                     <div className="w-full max-w-2xl rounded-xl bg-vaccineGray-300 p-6 shadow-2xl">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <div>
-                                <h2 className="text-2xl font-bold text-vaccineRed">Criar classes</h2>
+                                <h2 className="text-2xl font-bold text-vaccinePurple">Criar classes</h2>
                                 <p className="text-vaccineBlack">Crie classes, subclasses e abilities.</p>
                             </div>
                             <button
@@ -650,7 +650,7 @@ export default function DocumentsPage() {
                                 type="button"
                                 onClick={submitAdminCreation}
                                 disabled={isCreatingClass || isCreatingSubclass || isCreatingAbility}
-                                className="rounded-md bg-vaccineRed px-4 py-2 text-white hover:opacity-90 disabled:opacity-60"
+                                className="rounded-md bg-vaccinePurple px-4 py-2 text-white hover:opacity-90 disabled:opacity-60"
                             >
                                 Criar
                             </button>
@@ -664,7 +664,7 @@ export default function DocumentsPage() {
                     <div className="w-full max-w-2xl rounded-xl bg-vaccineGray-300 p-6 shadow-2xl">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <div>
-                                <h2 className="text-2xl font-bold text-vaccineRed">Criar atributos e pericias</h2>
+                                <h2 className="text-2xl font-bold text-vaccinePurple">Criar atributos e pericias</h2>
                                 <p className="text-vaccineBlack">Crie atributos ou perícias ligadas a um atributo.</p>
                             </div>
                             <button
@@ -730,7 +730,7 @@ export default function DocumentsPage() {
                                 type="button"
                                 onClick={submitAdminCreation}
                                 disabled={isCreatingAttribute || isCreatingPericia}
-                                className="rounded-md bg-vaccineRed px-4 py-2 text-white hover:opacity-90 disabled:opacity-60"
+                                className="rounded-md bg-vaccinePurple px-4 py-2 text-white hover:opacity-90 disabled:opacity-60"
                             >
                                 Criar
                             </button>
@@ -744,7 +744,7 @@ export default function DocumentsPage() {
                     <div className="w-full max-w-2xl rounded-xl bg-vaccineGray-300 p-6 shadow-2xl">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <div>
-                                <h2 className="text-2xl font-bold text-vaccineRed">Criar lore</h2>
+                                <h2 className="text-2xl font-bold text-vaccinePurple">Criar lore</h2>
                                 <p className="text-vaccineBlack">
                                     Crie sessões, documentos, imagens e subdocumentos de lore.
                                 </p>
@@ -866,7 +866,7 @@ export default function DocumentsPage() {
                                     isCreatingLoreImage ||
                                     isCreatingLoreSubdocument
                                 }
-                                className="rounded-md bg-vaccineRed px-4 py-2 text-white hover:opacity-90 disabled:opacity-60"
+                                className="rounded-md bg-vaccinePurple px-4 py-2 text-white hover:opacity-90 disabled:opacity-60"
                             >
                                 Criar
                             </button>

@@ -55,8 +55,8 @@ export function AttributesTab({
                                         onClick={() => onAttributeClick(attribute)}
                                         className={`flex-1 text-left px-3 py-2 border transition-colors ${
                                             isSelected
-                                                ? "bg-vaccineRed text-white border-vaccineRed"
-                                                : "text-vaccineGray-300 border-gray-300 hover:border-vaccineRed"
+                                                ? "bg-vaccinePurple text-white border-vaccinePurple"
+                                                : "text-vaccineGray-300 border-gray-300 hover:border-vaccinePurple"
                                         }`}
                                     >
                                         {attribute.name}
@@ -65,7 +65,7 @@ export function AttributesTab({
                                         <button
                                             type="button"
                                             onClick={() => onDeleteAttribute(attribute.id)}
-                                            className="rounded-md bg-vaccineRed px-3 py-2 text-sm text-white hover:opacity-90"
+                                            className="rounded-md bg-vaccinePurple px-3 py-2 text-sm text-white hover:opacity-90"
                                         >
                                             Excluir
                                         </button>
@@ -73,7 +73,7 @@ export function AttributesTab({
                                 </div>
 
                                 {isSelected && (
-                                    <div className="mt-3 space-y-3 pl-2 border-l-4 border-vaccineRed">
+                                    <div className="mt-3 space-y-3 pl-2 border-l-4 border-vaccinePurple">
                                         <div>
                                             <p className="text-gray-300">{attribute.description}</p>
                                         </div>
@@ -95,8 +95,8 @@ export function AttributesTab({
                                                                         onClick={() => onPericiaClick(pericia)}
                                                                         className={`flex-1 px-3 py-2 rounded-md border transition-colors text-left ${
                                                                             periciaSelected
-                                                                                ? "bg-vaccineRed text-white border-vaccineRed"
-                                                                                : "bg-white text-vaccineBlack border-gray-300 hover:border-vaccineRed"
+                                                                                ? "bg-vaccinePurple text-white border-vaccinePurple"
+                                                                                : "bg-white text-vaccineBlack border-gray-300 hover:border-vaccinePurple"
                                                                         }`}
                                                                     >
                                                                         {pericia.name}
@@ -105,7 +105,7 @@ export function AttributesTab({
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => onDeletePericia(pericia.id)}
-                                                                            className="rounded-md bg-vaccineRed px-3 py-2 text-xs text-white hover:opacity-90"
+                                                                            className="rounded-md bg-vaccinePurple px-3 py-2 text-xs text-white hover:opacity-90"
                                                                         >
                                                                             Excluir
                                                                         </button>

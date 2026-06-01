@@ -112,7 +112,7 @@ export function CharacterAttributes({
                                             readOnly={!isEditing}
                                             className={`w-full px-2 py-1 text-center ${
                                                 isEditing ? "border-gray-400 border" : ""
-                                            } rounded focus:outline-none focus:ring-1 focus:ring-vaccineRed`}
+                                            } rounded focus:outline-none focus:ring-1 focus:ring-vaccinePurple`}
                                         />
                                     </td>
                                     <td className="border bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-2 py-2 ">
@@ -153,7 +153,7 @@ export function CharacterAttributes({
                                                     readOnly={!isEditing}
                                                     className={`w-full px-2 py-1 text-center ${
                                                         isEditing ? "border-gray-400 border" : ""
-                                                    } rounded focus:outline-none focus:ring-1 focus:ring-vaccineRed`}
+                                                    } rounded focus:outline-none focus:ring-1 focus:ring-vaccinePurple`}
                                                 />
                                             ))}
                                         </td>

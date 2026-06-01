@@ -57,7 +57,7 @@ export function LoreTab({
                                         onClick={() => onSessionClick(session)}
                                         className={`flex-1 text-left rounded-md px-3 py-2 transition-colors ${
                                             isSessionSelected
-                                                ? "bg-vaccineRed text-white"
+                                                ? "bg-vaccinePurple text-white"
                                                 : "bg-gray-50 text-vaccineBlack hover:bg-gray-100"
                                         }`}
                                     >
@@ -67,7 +67,7 @@ export function LoreTab({
                                         <button
                                             type="button"
                                             onClick={() => onDeleteSession(session.id)}
-                                            className="rounded-md bg-vaccineRed px-3 py-2 text-sm text-white hover:opacity-90"
+                                            className="rounded-md bg-vaccinePurple px-3 py-2 text-sm text-white hover:opacity-90"
                                         >
                                             Excluir
                                         </button>
@@ -75,7 +75,7 @@ export function LoreTab({
                                 </div>
 
                                 {isSessionSelected && (
-                                    <div className="mt-4 space-y-5 border-l-4 border-vaccineRed pl-4">
+                                    <div className="mt-4 space-y-5 border-l-4 border-vaccinePurple pl-4">
                                         <p className="text-gray-700">{session.description}</p>
 
                                         <div>
@@ -93,7 +93,7 @@ export function LoreTab({
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => onDeleteImage(image.id)}
-                                                                    className="w-full bg-vaccineRed px-3 py-2 text-xs text-white hover:opacity-90"
+                                                                    className="w-full bg-vaccinePurple px-3 py-2 text-xs text-white hover:opacity-90"
                                                                 >
                                                                     Excluir imagem
                                                                 </button>
@@ -130,7 +130,7 @@ export function LoreTab({
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => onDeleteDocument(document.id)}
-                                                                        className="rounded-md bg-vaccineRed px-3 py-2 text-xs text-white hover:opacity-90"
+                                                                        className="rounded-md bg-vaccinePurple px-3 py-2 text-xs text-white hover:opacity-90"
                                                                     >
                                                                         Excluir
                                                                     </button>
@@ -158,7 +158,7 @@ export function LoreTab({
                                                                                                 onClick={() => onSubdocumentClick(session.id, document.id, subdocument)}
                                                                                                 className={`flex-1 text-left rounded-md px-3 py-2 transition-colors ${
                                                                                                     isSubdocumentSelected
-                                                                                                        ? "bg-vaccineRed text-white"
+                                                                                                        ? "bg-vaccinePurple text-white"
                                                                                                         : "bg-gray-50 text-vaccineBlack hover:bg-gray-100"
                                                                                                 }`}
                                                                                             >
@@ -168,7 +168,7 @@ export function LoreTab({
                                                                                                 <button
                                                                                                     type="button"
                                                                                                     onClick={() => onDeleteSubdocument(subdocument.id)}
-                                                                                                    className="rounded-md bg-vaccineRed px-3 py-2 text-xs text-white hover:opacity-90"
+                                                                                                    className="rounded-md bg-vaccinePurple px-3 py-2 text-xs text-white hover:opacity-90"
                                                                                                 >
                                                                                                     Excluir
                                                                                                 </button>
