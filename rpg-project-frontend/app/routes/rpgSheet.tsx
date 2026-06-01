@@ -565,12 +565,6 @@ export default function RpgSheet() {
                         onUpdate={updateCharacterSheet}
                     />
 
-                    <CharacterBackstory
-                        backstory={characterData.backstory}
-                        handleBackstoryChange={handleBackstoryChange}
-                        update={updateCharacterBackstory}
-                    />
-
                     <CharacterPhysicaldesc
                         physicaldesc={characterData.physical_description}
                         handlePhysicaldescChange={handlePhysicalDescChange}
@@ -581,6 +575,12 @@ export default function RpgSheet() {
                         psycDesc={characterData.Psycological_description}
                         handlePsycDescChange={handlePsycDescChange}
                         update={updateCharacterPhysicalDesc}
+                    />
+
+                    <CharacterBackstory
+                        backstory={characterData.backstory}
+                        handleBackstoryChange={handleBackstoryChange}
+                        update={updateCharacterBackstory}
                     />
                     </div>
                 </main>
