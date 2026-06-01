@@ -36,7 +36,7 @@ export function CharacterBackstory({
                 <textarea
                     value={backstory}
                     onChange={(e) => handleBackstoryChange(e.target.value)}
-                    className="w-full min-h-40 rounded-md border border-vaccineGray-300 bg-vaccineBlueTones-900 p-4 text-white"
+                    className="w-full min-h-40 rounded-md border border-vaccineGray-300 bg-vaccineBlueTones-900 p-4 text-white placeholder:text-vaccineBlueTones-300"
                     placeholder="Digite a história do personagem..."
                 />
             ) : (

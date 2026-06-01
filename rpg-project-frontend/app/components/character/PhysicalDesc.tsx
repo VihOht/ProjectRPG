@@ -36,7 +36,7 @@ export function CharacterPhysicaldesc({
                 <textarea
                     value={physicaldesc}
                     onChange={(e) => handlePhysicaldescChange(e.target.value)}
-                    className="w-full min-h-40 rounded-md border border-vaccineGray-300 bg-vaccineBlueTones-900 p-4 text-white"
+                    className="w-full min-h-40 rounded-md border border-vaccineGray-300 bg-vaccineBlueTones-1000 p-4 text-white placeholder:text-vaccineBlueTones-300"
                     placeholder="Digite a descrição do personagem..."
                 />
             ) : (
