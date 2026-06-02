@@ -157,7 +157,7 @@ export function CharacterEquipament({
         <section className="mb-8">
             <div className="items-center flex justify-between gap-4 mb-4">
                 <h2 className="text-3xl font-walthari font-semibold mb-4 text-vaccineGray-300">
-                    Equipamentos
+                    Itens
                 </h2>
 
                 <button

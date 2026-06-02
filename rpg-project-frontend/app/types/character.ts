@@ -174,8 +174,6 @@ export interface UpdateCharacterRequest {
   backstory?: string;
   physical_description?: string;
   Psycological_description?: string;
-  equipament?: string;
-  equipDescription?: string;
 }
 
 // Update Character Response
