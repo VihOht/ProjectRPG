@@ -7,6 +7,7 @@ import { CharacterAttributes } from "../components/character/Atributes";
 import { CharacterBackstory } from "../components/character/Backstory";
 import { CharacterPhysicaldesc } from "../components/character/PhysicalDesc";
 import { CharacterPsycDesc } from "../components/character/PsycDesc";
+import { CharacterPhotos } from "../components/character/CharPics";
 import type { characterInformation, characterStats, CharacterAttributeItem, CharacterPericiaItem, UpdateCharacterAttributesRequest, UpdateCharacterPericiasRequest, UpdateCharacterRequest } from "../types";
 import type { User } from "../types/auth";
 import { useGetCharacter, useGetCharacterAttributes, useGetClasses, useGetSubclasses, useGetRaces, useUpdateCharacter, useUpdateCharacterAttributes, useUpdateCharacterPericias, useDeleteCharacter, useGetUsers, useActivateCharacter, useDeactivateCharacter, useTransferCharacterOwnership, useReturnCharacterToAdmin } from "../hooks";
@@ -76,6 +77,9 @@ export default function RpgSheet() {
 
         // Section 6: Psycological description
         Psycological_description: "",
+
+        // Section 7: Pics for reference
+        photos: [] as string[],
 
 
     });
@@ -320,6 +324,13 @@ export default function RpgSheet() {
         setCharacterData({
             ...characterData,
             backstory: value,
+        });
+    };
+
+    const handlePhotosChange = (photos: string[]) => {
+        setCharacterData({
+            ...characterData,
+            photos,
         });
     };
 
@@ -592,6 +603,11 @@ export default function RpgSheet() {
                         backstory={characterData.backstory}
                         handleBackstoryChange={handleBackstoryChange}
                         update={updateCharacterBackstory}
+                    />
+
+                    <CharacterPhotos
+                        photos={characterData.photos}
+                        handlePhotosChange={handlePhotosChange}
                     />
                     </div>
                 </main>
