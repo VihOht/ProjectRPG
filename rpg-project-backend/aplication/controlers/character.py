@@ -841,7 +841,9 @@ def create_character(current_user):
             'ocultism': character.ocultism,
             'mana': character.mana,
             'is_player': character.is_player,
-            'active': character.active
+            'active': character.active,
+            'equipament': character.equipament,
+            'equipDescription': character.equipDescription
         }
     }), 201
 
@@ -872,7 +874,9 @@ def get_user_characters(current_user):
                 'ocultism': c.ocultism,
                 'mana': c.mana,
                 'is_player': c.is_player,
-                'active': c.active
+                'active': c.active,
+                'equipament': c.equipament,
+                'equipDescription': c.equipDescription
             }
             for c in characters if c.active or _is_admin(current_user)
         ]
@@ -924,7 +928,9 @@ def get_character(current_user, character_id):
             'base_mana': character.base_mana,
             'stat_limits': stat_limits,
             'active': character.active,
-            'is_player': character.is_player
+            'is_player': character.is_player,
+            'equipament': character.equipament,
+            'equipDescription': character.equipDescription
         }
     }), 200
 
@@ -948,7 +954,7 @@ def update_character(current_user, character_id):
         'name', 'charClass', 'subclass', 'second_class',
         'race', 'gender', 'age', "level", 'life', 'defense',
         'sanity', 'ocultism', 'mana', 'base_life', 'base_defense', 'base_sanity',
-        'base_ocultism', 'base_mana']
+        'base_ocultism', 'base_mana', 'equipament', 'equipDescription']
     
     for key in data.keys():
         if key not in allowed_fields:
@@ -984,7 +990,9 @@ def update_character(current_user, character_id):
             'base_ocultism': character.base_ocultism,
             'base_mana': character.base_mana,
             'active': character.active,
-            'is_player': character.is_player
+            'is_player': character.is_player,
+            'equipament': character.equipament,
+            'equipDescription': character.equipDescription
         }
     }), 200
 

@@ -122,8 +122,10 @@ export interface Character {
   is_player: boolean;
   active: boolean;
   backstory?: string;
+  equipament?: string;
   physical_description?: string;
   Psycological_description?: string;
+  equipDescription?: string;
 }
 
 // Create Character Request
@@ -172,6 +174,8 @@ export interface UpdateCharacterRequest {
   backstory?: string;
   physical_description?: string;
   Psycological_description?: string;
+  equipament?: string;
+  equipDescription?: string;
 }
 
 // Update Character Response

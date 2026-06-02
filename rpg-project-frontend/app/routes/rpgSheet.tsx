@@ -8,6 +8,7 @@ import { CharacterBackstory } from "../components/character/Backstory";
 import { CharacterPhysicaldesc } from "../components/character/PhysicalDesc";
 import { CharacterPsycDesc } from "../components/character/PsycDesc";
 import { CharacterPhotos } from "../components/character/CharPics";
+import { CharacterEquipament } from "../components/character/Equipaments";
 import type { characterInformation, characterStats, CharacterAttributeItem, CharacterPericiaItem, UpdateCharacterAttributesRequest, UpdateCharacterPericiasRequest, UpdateCharacterRequest } from "../types";
 import type { User } from "../types/auth";
 import { useGetCharacter, useGetCharacterAttributes, useGetClasses, useGetSubclasses, useGetRaces, useUpdateCharacter, useUpdateCharacterAttributes, useUpdateCharacterPericias, useDeleteCharacter, useGetUsers, useActivateCharacter, useDeactivateCharacter, useTransferCharacterOwnership, useReturnCharacterToAdmin } from "../hooks";
@@ -81,6 +82,9 @@ export default function RpgSheet() {
         // Section 7: Pics for reference
         photos: [] as string[],
 
+        // Section 8: Equipaments
+        equipament: "",
+        equipDescription: "",
 
     });
 
@@ -124,6 +128,8 @@ export default function RpgSheet() {
                     mana: char.mana,
                 },
                 backstory: char.backstory ?? "",
+                equipament: char.equipament ?? "",
+                equipDescription: char.equipDescription ?? "",
                 physical_description: char.physical_description ?? "",
                 attributes: characterAttributesData?.attributes ?? prev.attributes,
                 pericias: characterAttributesData?.pericias ?? prev.pericias,
@@ -144,7 +150,7 @@ export default function RpgSheet() {
     }, [characterDataQuerry?.character?.own, isAdmin, transferTargetId]);
 
     function updateCharacterStats() {
-        let characterRequestData = {
+        const characterRequestData = {
             life: characterData.stats.pv,
             defense: characterData.stats.defesa,
             sanity: characterData.stats.san,
@@ -161,7 +167,7 @@ export default function RpgSheet() {
         const selectedSubclassId = Number(characterData.informations.subclasse);
         const selectedRaceId = Number(characterData.informations.raca);
 
-        let characterRequestData = {
+        const characterRequestData = {
             name: characterData.informations.nome, 
             gender: characterData.informations.genero,
             age: characterData.informations.idade,
@@ -327,6 +333,20 @@ export default function RpgSheet() {
         });
     };
 
+    const handleEquipamentChange = (value: string) => {
+        setCharacterData({
+            ...characterData,
+            equipament: value,
+        });
+    };
+
+    const handleEquipDescriptionChange = (value: string) => {
+        setCharacterData({
+            ...characterData,
+            equipDescription: value,
+        });
+    };
+
     const handlePhotosChange = (photos: string[]) => {
         setCharacterData({
             ...characterData,
@@ -337,6 +357,16 @@ export default function RpgSheet() {
     function updateCharacterBackstory() {
         updateCharacter({
             backstory: characterData.backstory,
+        } as UpdateCharacterRequest);
+    }
+
+    function updateCharacterEquipament(
+        equipament = characterData.equipament,
+        equipDescription = characterData.equipDescription,
+    ) {
+        updateCharacter({
+            equipament,
+            equipDescription,
         } as UpdateCharacterRequest);
     }
 
@@ -596,7 +626,7 @@ export default function RpgSheet() {
                     <CharacterPsycDesc
                         psycDesc={characterData.Psycological_description}
                         handlePsycDescChange={handlePsycDescChange}
-                        update={updateCharacterPhysicalDesc}
+                        update={updateCharacterPsycDesc}
                     />
 
                     <CharacterBackstory
@@ -609,6 +639,15 @@ export default function RpgSheet() {
                         photos={characterData.photos}
                         handlePhotosChange={handlePhotosChange}
                     />
+
+                    <CharacterEquipament
+                        equipDescription={characterData.equipDescription}
+                        equipament={characterData.equipament}
+                        handleEquipamentChange={handleEquipamentChange}
+                        handleEquipDescription={handleEquipDescriptionChange}
+                        update={updateCharacterEquipament}
+                    />
+
                     </div>
                 </main>
             

@@ -56,5 +56,5 @@ class Character(db.Model):
     active = db.Column(db.Boolean, default=True)
     is_player = db.Column(db.Boolean, default=True)
 
-    
-
+    equipament = db.Column(db.Text, nullable=False, default='')
+    equipDescription = db.Column(db.Text, nullable=False, default='')
