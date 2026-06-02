@@ -3,6 +3,7 @@ import { useRef } from "react";
 interface CharacterPhotosProps {
     photos: string[];
     handlePhotosChange: (photos: string[]) => void;
+
 }
 
 export function CharacterPhotos({
@@ -23,6 +24,12 @@ export function CharacterPhotos({
         handlePhotosChange([...photos, ...newPhotos]);
     };
 
+    const handleRemovePhoto = (indexToRemove: number) => {
+        handlePhotosChange(
+            photos.filter((_, index) => index !== indexToRemove)
+        );
+    };
+
     return (
         <section className="mb-8">
             <input
@@ -34,18 +41,39 @@ export function CharacterPhotos({
                 onChange={handleAddPhotos}
             />
 
-            {photos.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    {photos.map((photo, index) => (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {photos.map((photo, index) => (
+                    <div key={index} className="relative">
+                        <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(index)}
+                            className="
+                                absolute
+                                top-2
+                                left-2
+                                z-10
+                                w-6
+                                h-6
+                                flex
+                                items-center
+                                justify-center
+                                rounded-full
+                                text-white
+                                text-sm
+                                transition-colors
+                            "
+                        >
+                            ×
+                        </button>
+
                         <img
-                            key={index}
                             src={photo}
                             alt={`Foto ${index + 1}`}
-                            className="w-full h-40 object-cover rounded-md border border-vaccineGray-300"
+                            className="w-full object-cover rounded-md border border-vaccineGray-300"
                         />
-                    ))}
-                </div>
-            )}
+                    </div>
+                ))}
+            </div>
 
             <div className="flex justify-center">
                 <button
