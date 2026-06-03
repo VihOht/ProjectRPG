@@ -1,6 +1,7 @@
 import { StarSky } from "../components/StarSky";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef  } from "react";
 import { useParams, useNavigate } from "react-router";
+import { useReactToPrint } from "react-to-print";
 import { CharacterInformation } from "../components/character/Informations";
 import { CharacterStats } from "../components/character/Stats";
 import { CharacterAttributes } from "../components/character/Atributes";
@@ -86,6 +87,13 @@ export default function RpgSheet() {
         equipament: "",
         equipDescription: "",
 
+    });
+
+    const sheetRef = useRef<HTMLDivElement>(null);
+
+    const handlePrintPdf = useReactToPrint({
+    contentRef: sheetRef,
+    documentTitle: `Ficha-${characterData.informations.nome || "personagem"}`,
     });
 
     const ownerUser = useMemo(() => {
@@ -466,9 +474,20 @@ export default function RpgSheet() {
                     >
                         Deletar Ficha
                     </button>
+                    <button
+                        onClick={handlePrintPdf}
+                        className="px-4 py-2 bg-vaccinePurple text-white rounded-md"
+                        >
+                        Exportar PDF
+                    </button>
                 </Header>
                 {/* Main Content */}
                 <main className="flex-1  p-8 text-sm text-vaccineBlack">
+                <div
+                    ref={sheetRef}
+                    className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50 rounded-lg shadow-lg p-8 print-area"
+                >
+                </div>
                     <div className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50  rounded-lg shadow-lg p-8">
                         <h1 className="text-3xl font-walthari font-bold text-center mb-8 text-vaccineGray-300">
                             Ficha de Personagem

@@ -130,3 +130,27 @@ body {
     animation: none;
   }
 }
+
+@media print {
+  body {
+    background: white !important;
+  }
+
+  button,
+  header,
+  .no-print {
+    display: none !important;
+  }
+
+  .print-area {
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
