@@ -98,6 +98,7 @@ export function CharacterEquipament({
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [draftName, setDraftName] = useState("");
     const [draftDescription, setDraftDescription] = useState("");
+    const [openDescriptionItemId, setOpenDescriptionItemId] = useState<string | null>(null);
 
     const isEditingItem = Boolean(editingItemId);
 
@@ -231,7 +232,19 @@ export function CharacterEquipament({
                                 className="rounded-md border border-vaccineGray-300/30 bg-black/20 p-4"
                             >
                                 <div className="flex flex-wrap items-start justify-between gap-3">
-                                    <h4 className="font-trajanPBold text-xl text-vaccineGray-300">{item.name}</h4>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setOpenDescriptionItemId((currentId) =>
+                                                currentId === item.id ? null : item.id
+                                            )
+                                        }
+                                        className="flex-1 rounded-md border bg-black/20 px-4 py-3 text-left transition-colors hover:bg-black/40"
+                                    >
+                                        <h4 className="font-trajanPBold text-xl text-vaccineGray-300">
+                                            {item.name}
+                                        </h4>
+                                    </button>
                                     <div className="flex gap-2">
                                         <button
                                             type="button"
@@ -252,12 +265,13 @@ export function CharacterEquipament({
                                     </div>
                                 </div>
                                 
-                                <div className="mt-4 border-t border-vaccineGray-300/20 pt-3">
-
-                                    <p className="whitespace-pre-line font-trajanPRegular text-vaccineGray-400">
-                                        {item.description || "Sem descrição adicionada."}
-                                    </p>
-                                </div>
+                                {openDescriptionItemId === item.id && (
+                                    <div className="mt-4 border-t border-vaccineGray-300/20 pt-3">
+                                        <p className="whitespace-pre-line font-trajanPRegular text-vaccineGray-400">
+                                            {item.description || "Sem descrição adicionada."}
+                                        </p>
+                                    </div>
+                                )}
                             </article>
                         ))}
                     </div>
