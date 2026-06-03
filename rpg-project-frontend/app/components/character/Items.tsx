@@ -164,7 +164,7 @@ export function CharacterInventory({
                 <button
                     type="button"
                     onClick={openCreateForm}
-                    className="mb-4 inline-flex items-center gap-2 rounded-md bg-vaccineBlueTones-400 px-4 py-2 text-vaccineBlueTones-100 transition-colors hover:bg-blue-700"
+                    className="mb-4 inline-flex items-center gap-2 rounded-md bg-vaccineBlueTones-400 px-4 py-2 text-vaccineBlueTones-100 transition-colors"
                 >
                     <FiPlus />
                     Novo item
@@ -237,7 +237,7 @@ export function CharacterInventory({
                                                 currentId === item.id ? null : item.id
                                             )
                                         }
-                                        className="flex-1 rounded-md border border-vaccineGray-300/30 bg-black/10 px-4 py-3 text-left transition-colors hover:border-vaccineBlueTones-400"
+                                        className="flex-1 rounded-md px-4 py-3 text-left transition-colors"
                                     >
                                         <h4 className="font-trajanPBold text-xl text-vaccineGray-300">
                                             {item.name}
