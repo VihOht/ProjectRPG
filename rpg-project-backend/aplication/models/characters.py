@@ -58,3 +58,5 @@ class Character(db.Model):
 
     equipament = db.Column(db.Text, nullable=False, default='')
     equipDescription = db.Column(db.Text, nullable=False, default='')
+    item = db.Column(db.Text, nullable=False, default='')
+    itemDescription = db.Column(db.Text, nullable=False, default='')

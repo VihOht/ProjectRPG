@@ -694,7 +694,7 @@ class CharacterService:
             'base_life', 'base_defense', 'base_sanity', 'base_ocultism', 'base_mana',
             'bonus_max_life', 'bonus_max_defense', 'bonus_max_sanity', 
             'bonus_max_ocultism', 'bonus_max_mana', "active", "is_player",
-            'equipament', 'equipDescription'
+            'equipament', 'equipDescription', 'item', 'itemDescription'
         ]
         
         for key, value in kwargs.items():

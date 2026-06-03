@@ -843,7 +843,9 @@ def create_character(current_user):
             'is_player': character.is_player,
             'active': character.active,
             'equipament': character.equipament,
-            'equipDescription': character.equipDescription
+            'equipDescription': character.equipDescription,
+            'item': character.item,
+            'itemDescription': character.itemDescription
         }
     }), 201
 
@@ -876,7 +878,9 @@ def get_user_characters(current_user):
                 'is_player': c.is_player,
                 'active': c.active,
                 'equipament': c.equipament,
-                'equipDescription': c.equipDescription
+                'equipDescription': c.equipDescription,
+                'item': c.item,
+                'itemDescription': c.itemDescription
             }
             for c in characters if c.active or _is_admin(current_user)
         ]
@@ -930,7 +934,9 @@ def get_character(current_user, character_id):
             'active': character.active,
             'is_player': character.is_player,
             'equipament': character.equipament,
-            'equipDescription': character.equipDescription
+            'equipDescription': character.equipDescription,
+            'item': character.item,
+            'itemDescription': character.itemDescription
         }
     }), 200
 
@@ -954,7 +960,7 @@ def update_character(current_user, character_id):
         'name', 'charClass', 'subclass', 'second_class',
         'race', 'gender', 'age', "level", 'life', 'defense',
         'sanity', 'ocultism', 'mana', 'base_life', 'base_defense', 'base_sanity',
-        'base_ocultism', 'base_mana', 'equipament', 'equipDescription']
+        'base_ocultism', 'base_mana', 'equipament', 'equipDescription', 'item', 'itemDescription']
     
     for key in data.keys():
         if key not in allowed_fields:
@@ -992,7 +998,9 @@ def update_character(current_user, character_id):
             'active': character.active,
             'is_player': character.is_player,
             'equipament': character.equipament,
-            'equipDescription': character.equipDescription
+            'equipDescription': character.equipDescription,
+            'item': character.item,
+            'itemDescription': character.itemDescription
         }
     }), 200
 

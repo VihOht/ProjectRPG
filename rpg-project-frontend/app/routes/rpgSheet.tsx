@@ -10,6 +10,7 @@ import { CharacterPhysicaldesc } from "../components/character/PhysicalDesc";
 import { CharacterPsycDesc } from "../components/character/PsycDesc";
 import { CharacterPhotos } from "../components/character/CharPics";
 import { CharacterEquipament } from "../components/character/Equipaments";
+import { CharacterInventory } from "../components/character/Items";
 import type { characterInformation, characterStats, CharacterAttributeItem, CharacterPericiaItem, UpdateCharacterAttributesRequest, UpdateCharacterPericiasRequest, UpdateCharacterRequest } from "../types";
 import type { User } from "../types/auth";
 import { useGetCharacter, useGetCharacterAttributes, useGetClasses, useGetSubclasses, useGetRaces, useUpdateCharacter, useUpdateCharacterAttributes, useUpdateCharacterPericias, useDeleteCharacter, useGetUsers, useActivateCharacter, useDeactivateCharacter, useTransferCharacterOwnership, useReturnCharacterToAdmin } from "../hooks";
@@ -87,6 +88,10 @@ export default function RpgSheet() {
         equipament: "",
         equipDescription: "",
 
+        // Section 9: Inventory
+        item: "",
+        itemDescription: "",
+
     });
 
     const sheetRef = useRef<HTMLDivElement>(null);
@@ -138,6 +143,8 @@ export default function RpgSheet() {
                 backstory: char.backstory ?? "",
                 equipament: char.equipament ?? "",
                 equipDescription: char.equipDescription ?? "",
+                item: char.item ?? "",
+                itemDescription: char.itemDescription ?? "",
                 physical_description: char.physical_description ?? "",
                 attributes: characterAttributesData?.attributes ?? prev.attributes,
                 pericias: characterAttributesData?.pericias ?? prev.pericias,
@@ -355,6 +362,20 @@ export default function RpgSheet() {
         });
     };
 
+    const handleItemChange = (value: string) => {
+        setCharacterData({
+            ...characterData,
+            item: value,
+        });
+    };
+
+    const handleItemDescriptionChange = (value: string) => {
+        setCharacterData({
+            ...characterData,
+            itemDescription: value,
+        });
+    };
+
     const handlePhotosChange = (photos: string[]) => {
         setCharacterData({
             ...characterData,
@@ -375,6 +396,16 @@ export default function RpgSheet() {
         updateCharacter({
             equipament,
             equipDescription,
+        } as UpdateCharacterRequest);
+    }
+
+    function updateCharacterItem(
+        item = characterData.item,
+        itemDescription = characterData.itemDescription,
+    ) {
+        updateCharacter({
+            item,
+            itemDescription,
         } as UpdateCharacterRequest);
     }
 
@@ -665,6 +696,13 @@ export default function RpgSheet() {
                         handleEquipamentChange={handleEquipamentChange}
                         handleEquipDescription={handleEquipDescriptionChange}
                         update={updateCharacterEquipament}
+                    />
+                    <CharacterInventory
+                        itemDescription={characterData.itemDescription}
+                        inventory={characterData.item}
+                        handleInventoryChange={handleItemChange}
+                        handleItemDescription={handleItemDescriptionChange}
+                        update={updateCharacterItem}
                     />
 
                     </div>

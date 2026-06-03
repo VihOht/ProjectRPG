@@ -239,7 +239,7 @@ export function CharacterEquipament({
                                                 currentId === item.id ? null : item.id
                                             )
                                         }
-                                        className="flex-1 rounded-md border bg-black/20 px-4 py-3 text-left transition-colors hover:bg-black/40"
+                                        className="flex-1 rounded-md border px-4 py-3 text-left transition-colors"
                                     >
                                         <h4 className="font-trajanPBold text-xl text-vaccineGray-300">
                                             {item.name}

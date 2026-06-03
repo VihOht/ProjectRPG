@@ -37,7 +37,7 @@ def ensure_character_stat_fields():
 
 
 def ensure_character_equipment_fields():
-    """Add equipment fields to character table if they don't exist"""
+    """Add equipment and inventory fields to character table if they don't exist"""
     with app.app_context():
         inspector = inspect(db.engine)
         columns = [col['name'] for col in inspector.get_columns('character')]
@@ -45,6 +45,8 @@ def ensure_character_equipment_fields():
         fields_to_add = {
             'equipament': "TEXT NOT NULL DEFAULT ''",
             'equipDescription': "TEXT NOT NULL DEFAULT ''",
+            'item': "TEXT NOT NULL DEFAULT ''",
+            'itemDescription': "TEXT NOT NULL DEFAULT ''",
         }
 
         for field, definition in fields_to_add.items():
@@ -55,7 +57,7 @@ def ensure_character_equipment_fields():
                 )
 
         db.session.commit()
-        print("Character equipment fields migration applied successfully")
+        print("Character equipment and inventory fields migration applied successfully")
 
 
 def ensure_user_role_field():
