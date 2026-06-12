@@ -64,7 +64,7 @@ export function CharacterInformation({
                                         {charClass.name}
                                     </option>
                                 ))}
-                            </select>
+                            </select>                        
                         </div>
                         <div>
                             <label className="block font-trajanPBold text-sm font-medium text-vaccineGray-300 mb-1">

@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from aplication.models.user import User
-from aplication import db
+from application.models._user import User
+from application import db
 import jwt
 import datetime
 from flask import current_app
@@ -44,7 +44,7 @@ class AuthService:
             return None, "Invalid username or password"
         
         # Generate JWT token
-        token = AuthService.generate_token(user.id)
+        token = AuthService.generate_token(user.id, user.role)
         
         return {"token": token, "user": {
             "id": user.id,
@@ -54,10 +54,11 @@ class AuthService:
         }}, None
     
     @staticmethod
-    def generate_token(user_id):
+    def generate_token(user_id, role):
         """Generate JWT token for user"""
         payload = {
             'user_id': user_id,
+            "role": role,
             'exp': datetime.datetime.now() + datetime.timedelta(days=1),
             'iat': datetime.datetime.now()
         }
@@ -79,7 +80,7 @@ class AuthService:
                 current_app.config.get('SECRET_KEY', 'default-secret-key'),
                 algorithms=['HS256']
             )
-            return payload['user_id'], None
+            return {"id": payload['user_id'], "role": payload['role']}, None
         except jwt.ExpiredSignatureError:
             return None, "Token has expired"
         except jwt.InvalidTokenError:

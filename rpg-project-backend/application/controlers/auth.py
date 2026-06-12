@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from aplication.services.auth import AuthService
+from application.services.auth import AuthService
 from functools import wraps
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')

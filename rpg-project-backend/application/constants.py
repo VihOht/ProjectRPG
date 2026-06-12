@@ -78,11 +78,11 @@ PERICIAS_DESCRIPTION = {
 # Stat conversion rules (attribute to base max)
 # Maps attribute name to stat and conversion rate
 STAT_CONVERSION_RULES = {
-    "Constituição": {"stat": "life", "rate": 5},
-    "Inteligência": {"stat": "mana", "rate": 5},
-    "Will": {"stat": "sanity", "rate": 3},
-    "Espiritualidade": {"stat": "ocultism", "rate": 3},
-    "Destreza": {"stat": "defense", "rate": 2},
+    "Constituição": [{"stat": "life", "rate": 5}],
+    "Inteligência": [{"stat": "mana", "rate": 5}],
+    "Will": [{"stat": "sanity", "rate": 3}],
+    "Espiritualidade": [{"stat": "ocultism", "rate": 3}],
+    "Destreza": [{"stat": "defense", "rate": 2}],
 }
 
 # Attribute name mapping for easier lookup

@@ -1,4 +1,4 @@
-from aplication import db
+from application import db
 from sqlalchemy import text, inspect
 
 
