@@ -7,47 +7,6 @@ from application import app, db
 from application.models._user import User
 
 
-<<<<<<< HEAD
-def ensure_character_equipment_fields():
-    """Add equipment and inventory fields to character table if they don't exist"""
-    with app.app_context():
-        inspector = inspect(db.engine)
-        columns = [col['name'] for col in inspector.get_columns('character')]
-
-        fields_to_add = {
-            'equipament': "TEXT NOT NULL DEFAULT ''",
-            'equipDescription': "TEXT NOT NULL DEFAULT ''",
-            'item': "TEXT NOT NULL DEFAULT ''",
-            'itemDescription': "TEXT NOT NULL DEFAULT ''",
-        }
-
-        for field, definition in fields_to_add.items():
-            if field not in columns:
-                print(f"Adding column {field} to character table...")
-                db.session.execute(
-                    text(f"ALTER TABLE character ADD COLUMN {field} {definition}")
-                )
-
-        db.session.commit()
-        print("Character equipment and inventory fields migration applied successfully")
-
-
-def ensure_user_role_field():
-    """Add role field to user table if it doesn't exist"""
-    with app.app_context():
-        inspector = inspect(db.engine)
-        columns = [col['name'] for col in inspector.get_columns('user')]
-
-        if 'role' not in columns:
-            print("Adding column role to user table...")
-            db.session.execute(
-                text("ALTER TABLE user ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'USER'")
-            )
-            db.session.commit()
-        else:
-            print("User role field already exists")
-=======
->>>>>>> 813524fe574afa8d73b64d7210a4ba9815d3789c
 
 
 def ensure_default_admin_user():
@@ -88,12 +47,6 @@ def ensure_default_admin_user():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create database tables if they don't exist
-<<<<<<< HEAD
-        ensure_character_stat_fields()  # Run migration
-        ensure_character_equipment_fields()  # Run migration
-        ensure_user_role_field()  # Run migration
-=======
->>>>>>> 813524fe574afa8d73b64d7210a4ba9815d3789c
         ensure_default_admin_user()  # Create admin if needed
     app.run(debug=True)
     print("Server is running on http://localhost:5000")

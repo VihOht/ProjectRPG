@@ -262,25 +262,10 @@ export type CreateClassRequest = {
   base_defense?: number;
   base_sanity?: number;
   base_mana?: number;
-<<<<<<< HEAD
-  stat_limits?: CharacterStatLimits;
-  attributes?: CharacterAttributeValue[];
-  abilities?: CharacterAbility[];
-  is_player: boolean;
-  active: boolean;
-  backstory?: string;
-  equipament?: string;
-  equipDescription?: string;
-  item?: string;
-  itemDescription?: string;
-  physical_description?: string;
-  Psycological_description?: string;
-=======
   base_ocultism?: number;
 
   has_mana?: boolean;
   has_ocultism?: boolean;
->>>>>>> 813524fe574afa8d73b64d7210a4ba9815d3789c
 }
 
 export type CreateClassResponse = {
@@ -459,16 +444,8 @@ export type UpdateCharacterStatsRequest = {
 
 export type UpdateCharacterDescriptionRequest = {
   physical_description?: string;
-<<<<<<< HEAD
-  Psycological_description?: string;
-  equipament?: string;
-  equipDescription?: string;
-  item?: string;
-  itemDescription?: string;
-=======
   psychological_description?: string;
   backstory?: string;
->>>>>>> 813524fe574afa8d73b64d7210a4ba9815d3789c
 }
 
 export type UpdateCharacterOffsetsRequest = {
