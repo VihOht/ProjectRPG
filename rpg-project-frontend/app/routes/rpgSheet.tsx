@@ -4,14 +4,13 @@ import { useParams, useNavigate } from "react-router";
 import { CharacterInformation } from "../components/character/Informations";
 import { CharacterStats } from "../components/character/Stats";
 import { CharacterAttributes } from "../components/character/Atributes";
-import { CharacterBackstory } from "../components/character/Backstory";
-import { CharacterPhysicaldesc } from "../components/character/PhysicalDesc";
-import { CharacterPsycDesc } from "../components/character/PsycDesc";
+import { CharacterLore } from "../components/character/Lore";
 import type { UpdateCharacterGeneralRequest } from "../types";
 import { useDeleteCharacter, useCharacter, useToggleCharacterActive, useTransferCharacterOwnership, useReturnCharacterToAdmin, useUpdateCharacterGeneral } from "../hooks/useCharacters";
 import { useGetUserById, useGetUsers } from "../hooks/useAuth";
 import { Header } from "../components/Header";
 import { useAuthProvider } from "../providers";
+import { toast } from "react-hot-toast";
 
 export default function RpgSheet() {
     const navigate = useNavigate();
@@ -22,10 +21,18 @@ export default function RpgSheet() {
     const characterId = useMemo(() => {
         if (!id) return null;
         const parsed = Number(id);
-        return Number.isNaN(parsed) ? null : parsed;
+        return parsed
     }, [id]);
 
-    const { data: characterData } = useCharacter(characterId!);
+    if (characterId === null) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-xl text-gray-500">ID do personagem é inválido.</p>
+            </div>
+        );
+    }
+
+    const { data: characterData, refetch: refetchCharacter, isLoading: isCharacterLoading } = useCharacter(characterId!);
 
    
     const { mutate: deleteCharacter } = useDeleteCharacter();
@@ -35,12 +42,35 @@ export default function RpgSheet() {
     const { mutate: returnToAdmin, isPending: isReturning } = useReturnCharacterToAdmin(characterId!);
     const { data: usersData } = useGetUsers();
     const { mutate: updateGeneral } = useUpdateCharacterGeneral(characterId!);
-    const [characterGeneral, setCharacterGeneral] = useState({
-        UpdateCharacterGeneralRequest: {
-            name: characterData?.character.name ?? "",
-        }
-    });
     const isAdmin = user?.role === "ADMIN";
+
+    const [character, setCharacter] = useState<UpdateCharacterGeneralRequest | null>(
+        {
+            name: characterData?.character.name ?? "",
+            level: characterData?.character.level ?? 1,
+            experience: characterData?.character.experience ?? 0,
+            charClass: characterData?.character.charClass ?? -1,
+            subclass: characterData?.character.subclass ?? -1,
+            second_class: characterData?.character.second_class ?? -1,
+            race: characterData?.character.race ?? -1,
+        }
+    );
+
+    useEffect(() => {
+        if (characterData?.character) {
+            setCharacter(prev =>
+                ({
+                    name: characterData.character.name ?? prev?.name ?? "",
+                    level: characterData.character.level ?? prev?.level ?? 1,
+                    experience: characterData.character.experience ?? prev?.experience ?? 0,
+                    charClass: characterData.character.charClass ?? prev?.charClass ?? -1,
+                    subclass: characterData.character.subclass ?? prev?.subclass ?? -1,
+                    second_class: characterData.character.second_class ?? prev?.second_class ?? -1,
+                    race: characterData.character.race ?? prev?.race ?? -1,
+                })
+            );
+        }
+    }, [characterData]);
 
 
     const handleToggleActive = () => {
@@ -74,24 +104,54 @@ export default function RpgSheet() {
         return <div>Character id is invalid.</div>;
     }
 
-    const handleInfoChange = (field: "nome" | "nivel", value: string) => {
-        if (!characterData) return;
-        const updatedCharacter = {
-            ...characterData.character,
-            name: field === "nome" ? value : characterData.character.name,
-            level: field === "nivel" ? Number(value) : characterData.character.level,
-        };
-        setCharacterGeneral({
-            UpdateCharacterGeneralRequest: {
-                name: characterData.character.name,
-            }
-        });
-        if (isEditingHeader) {
-            updateGeneral({
-                name: updatedCharacter.name,
+    if (isCharacterLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-xl text-gray-500">Carregando ficha...</p>
+            </div>
+        );
+    }
+
+    const handleInfoChange = (field: "nome" | "nivel" | "experiencia", value: string) => {
+        if (!character) return;
+
+        if (field === "nome") {
+            setCharacter({
+                ...character,
+                name: value,
             });
+        } else if (field === "nivel") {
+            const numericValue = Number(value);
+            if (!isNaN(numericValue) && numericValue > 0) {
+                setCharacter({
+                    ...character,
+                    level: numericValue,
+                });
+            }
+        } else if (field === "experiencia") {
+            const numericValue = Number(value);
+            if (!isNaN(numericValue) && numericValue >= 0) {
+                setCharacter({
+                    ...character,
+                    experience: numericValue,
+                });
+            }
         }
     };
+
+    const handleSafeInfo = () => {
+        if (!character) return;
+        updateGeneral({name: character.name ?? "", level: character.level ?? 0, experience: character.experience ?? 0}, {
+            onSuccess: () => { 
+                refetchCharacter();
+                toast.success("Informações atualizadas com sucesso!");
+             },
+            onError: () => { toast.error("Erro ao atualizar informações."); }
+        });
+        
+    };
+
+    
 
     return (
         <StarSky>
@@ -182,6 +242,7 @@ export default function RpgSheet() {
                             <button 
                                 onClick={() => {
                                     setIsEditingHeader(false);
+                                    handleSafeInfo();
                                 }} 
                                 className="absolute top-0 right-0 px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-purple-700 transition-colors"
                             >
@@ -193,7 +254,7 @@ export default function RpgSheet() {
                             <div className="flex flex-col items-center gap-4">
                                 <input
                                     type="text"
-                                    value={characterData?.character.name ?? ""}
+                                    value={character?.name ?? ""}
                                     onChange={(e) => handleInfoChange("nome", e.target.value)}
                                     className="text-4xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-4 py-2 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple"
                                     placeholder="Nome do Personagem"
@@ -204,9 +265,19 @@ export default function RpgSheet() {
                                     <input
                                         type="number"
                                         min="1"
-                                        value={characterData?.character.level ?? ""}
+                                        value={character?.level ?? ""}
                                         onChange={(e) => handleInfoChange("nivel", e.target.value)}
                                         className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple w-20"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-center gap-2">
+                                    <label className="text-sm font-medium text-white">Experiência:</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={character?.experience ?? ""}
+                                        onChange={(e) => handleInfoChange("experiencia", e.target.value)}
+                                        className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple w-32"
                                     />
                                 </div>
                             </div>
@@ -229,11 +300,25 @@ export default function RpgSheet() {
                                         {characterData?.character.level ?? ""}
                                     </span>
                                 </div>
+                                <div 
+                                    onClick={() => setIsEditingHeader(true)}
+                                    className="flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                    title="Clique para editar"
+                                >
+                                    <span className="text-sm font-medium text-vaccineGray-600">Experiência:</span>
+                                    <span className="text-xm font-bold text-vaccineGray-600">
+                                        {characterData?.character.experience ?? ""}
+                                    </span>
+                                </div>
                             </>
                         )}
                     </div> 
-                    
+
+
+                    <CharacterInformation characterId={characterId} />
+                    <CharacterStats characterId={characterId} />
                     <CharacterAttributes characterId={characterId} />
+                    <CharacterLore characterId={characterId} />
 
 
 

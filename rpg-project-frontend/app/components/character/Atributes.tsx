@@ -33,7 +33,7 @@ export function CharacterAttributes({
     }, [data]);
 
     const allPericias = useMemo(() => {
-        attributes.flatMap(attr => attr.pericias);
+        return attributes.flatMap(attr => attr.pericias);
     }, [attributes]);
 
     function handlePericiaChange(periciaId: number, value: number) {
@@ -48,6 +48,14 @@ export function CharacterAttributes({
                         }
                         : pericia
                 ),
+            }))
+        );
+
+        // update attr total
+        setAttributes((current) =>
+            current.map((attr) => ({
+                ...attr,
+                value: attr.pericias.reduce((sum, pericia) => sum + pericia.value, 0),
             }))
         );
     }

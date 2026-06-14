@@ -1,41 +1,114 @@
-import { useMemo, useState } from "react";
-import type { CharacterClass, CharacterRace, CharacterSubclass, characterInformation } from "../../types";
+import { useEffect, useMemo, useState } from "react";
 import { FiEdit } from "react-icons/fi";
+import { useCharacter, useClasses, useSubclasses, useRaces, useUpdateCharacterGeneral } from "../../hooks";
+import type { UpdateCharacterGeneralRequest } from "../../types";
+import { toast } from "react-hot-toast";
 
 interface CharacterInformationProps {
-    charInformations: characterInformation;
-    handleTextChange: (field: keyof characterInformation, value: string) => void;
-    update: () => void;
-    classes: CharacterClass[];
-    subclasses: CharacterSubclass[];
-    races: CharacterRace[];
+    characterId: number;
 }
 
 export function CharacterInformation({
-    charInformations,
-    handleTextChange,
-    update,
-    classes,
-    subclasses,
-    races,
+    characterId,
 }: CharacterInformationProps) {
+    const { data: characterData } =
+        useCharacter(characterId);
+
+    const { data: classesData } =
+        useClasses();
+
+    const { data: subclassesData } =
+        useSubclasses();
+
+    const { data: racesData } =
+        useRaces();
+
+    const {mutate: updateGeneral, error: updateError, isSuccess: updateSuccess} = useUpdateCharacterGeneral(characterId);
+
+    const [information, setInformation] =
+        useState<UpdateCharacterGeneralRequest | null>(null);  
+
     const [isEditing, setIsEditing] = useState(false);
 
+     
+        
+    
+    const classes = useMemo(() => classesData?.classes ?? [], [classesData]);
+    const subclasses = useMemo(() => subclassesData?.subclasses ?? [], [subclassesData]);
+    const races = useMemo(() => racesData?.races ?? [], [racesData]);
+
+
     const filteredSubclasses = useMemo(() => {
-        const selectedClassId = Number(charInformations.classe);
-        if (Number.isNaN(selectedClassId) || selectedClassId <= 0) {
-            return [];
-        }
+        if (!information?.charClass) return [];
+        return subclasses.filter(subclass => subclass.class_id === information.charClass);
+    }, [information?.charClass, subclasses]);
 
-        return subclasses.filter((subclass) => subclass.class_id === selectedClassId);
-    }, [charInformations.classe, subclasses]);
+    useEffect(() => {
+    if (!characterData?.character) return;
 
-    function handleChange(field: keyof characterInformation, value: string) {
-        if (isEditing) {
-            handleTextChange(field, value);
+    setInformation({
+        charClass:
+            Number(
+                characterData.character.charClass ?? ""
+            ),
+
+        subclass:
+            Number(
+                characterData.character.subclass ?? ""
+            ),
+
+        second_class:
+            Number(
+                characterData.character.second_class ?? ""
+            ),
+
+        race:
+            Number(
+                characterData.character.race ?? ""
+            ),
+
+        gender:
+            characterData.character.gender ?? "",
+
+        age:
+            Number(
+                characterData.character.age ?? ""
+            ),
+        });
+    }, [characterData]);
+
+    useEffect(() => {
+        if (updateError) {
+            toast.error(updateError?.response?.data?.message || "Erro ao atualizar as informações.");
+            setInformation(prev => prev); // Revert to previous information on error
         }
+    }, [updateError]);
+        
+
+    useEffect(() => {
+        if (updateSuccess) {
+            toast.success("Informações atualizadas com sucesso!");
+        }
+    }, [updateSuccess]);
+
+    function handleChange(field: keyof UpdateCharacterGeneralRequest, value: string) {
+        setInformation((current) => {
+            if (!current) return current;
+            
+            return {
+                ...current,
+                [field]: field === "gender" ? value : Number(value),
+            };
+        });
     }
-    console.log(charInformations.classe)
+
+
+    function update() {
+        if (!information) return;
+        updateGeneral(information);
+        setIsEditing(false);
+    }
+    
 
     return (
         <section className="mb-8">
@@ -43,7 +116,7 @@ export function CharacterInformation({
                         <h2 className="text-3xl font-walthari font-semibold mb-4 text-vaccineGray-300">
                             Informações Básicas
                         </h2>
-                        <button onClick={() => {setIsEditing(!isEditing); if (isEditing) {update();}}} className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100">
+                        <button onClick={() => {isEditing ? update() : setIsEditing(true)}} className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100">
                             {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                         </button>
                     </div>
@@ -53,9 +126,9 @@ export function CharacterInformation({
                                 Classe
                             </label>
                             <select
-                                value={charInformations.classe}
-                                onChange={(e) => handleChange("classe", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 ${charInformations.classe != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
+                                value={information?.charClass}
+                                onChange={(e) => handleChange("charClass", e.target.value)}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 ${information?.charClass != 0 ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
                                 disabled={!isEditing}
                             >
                                 <option  value="">Selecione uma classe</option>
@@ -71,10 +144,10 @@ export function CharacterInformation({
                                 Subclasse
                             </label>
                             <select
-                                value={charInformations.subclasse}
-                                onChange={(e) => handleChange("subclasse", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border border-gray-400 text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${charInformations.subclasse != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
-                                disabled={!isEditing || !charInformations.classe}
+                                value={information?.subclass}
+                                onChange={(e) => handleChange("subclass", e.target.value)}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border border-gray-400 text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${information?.subclass != 0 ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
+                                disabled={!isEditing || !information?.charClass}
                             >
                                 <option value="">Selecione uma subclasse</option>
                                 {filteredSubclasses.map((subclass) => (
@@ -89,9 +162,9 @@ export function CharacterInformation({
                                 Segunda Classe
                             </label>
                             <select
-                                value={charInformations.segunda_classe}
-                                onChange={(e) => handleChange("segunda_classe", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${charInformations.segunda_classe != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
+                                value={information?.second_class}
+                                onChange={(e) => handleChange("second_class", e.target.value)}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${information?.second_class != 0 ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
                                 disabled={!isEditing}
                             >
                                 <option value="">Selecione uma segunda classe</option>
@@ -107,9 +180,9 @@ export function CharacterInformation({
                                 Raça
                             </label>
                             <select
-                                value={charInformations.raca}
-                                onChange={(e) => handleChange("raca", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000  px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${charInformations.raca != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
+                                value={information?.race}
+                                onChange={(e) => handleChange("race", e.target.value)}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000  px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${information?.race != 0 ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
                                 disabled={!isEditing}
                             >
                                 <option value="">Selecione uma raça</option>
@@ -126,9 +199,9 @@ export function CharacterInformation({
                             </label>
                             <input
                                 type="text"
-                                value={charInformations.genero}
-                                onChange={(e) => handleChange("genero", e.target.value)}
-                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineBlueTones-300 ${charInformations.genero != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
+                                value={information?.gender}
+                                onChange={(e) => handleChange("gender", e.target.value)}
+                                className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineBlueTones-300 ${information?.gender != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
                                 readOnly={!isEditing}
                             />
                         </div>
@@ -138,8 +211,8 @@ export function CharacterInformation({
                             </label>
                             <input
                                 type="text"
-                                value={charInformations.idade}
-                                onChange={(e) => handleChange("idade", e.target.value)}
+                                value={information?.age}
+                                onChange={(e) => handleChange("age", e.target.value)}
                                 className={`w-full font-trajanPRegular   bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border border-gray-400 text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-400`}
                                 readOnly={!isEditing}
                             />

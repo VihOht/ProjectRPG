@@ -430,6 +430,8 @@ export type UpdateCharacterGeneralRequest = {
   race?: number;
   gender?: string;
   age?: number;
+  level?: number;
+  experience?: number;
 }
 
 export type UpdateCharacterStatsRequest = {
@@ -437,6 +439,7 @@ export type UpdateCharacterStatsRequest = {
   mana?: number;
   sanity?: number;
   ocultism?: number;
+  defense?: number;
 }
 
 export type UpdateCharacterDescriptionRequest = {
