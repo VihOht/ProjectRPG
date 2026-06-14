@@ -5,6 +5,12 @@ class Pericia(db.Model):
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.Text, nullable=False)
     attribute_id = db.Column(db.Integer, db.ForeignKey('attribute.id'), nullable=False)
+    pericia_values = db.relationship(
+        'PericiaValue',
+        back_populates='pericia',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
 
     def __init__(self, name, description, attribute_id):
         self.name = name
@@ -25,7 +31,7 @@ class PericiaValue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     pericia_id = db.Column(db.Integer, db.ForeignKey('pericia.id'), nullable=False)
     value = db.Column(db.Integer, nullable=False, default=0)
-    pericia = db.relationship('Pericia', backref='character_pericia_values', lazy=True)
+    pericia = db.relationship('Pericia', back_populates='pericia_values', lazy=True)
     attribute_value_id = db.Column(db.Integer, db.ForeignKey('attribute_value.id'), nullable=True)
 
     def __init__(self, pericia_id, attribute_value_id, value=0):

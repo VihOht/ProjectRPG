@@ -1,10 +1,10 @@
 from __future__ import annotations
 from application import db
-from application.models._characters import Character, ConversionRule, LevelUpRule, Race
+from application.models._characters import Character, ConversionRule, LevelUpRule, Race, ConversionRuleType
 from application.models._classes import Subclass, Class, ClassAbility, ClassPower
 from application.models._pericia import Pericia, PericiaValue
 from application.models._attribute import Attribute, AttributeValue
-
+from application.models._user import User
 
 class ClassAbilityService:
     @staticmethod
@@ -97,9 +97,9 @@ class ClassAbilityService:
     
 class ClassPowerService:
     @staticmethod
-    def create_class_power(name, description, class_id):
+    def create_class_power(name, description, class_id, level_to_unlock=1):
         """Create a new class power"""
-        class_power = ClassPower(name=name, description=description, class_id=class_id)
+        class_power = ClassPower(name=name, description=description, class_id=class_id, level_to_unlock=level_to_unlock)
         db.session.add(class_power)
         db.session.commit()
         return class_power
@@ -152,8 +152,8 @@ class ClassPowerService:
         return True, None
     
     @staticmethod
-    def toggle_class_power_hidden_status(power_id):
-        """Toggle class power hidden status"""
+    def toggle_class_power_visibility(power_id):
+        """Toggle class power visibility"""
         class_power = ClassPower.query.get(power_id)
         if not class_power:
             return None, "Class power not found"
@@ -332,9 +332,9 @@ class AttributeService:
 
 class ClassService:
     @staticmethod
-    def create_class(name, description, abilities=None):
-        """Create a new class with abilities"""
-        char_class = Class(name=name, description=description)
+    def create_class(name, description, base_life=10, base_defense=10, base_sanity=10, base_mana=10, base_ocultism=10, has_mana=False, has_ocultism=False):
+        """Create a new class"""
+        char_class = Class(name=name, description=description, base_life=base_life, base_defense=base_defense, base_sanity=base_sanity, base_mana=base_mana, base_ocultism=base_ocultism, has_mana=has_mana, has_ocultism=has_ocultism)
         db.session.add(char_class)
         db.session.commit()
         return char_class
@@ -350,7 +350,7 @@ class ClassService:
         return Class.query.get(class_id)
 
     @staticmethod
-    def update_class(class_id, name=None, description=None):
+    def update_class(class_id, name=None, description=None, base_life=None, base_defense=None, base_sanity=None, base_mana=None, base_ocultism=None, has_mana=None, has_ocultism=None):
         """Update class"""
         char_class = Class.query.get(class_id)
         if not char_class:
@@ -360,7 +360,20 @@ class ClassService:
             char_class.name = name
         if description:
             char_class.description = description
-        
+        if base_life is not None:
+            char_class.base_life = base_life
+        if base_defense is not None:
+            char_class.base_defense = base_defense
+        if base_sanity is not None:
+            char_class.base_sanity = base_sanity
+        if base_mana is not None:
+            char_class.base_mana = base_mana
+        if base_ocultism is not None:
+            char_class.base_ocultism = base_ocultism
+        if has_mana is not None:
+            char_class.has_mana = has_mana
+        if has_ocultism is not None:
+            char_class.has_ocultism = has_ocultism
         db.session.commit()
         return char_class, None
 
@@ -378,7 +391,7 @@ class ClassService:
 
 class SubclassService:
     @staticmethod
-    def create_subclass(name, description, class_id, abilities=None):
+    def create_subclass(name, description, class_id):
         """Create a new subclass under a class"""
         char_class = Class.query.get(class_id)
         if not char_class:
@@ -517,12 +530,11 @@ class PericiaValueService:
 
 class CharacterService:
     @staticmethod
-    def create_character(user_id, **kwargs):
+    def create_character(user_id, is_player=True):
         """Create a new character with default values"""
-        character = Character(own=user_id)
+        character = Character(own=user_id, is_player=is_player)
         db.session.add(character)
         db.session.flush()
-        CharacterService._apply_character_updates(character, **kwargs)
         
         # Create default attributes and pericias for the character
         AttributeValueService.create_character_attributes(character.id)
@@ -553,41 +565,37 @@ class CharacterService:
             return None, "Character not found"
 
         character_class = Class.query.get(character.charClass) if character.charClass else None
-        base_limits = {
-            "life": getattr(character_class, "base_life", 100) + getattr(character, "offset_life", 0),
-            "defense": getattr(character_class, "base_defense", 10) + getattr(character, "offset_defense", 0),
-            "sanity": getattr(character_class, "base_sanity", 100) + getattr(character, "offset_sanity", 0),
-            "ocultism": getattr(character_class, "base_ocultism", 10) + getattr(character, "offset_ocultism", 0),
-            "mana": getattr(character_class, "base_mana", 100) + getattr(character, "offset_mana", 0),
+        if not character_class:
+            return None, "Character class not found"
+        
+
+        stats = {
+            "life": {
+                "base": getattr(character_class, "base_life") + getattr(character, "offset_life", 0),
+                "bonus": getattr(character, "att_life", 0)
+            },
+            "sanity": {
+                "base": getattr(character_class, "base_sanity") + getattr(character, "offset_sanity", 0),
+                "bonus": getattr(character, "att_sanity", 0)
+            },
+            "ocultism": {
+                "base": getattr(character_class, "base_ocultism") + getattr(character, "offset_ocultism", 0),
+                "bonus": getattr(character, "att_ocultism", 0)
+            },
+            "mana": {
+                "base": getattr(character_class, "base_mana") + getattr(character, "offset_mana", 0),
+                "bonus": getattr(character, "att_mana", 0)
+            },
+            "defense": {
+                "base": getattr(character_class, "base_defense") + getattr(character, "offset_defense", 0),
+                "bonus": getattr(character, "att_defense", 0)
+            }
         }
 
-        stat_limits = {
-            stat: {"base_max": base, "bonus_max": 0, "total_max": base}
-            for stat, base in base_limits.items()
-        }
+        for stat, values in stats.items():
+            values["total_max"] = values["base"] + values["bonus"]
 
-        conversion_rules = ConversionRule.query.all()
-        rule_rows = [(ar.attribute_id, ar.stat, ar.rate) for ar in conversion_rules]
-
-        for attribute_id, stat, rate in rule_rows:
-            if stat not in stat_limits:
-                continue
-
-            attr_value = AttributeValue.query.filter_by(
-                character_id=character_id,
-                attribute_id=attribute_id,
-            ).first()
-            if not attr_value:
-                continue
-
-            total_pericia_bonus = sum(pericia.value for pericia in attr_value.pericias)
-            stat_limits[stat]["bonus_max"] += total_pericia_bonus * rate
-
-        for stat, values in stat_limits.items():
-            values["total_max"] = values["base_max"] + values["bonus_max"]
-
-
-        return stat_limits, None
+        return stats, None
 
     @staticmethod
     def update_character_general(character_id, name=None, charClass=None, subclass=None, second_class=None, race=None, gender=None, age=None, level=None, experience=None):
@@ -635,16 +643,26 @@ class CharacterService:
         character = Character.query.get(character_id)
         if not character:
             return None, "Character not found"
+        
+        stats_limits, error = CharacterService.calculate_stat_limits(character_id)
+        if error:
+            return None, error
 
         if life is not None:
+            if life > stats_limits["life"]["total_max"]:
+                return None, f"Life cannot exceed {stats_limits['life']['total_max']}"
             character.life = life
-        if defense is not None:
-            character.defense = defense
         if sanity is not None:
+            if sanity > stats_limits["sanity"]["total_max"]:
+                return None, f"Sanity cannot exceed {stats_limits['sanity']['total_max']}"
             character.sanity = sanity
         if ocultism is not None:
+            if ocultism > stats_limits["ocultism"]["total_max"]:
+                return None, f"Ocultism cannot exceed {stats_limits['ocultism']['total_max']}"
             character.ocultism = ocultism
         if mana is not None:
+            if mana > stats_limits["mana"]["total_max"]:
+                return None, f"Mana cannot exceed {stats_limits['mana']['total_max']}"
             character.mana = mana
 
         db.session.commit()
@@ -672,18 +690,18 @@ class CharacterService:
         return character, None
 
     @staticmethod
-    def update_character_description(character_id, descricao_fisica=None, descricao_psicologica=None, historia=None):
+    def update_character_description(character_id, physical_description=None, psychological_description=None, backstory=None):
         """Update character descriptions"""
         character = Character.query.get(character_id)
         if not character:
             return None, "Character not found"
 
-        if descricao_fisica is not None:
-            character.descricao_fisica = descricao_fisica
-        if descricao_psicologica is not None:
-            character.descricao_psicologica = descricao_psicologica
-        if historia is not None:
-            character.historia = historia
+        if physical_description is not None:
+            character.physical_description = physical_description
+        if psychological_description is not None:
+            character.psychological_description = psychological_description
+        if backstory is not None:
+            character.backstory = backstory
 
         db.session.commit()
         return character, None
@@ -701,6 +719,29 @@ class CharacterService:
         db.session.delete(character)
         db.session.commit()
         return True, None
+    
+    @staticmethod
+    def sync_stats_limit_change(character_id):
+        """Sync character stats when class or level changes that affect stat limits"""
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        stats_limits, error = CharacterService.calculate_stat_limits(character_id)
+        if error:
+            return None, error
+
+        if character.life > stats_limits["life"]["total_max"]:
+            character.life = stats_limits["life"]["total_max"] if stats_limits["life"]["total_max"] >= 0 else 0
+        if character.sanity > stats_limits["sanity"]["total_max"]:
+            character.sanity = stats_limits["sanity"]["total_max"] if stats_limits["sanity"]["total_max"] >= 0 else 0
+        if character.ocultism > stats_limits["ocultism"]["total_max"]:
+            character.ocultism = stats_limits["ocultism"]["total_max"] if stats_limits["ocultism"]["total_max"] >= 0 else 0
+        if character.mana > stats_limits["mana"]["total_max"]:
+            character.mana = stats_limits["mana"]["total_max"] if stats_limits["mana"]["total_max"] >= 0 else 0
+
+        db.session.commit()
+        return character, None
 
     @staticmethod
     def sync_attributes_stats_change(character_id):
@@ -720,28 +761,57 @@ class CharacterService:
         character.att_mana = 0
 
         for rule in conversion_rules:
-            # Get the attribute value for the character
-            attr_value = AttributeValue.query.filter_by(character_id=character_id, attribute_id=rule.attribute_id).first()
-            if attr_value:
-                # Calculate total pericia bonus for this attribute
+            if rule.conversion_type == "attribute":
+                # Get the attribute value for the character
+                attr_value = AttributeValue.query.filter_by(character_id=character_id, attribute_id=rule.attribute_id).first()
+                if not attr_value:
+                    continue
                 total_pericia_bonus = sum(pericia.value for pericia in attr_value.pericias)
-                # Calculate the stat bonus based on the conversion rate
                 att_stat = total_pericia_bonus * rule.rate
-                # Update the corresponding stat on the character
-                if rule.stat == "life":
-                    character.att_life += att_stat  # attribute bonus to life
-                elif rule.stat == "defense":
-                    character.att_defense += att_stat  # attribute bonus to defense
-                elif rule.stat == "sanity":
-                    character.att_sanity += att_stat  # attribute bonus to sanity
-                elif rule.stat == "ocultism":
-                    character.att_ocultism += att_stat  # attribute bonus to ocultism
-                elif rule.stat == "mana":
-                    character.att_mana += att_stat  # attribute bonus to mana
+            elif rule.conversion_type == "pericia":
+                # Get the pericia value for the character
+                pericia_value = PericiaValue.query.get(rule.pericia_id)
+                if not pericia_value:
+                    continue
+                att_stat = pericia_value.value * rule.rate
+        
+            # Update the corresponding stat on the character
+            if rule.stat == "life":
+                character.att_life += att_stat  # attribute bonus to life
+            elif rule.stat == "defense":
+                character.att_defense += att_stat  # attribute bonus to defense
+            elif rule.stat == "sanity":
+                character.att_sanity += att_stat  # attribute bonus to sanity
+            elif rule.stat == "ocultism":
+                character.att_ocultism += att_stat  # attribute bonus to ocultism
+            elif rule.stat == "mana":
+                character.att_mana += att_stat  # attribute bonus to mana
+
         
         db.session.commit()
         return character, None
 
+    def sync_all_conversions(character_id):
+        """Sync all conversions for a character (stats and attributes)"""
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        # First sync attributes to update any pericia bonuses
+        CharacterService.sync_attributes_stats_change(character_id)
+        # Then sync stats to ensure they are within limits after attribute changes
+        CharacterService.sync_stats_limit_change(character_id)
+
+        return character, None
+    
+    def sync_all():
+        """Sync all character data (attributes, stats, and limits)"""
+        characters = Character.query.all()
+        for character in characters:
+            CharacterService.sync_attributes_stats_change(character.id)
+            CharacterService.sync_stats_limit_change(character.id)
+
+        return character, None
 
     @staticmethod
     def transferCharacterOwnership(character_id, new_user_id):
@@ -750,8 +820,14 @@ class CharacterService:
         if not character:
             return None, "Character not found"
         
+        user = User.query.get(new_user_id)
+        if not user:
+            return None, "New owner not found"
+
+        if user.role != "admin":
+            character.is_player = True
+
         character.own = new_user_id
-        character.is_player = True
         db.session.commit()
         return character, None
     
@@ -765,51 +841,47 @@ class CharacterService:
         character.active = not character.active
         db.session.commit()
         return character, None
+    
+    @staticmethod
+    def toggle_character_player_status(character_id):
+        """Toggle character player status"""
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        character.is_player = not character.is_player
+        db.session.commit()
+        return character, None
 
 
 class CharacterAttributesService:
     @staticmethod
     def get_character_attributes(character_id):
-        """Return character attribute and pericia snapshots for the controller"""
+        """Return character attribute and pericia for the controller"""
         character = Character.query.get(character_id)
         if not character:
             return None, "Character not found"
 
-        def make_item(**kwargs):
-            return type("CharacterAttributeSnapshot", (), kwargs)()
-
         attributes = []
-        pericias = []
 
         for attr_value in character.attributes:
-            attribute = Attribute.query.get(attr_value.attribute_id)
-            if not attribute:
-                continue
+            attributes.append({
+                **attr_value.toDict(),
+                **attr_value.attribute.toDict()
+            })
 
-            total = sum(pericia.value for pericia in attr_value.pericias)
-            attributes.append(
-                make_item(
-                    attribute=attribute,
-                    baseValue=0,
-                    bonusValue=total,
-                    total=total,
-                )
-            )
+        for attr in attributes:
+            pericias = []
+            for pericia_value in attr["pericias"]:
+                pericia = Pericia.query.get(pericia_value["pericia_id"])
+                if pericia:
+                    pericias.append({
+                        **pericia_value,
+                        **pericia.toDict()
+                    })
+            attr["pericias"] = pericias
 
-            for pericia_value in attr_value.pericias:
-                pericia = pericia_value.pericia
-                if not pericia:
-                    continue
-                pericias.append(
-                    make_item(
-                        pericia=pericia,
-                        baseValue=0,
-                        bonusValue=pericia_value.value,
-                        total=pericia_value.value,
-                    )
-                )
-
-        return make_item(attributes=attributes, pericias=pericias), None
+        return attributes, None
 
 
     @staticmethod
@@ -840,12 +912,29 @@ class CharacterAttributesService:
 
 class ConversionRuleService:
     @staticmethod
-    def create_conversion_rule(attribute_id, stat, rate):
+    def create_conversion_rule(attribute_id, stat, rate, conversion_type, target_id=None):
         """Create a new conversion rule"""
-        conversion_rule = ConversionRule(attribute_id=attribute_id, stat=stat, rate=rate)
+        attribute_id = None
+        pericia_id = None
+        if conversion_type not in ["attribute", "pericia"]:
+            return None, "Invalid conversion type"
+        
+        if conversion_type == "attribute":
+            if not Attribute.query.get(target_id):
+                return None, "Attribute not found"
+            attribute_id = target_id
+        elif conversion_type == "pericia":
+            if not Pericia.query.get(target_id):
+                return None, "Pericia not found"
+            pericia_id = target_id
+
+        if ConversionRule.query.filter_by(stat=stat, conversion_type=conversion_type, attribute_id=attribute_id, pericia_id=pericia_id).first():
+            return None, "Conversion rule for this stat and source already exists"
+
+        conversion_rule = ConversionRule(attribute_id=attribute_id, stat=stat, rate=rate, pericia_id=pericia_id, conversion_type=conversion_type)
         db.session.add(conversion_rule)
         db.session.commit()
-        return conversion_rule
+        return conversion_rule, None
 
     @staticmethod
     def get_all_conversion_rules():
@@ -873,6 +962,16 @@ class ConversionRuleService:
         db.session.commit()
         return conversion_rule, None
     
+    @staticmethod
+    def delete_conversion_rule(rule_id):
+        """Delete conversion rule"""
+        conversion_rule = ConversionRule.query.get(rule_id)
+        if not conversion_rule:
+            return False, "Conversion rule not found"
+        
+        db.session.delete(conversion_rule)
+        db.session.commit()
+        return True, None
 
 class LevelUpRuleService:
     @staticmethod

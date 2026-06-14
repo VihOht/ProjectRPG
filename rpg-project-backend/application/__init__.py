@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -34,6 +34,22 @@ app.register_blueprint(lore_bp)
 
 @app.route('/health')
 def health_check():
-    return "It's alright!"
+    return jsonify({'status': 'ok'}), 200
 
 
+@app.route("/tables/<table_name>", methods=["DELETE"])
+def delete_table(table_name):
+    """Endpoint to delete all records from a specified table (for testing purposes)"""
+    if table_name not in db.metadata.tables:
+        return jsonify({'message': 'Table not found'}), 404
+    if table_name not in db.metadata.tables:
+        return jsonify({'message': 'Table not found'}), 404
+    table = db.metadata.tables[table_name]
+    table.drop(db.engine)
+
+    return jsonify({'message': f'Table {table_name} deleted successfully'}), 200
+
+@app.route("/tables", methods=["GET"])
+def get_tables():
+    """Endpoint to get all table names (for testing purposes)"""
+    return jsonify({'tables': list(db.metadata.tables.keys())}), 200

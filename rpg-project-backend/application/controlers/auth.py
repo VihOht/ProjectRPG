@@ -23,13 +23,13 @@ def token_required(f):
             return jsonify({'message': 'Token is missing'}), 401
         
         # Verify token
-        user_id, error = AuthService.verify_token(token)
+        token_data, error = AuthService.verify_token(token)
         
         if error:
             return jsonify({'message': error}), 401
         
         # Get user
-        current_user = AuthService.get_user_by_id(user_id)
+        current_user = AuthService.get_user_by_id(token_data['id'])
         
         if not current_user:
             return jsonify({'message': 'User not found'}), 401
@@ -53,7 +53,7 @@ def register():
     password = data.get('password')
     
     # Register user
-    user, error = AuthService.register_user(username, email, password, data.get('role', 'USER'))
+    user, error = AuthService.register_user(username, email, password, role='USER')
     
     if error:
         return jsonify({'message': error}), 400

@@ -1,3 +1,5 @@
+import enum
+
 from application import db
 
 
@@ -21,25 +23,38 @@ class Race(db.Model):
             'hidden': self.hidden
         }
     
+class ConversionRuleType(enum.Enum):
+    PERICIA = 'pericia'
+    ATTRIBUTE = 'attribute'
+   
+
 class ConversionRule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    attribute_id: int = db.Column(db.Integer, db.ForeignKey('attribute.id'), nullable=False)
+    attribute_id: int = db.Column(db.Integer, db.ForeignKey('attribute.id'), nullable=True)
+    pericia_id: int = db.Column(db.Integer, db.ForeignKey('pericia.id'), nullable=True)
+    conversion_type: str = db.Column(db.Text, nullable=False)
     stat: str = db.Column(db.String(80), nullable=False)
     rate: int = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, attribute_id, stat, rate):
+
+    def __init__(self, attribute_id, stat, rate, conversion_type, pericia_id):
         self.attribute_id = attribute_id
         self.stat = stat
-        self.rate = rate    
+        self.rate = rate
+        self.conversion_type = conversion_type
+        self.pericia_id = pericia_id
 
     def toDict(self):
         return {
             'id': self.id,
             'attribute_id': self.attribute_id,
+            'pericia_id': self.pericia_id,
+            'conversion_type': self.conversion_type,
             'stat': self.stat,
             'rate': self.rate
         }
     
+ 
 class LevelUpRule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     level: int = db.Column(db.Integer, nullable=False)
@@ -76,6 +91,7 @@ character_abilities = db.Table(
 )
 
 class Character(db.Model):
+    # Ids information
     id: int = db.Column(db.Integer, primary_key=True)
     own: int = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
@@ -104,7 +120,6 @@ class Character(db.Model):
     offset_mana: int = db.Column(db.Integer, nullable=False, default=0)
 
     life: int = db.Column(db.Integer, nullable=False, default=10)
-    defense: int = db.Column(db.Integer, nullable=False, default=10)
     sanity: int = db.Column(db.Integer, nullable=False, default=10)
     ocultism: int = db.Column(db.Integer, nullable=False, default=10)
     mana: int = db.Column(db.Integer, nullable=False, default=10)
@@ -121,15 +136,18 @@ class Character(db.Model):
         lazy=True
     )
 
+    # Denotes if the character is active or archived (soft delete)
     active: bool = db.Column(db.Boolean, default=True)
     is_player: bool = db.Column(db.Boolean, default=True)
 
-    descricao_fisica: str = db.Column(db.Text, nullable=True)
-    descricao_psicologica: str = db.Column(db.Text, nullable=True)
-    historia: str = db.Column(db.Text, nullable=True)
+    # Descriptions    
+    physical_description: str = db.Column(db.Text, nullable=True)
+    psychological_description: str = db.Column(db.Text, nullable=True)
+    backstory: str = db.Column(db.Text, nullable=True)
 
-    def __init__(self, own):
+    def __init__(self, own, is_player=True):
         self.own = own
+        self.is_player = is_player
 
     def toDict(self):
         return {
@@ -154,7 +172,6 @@ class Character(db.Model):
             'offset_ocultism': self.offset_ocultism,
             'offset_mana': self.offset_mana,
             'life': self.life,
-            'defense': self.defense,
             'sanity': self.sanity,
             'ocultism': self.ocultism,
             'mana': self.mana,
@@ -162,8 +179,8 @@ class Character(db.Model):
             'abilities': [ability.toDict() for ability in self.abilities],
             'active': self.active,
             'is_player': self.is_player,
-            'descricao_fisica': self.descricao_fisica,
-            'descricao_psicologica': self.descricao_psicologica,
-            'historia': self.historia
+            'physical_description': self.physical_description,
+            'psychological_description': self.psychological_description,
+            'backstory': self.backstory
         }
     

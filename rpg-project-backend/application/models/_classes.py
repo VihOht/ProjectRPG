@@ -47,9 +47,16 @@ class Class (db.Model):
     has_ocultism: bool = db.Column(db.Boolean, default=False)
 
 
-    def __init__(self, name, description):
+    def __init__(self, name, description, base_life=10, base_defense=10, base_sanity=10, base_mana=10, base_ocultism=10, has_mana=False, has_ocultism=False):
         self.name = name
         self.description = description
+        self.base_life = base_life
+        self.base_defense = base_defense
+        self.base_sanity = base_sanity
+        self.base_mana = base_mana
+        self.base_ocultism = base_ocultism
+        self.has_mana = has_mana
+        self.has_ocultism = has_ocultism
 
     def toDict(self):
         return {
@@ -110,12 +117,11 @@ class ClassPower(db.Model):
     hidden: bool = db.Column(db.Boolean, default=True)
 
 
-    def __init__(self, name, description, class_id, level_to_unlock=1, hidden=True):
+    def __init__(self, name, description, class_id, level_to_unlock=1):
         self.name = name
         self.description = description
         self.class_id = class_id
         self.level_to_unlock = level_to_unlock
-        self.hidden = hidden
 
     def toDict(self):
         return {

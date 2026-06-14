@@ -5,6 +5,19 @@ class Attribute(db.Model):
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.Text, nullable=False)
 
+    attribute_values = db.relationship(
+        'AttributeValue',
+        back_populates='attribute',
+        lazy=True,
+        cascade='all, delete-orphan'
+        )
+    pericias = db.relationship(
+        'Pericia',
+        backref='attribute_ref',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
+
     def __init__(self, name, description):
         self.name = name
         self.description = description
@@ -25,7 +38,7 @@ class AttributeValue(db.Model):
         lazy=True,
         cascade='all, delete-orphan'
     )
-    attribute = db.relationship('Attribute', backref='character_values', lazy=True)
+    attribute = db.relationship('Attribute', back_populates='attribute_values', lazy=True)
     character_id = db.Column(db.Integer, db.ForeignKey('character.id'), nullable=False)
 
     def __init__(self, attribute_id, character_id):
@@ -37,6 +50,7 @@ class AttributeValue(db.Model):
             'id': self.id,
             'attribute_id': self.attribute_id,
             'character_id': self.character_id,
-            'pericias': [pericia.toDict() for pericia in self.pericias]
+            'pericias': [pericia.toDict() for pericia in self.pericias],
+            "value": sum([pericia.value for pericia in self.pericias])
         }
         
