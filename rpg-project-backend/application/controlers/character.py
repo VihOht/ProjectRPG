@@ -1282,13 +1282,17 @@ def create_level_up_rule(current_user):
         return jsonify({'message': 'Admin only'}), 403
 
     data = request.get_json(silent=True) or {}
-    if data.get('level') is None or data.get('experience_required') is None:
+    if data.get('level') is None or data.get('experience_required') is None or data.get("description") is None:
         return jsonify({'message': 'Missing required fields'}), 400
 
-    rule = LevelUpRuleService.create_level_up_rule(
+    rule, error = LevelUpRuleService.create_level_up_rule(
         level=data.get('level'),
         experience_required=data.get('experience_required'),
+        description=data.get('description')
     )
+
+    if error:
+        return jsonify({'message': error}), 400
 
     return jsonify({
         'message': 'Level up rule created successfully',
@@ -1307,6 +1311,7 @@ def update_level_up_rule(current_user, rule_id):
         rule_id,
         level=data.get('level'),
         experience_required=data.get('experience_required'),
+        description=data.get('description')
     )
 
     if error:

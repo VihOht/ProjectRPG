@@ -59,16 +59,19 @@ class LevelUpRule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     level: int = db.Column(db.Integer, nullable=False)
     experience_required: int = db.Column(db.Integer, nullable=False)
+    description: str = db.Column(db.Text, nullable=True)
 
-    def __init__(self, level, experience_required):
+    def __init__(self, level, experience_required, description=None):
         self.level = level
         self.experience_required = experience_required
+        self.description = description
 
     def toDict(self):
         return {
             'id': self.id,
             'level': self.level,
-            'experience_required': self.experience_required
+            'experience_required': self.experience_required,
+            'description': self.description
         }
     
 

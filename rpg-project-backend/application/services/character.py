@@ -481,13 +481,32 @@ class AttributeValueService:
                 for pericia in pericias:
                     char_pericia_value = PericiaValue(pericia_id=pericia.id, attribute_value_id=char_attr_value.id)
                     char_attr_value.pericias.append(char_pericia_value)
-        
+
         # Check for deleted attributes and remove them
         existing_attribute_ids = set(existing_attr_values.keys())
         for attr_id in existing_attribute_ids:
             if attr_id not in {attr.id for attr in all_attributes}:
                 char_attr_value = existing_attr_values[attr_id]
                 db.session.delete(char_attr_value)
+
+
+        periciass = Pericia.query.all()
+        for pericia in periciass:
+            if pericia.id not in [pericia_value.pericia_id for attr_value in character.attributes for pericia_value in attr_value.pericias]:
+                # Create missing pericia value
+                char_attr_value = AttributeValue.query.filter_by(character_id=character_id, attribute_id=pericia.attribute_id).first()
+                if char_attr_value:
+                    char_pericia_value = PericiaValue(pericia_id=pericia.id, attribute_value_id=char_attr_value.id)
+                    char_attr_value.pericias.append(char_pericia_value)
+
+
+        # Check for deleted pericias and remove them
+        existing_pericia_ids = {pericia_value.pericia_id for attr_value in character.attributes for pericia_value in attr_value.pericias}
+        for pericia_id in existing_pericia_ids:
+            if pericia_id not in {pericia.id for pericia in periciass}:
+                char_pericia_value = PericiaValue.query.filter_by(pericia_id=pericia_id).first()
+                if char_pericia_value:
+                    db.session.delete(char_pericia_value)
         db.session.commit()
 
     @staticmethod
@@ -986,9 +1005,11 @@ class ConversionRuleService:
 
 class LevelUpRuleService:
     @staticmethod
-    def create_level_up_rule(level, experience_required):
+    def create_level_up_rule(level, experience_required, description):
         """Create a new level up rule"""
-        level_up_rule = LevelUpRule(level=level, experience_required=experience_required)
+        if LevelUpRule.query.filter_by(level=level).first():
+            return None, "Level up rule for this level already exists"
+        level_up_rule = LevelUpRule(level=level, experience_required=experience_required, description=description)
         db.session.add(level_up_rule)
         db.session.commit()
         return level_up_rule
@@ -1004,16 +1025,19 @@ class LevelUpRuleService:
         return LevelUpRule.query.get(rule_id)
 
     @staticmethod
-    def update_level_up_rule(rule_id, level=None, experience_required=None):
+    def update_level_up_rule(rule_id, level=None, experience_required=None, description=None):
         """Update level up rule"""
         level_up_rule = LevelUpRule.query.get(rule_id)
         if not level_up_rule:
             return None, "Level up rule not found"
         
         if level is not None:
+            if (level_up_rule.level != level and LevelUpRule.query.filter_by(level=level).first()):
+                return None, "Level up rule for this level already exists"
             level_up_rule.level = level
         if experience_required is not None:
             level_up_rule.experience_required = experience_required
-        
+        if description is not None:
+            level_up_rule.description = description
         db.session.commit()
         return level_up_rule, None

@@ -515,11 +515,13 @@ export type LevelUpRuleItem = {
   id: number;
   level: number;
   experience_required: number;
+  description: string;
 }
 
 export type CreateLevelUpRuleRequest = {
   level: number;
   experience_required: number;
+  description: string;
 }
 
 export type CreateLevelUpRuleResponse = {
@@ -538,6 +540,7 @@ export type GetLevelUpRuleResponse = {
 export type UpdateLevelUpRuleRequest = {
   level?: number;
   experience_required?: number;
+  description?: string;
 }
 
 
