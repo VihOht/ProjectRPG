@@ -1,5 +1,5 @@
-from aplication import db
-from aplication.models.docs import Section, Document, imgs, subDocument
+from application import db
+from application.models._docs import Section, Document, imgs, subDocument
 
 
 class LoreService:

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
-from aplication.controlers.auth import token_required
-from aplication.services.lore import LoreService
+from application.controlers.auth import token_required
+from application.services.lore import LoreService
 
 lore_bp = Blueprint('lore', __name__, url_prefix='/api')
 

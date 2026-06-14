@@ -9,6 +9,7 @@ import type {
   VerifyResponse,
   CurrentUserResponse,
   GetUsersResponse,
+  User,
 } from '../types/auth';
 import { AxiosError } from 'axios';
 
@@ -84,6 +85,19 @@ export const useGetUsers = (enabled = true): UseQueryResult<GetUsersResponse, Ax
   return useQuery<GetUsersResponse, AxiosError>({
     queryKey: ['users'],
     queryFn: authService.getUsers,
+    enabled: authService.isAuthenticated() && enabled,
+    retry: false,
+    staleTime: 60 * 1000,
+  });
+};
+
+/**
+ * Hook for getting a specific user (admin only)
+ */
+export const useGetUserById = (id: number, enabled = true): UseQueryResult<User, AxiosError> => {
+  return useQuery<User, AxiosError>({
+    queryKey: ['user', id],
+    queryFn: () => authService.getUserById(id),
     enabled: authService.isAuthenticated() && enabled,
     retry: false,
     staleTime: 60 * 1000,

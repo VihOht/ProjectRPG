@@ -1,490 +1,157 @@
 import { StarSky } from "../components/StarSky";
 import { useEffect, useMemo, useState, useRef  } from "react";
 import { useParams, useNavigate } from "react-router";
-import { useReactToPrint } from "react-to-print";
 import { CharacterInformation } from "../components/character/Informations";
 import { CharacterStats } from "../components/character/Stats";
 import { CharacterAttributes } from "../components/character/Atributes";
-import { CharacterBackstory } from "../components/character/Backstory";
-import { CharacterPhysicaldesc } from "../components/character/PhysicalDesc";
-import { CharacterPsycDesc } from "../components/character/PsycDesc";
-import { CharacterPhotos } from "../components/character/CharPics";
-import { CharacterEquipament } from "../components/character/Equipaments";
-import { CharacterInventory } from "../components/character/Items";
-import type { characterInformation, characterStats, CharacterAttributeItem, CharacterPericiaItem, UpdateCharacterAttributesRequest, UpdateCharacterPericiasRequest, UpdateCharacterRequest } from "../types";
-import type { User } from "../types/auth";
-import { useGetCharacter, useGetCharacterAttributes, useGetClasses, useGetSubclasses, useGetRaces, useUpdateCharacter, useUpdateCharacterAttributes, useUpdateCharacterPericias, useDeleteCharacter, useGetUsers, useActivateCharacter, useDeactivateCharacter, useTransferCharacterOwnership, useReturnCharacterToAdmin } from "../hooks";
+import { CharacterLore } from "../components/character/Lore";
+import type { UpdateCharacterGeneralRequest } from "../types";
+import { useDeleteCharacter, useCharacter, useToggleCharacterActive, useTransferCharacterOwnership, useReturnCharacterToAdmin, useUpdateCharacterGeneral } from "../hooks/useCharacters";
+import { useGetUserById, useGetUsers } from "../hooks/useAuth";
 import { Header } from "../components/Header";
 import { useAuthProvider } from "../providers";
+import { toast } from "react-hot-toast";
 
 export default function RpgSheet() {
     const navigate = useNavigate();
     const { user } = useAuthProvider();
     const [isEditingHeader, setIsEditingHeader] = useState(false);
     const [transferTargetId, setTransferTargetId] = useState<string>("");
-    const { mutate: deleteCharacter } = useDeleteCharacter();
-
     const { id } = useParams();
     const characterId = useMemo(() => {
         if (!id) return null;
         const parsed = Number(id);
-        return Number.isNaN(parsed) ? null : parsed;
+        return parsed
     }, [id]);
 
-    const { data: characterDataQuerry, isLoading } = useGetCharacter(characterId);
-    const { data: characterAttributesData, isLoading: isAttributesLoading } = useGetCharacterAttributes(characterId);
-    const { data: racesData, isLoading: isRacesLoading } = useGetRaces();
-    const { data: classesData, isLoading: isClassesLoading } = useGetClasses();
-    const { data: subclassesData, isLoading: isSubclassesLoading } = useGetSubclasses();
+    if (characterId === null) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-xl text-gray-500">ID do personagem é inválido.</p>
+            </div>
+        );
+    }
+
+    const { data: characterData, refetch: refetchCharacter, isLoading: isCharacterLoading } = useCharacter(characterId!);
+
+   
+    const { mutate: deleteCharacter } = useDeleteCharacter();
+    const { mutate: toggleActive, isPending: isTogglingActive } = useToggleCharacterActive(characterId!);
+    const { data: ownerData } = useGetUserById(characterData?.character.own ?? -1, !!characterData?.character.own);
+    const { mutate: transferOwnership, isPending: isTransferring } = useTransferCharacterOwnership(characterId!);
+    const { mutate: returnToAdmin, isPending: isReturning } = useReturnCharacterToAdmin(characterId!);
+    const { data: usersData } = useGetUsers();
+    const { mutate: updateGeneral } = useUpdateCharacterGeneral(characterId!);
     const isAdmin = user?.role === "ADMIN";
-    const { data: usersData } = useGetUsers(isAdmin);
-    const { mutate: updateCharacter } = useUpdateCharacter(Number(id))
-    const { mutate: updateCharacterAttributes } = useUpdateCharacterAttributes(characterId)
-    const { mutate: updateCharacterPericias } = useUpdateCharacterPericias(characterId)
-    const { mutate: activateCharacter, isPending: isActivating } = useActivateCharacter(characterId);
-    const { mutate: deactivateCharacter, isPending: isDeactivating } = useDeactivateCharacter(characterId);
-    const { mutate: transferCharacterOwnership, isPending: isTransferring } = useTransferCharacterOwnership(characterId);
-    const { mutate: returnCharacterToAdmin, isPending: isReturning } = useReturnCharacterToAdmin(characterId);
 
-    const [characterData, setCharacterData] = useState({
-        // Section 1: Basic Info
-        informations: {
-            nome: "",
-            classe: "",
-            segunda_classe: "",
-            raca: "",
-            genero: "",
-            idade: 0,
-            subclasse: "",
-            nivel: 1,
-        } as characterInformation,
-
-        // Section 2: Stats
-        stats: {
-            pv: 0,
-            defesa: 0,
-            ocult: 0,
-            san: 0,
-            mana: 0,
-        } as characterStats,
-        
-        // Section 3: Attributes and Pericias
-        attributes: [] as CharacterAttributeItem[],
-        pericias: [] as CharacterPericiaItem[],
-        
-        // Section 4: Backstory
-        backstory: "",
-
-        // Section 5: Physical description
-        physical_description: "",
-
-        // Section 6: Psycological description
-        Psycological_description: "",
-
-        // Section 7: Pics for reference
-        photos: [] as string[],
-
-        // Section 8: Equipaments
-        equipament: "",
-        equipDescription: "",
-
-        // Section 9: Inventory
-        item: "",
-        itemDescription: "",
-
-    });
-
-    const sheetRef = useRef<HTMLDivElement>(null);
-
-    const handlePrintPdf = useReactToPrint({
-    contentRef: sheetRef,
-    documentTitle: `Ficha-${characterData.informations.nome || "personagem"}`,
-    });
-
-    const ownerUser = useMemo(() => {
-        if (!isAdmin) {
-            return null;
+    const [character, setCharacter] = useState<UpdateCharacterGeneralRequest | null>(
+        {
+            name: characterData?.character.name ?? "",
+            level: characterData?.character.level ?? 1,
+            experience: characterData?.character.experience ?? 0,
+            charClass: characterData?.character.charClass ?? -1,
+            subclass: characterData?.character.subclass ?? -1,
+            second_class: characterData?.character.second_class ?? -1,
+            race: characterData?.character.race ?? -1,
         }
+    );
 
-        return usersData?.users.find((listedUser) => listedUser.id === characterDataQuerry?.character?.own) ?? null;
-    }, [characterDataQuerry?.character?.own, isAdmin, usersData?.users]);
+    useEffect(() => {
+        if (characterData?.character) {
+            setCharacter(prev =>
+                ({
+                    name: characterData.character.name ?? prev?.name ?? "",
+                    level: characterData.character.level ?? prev?.level ?? 1,
+                    experience: characterData.character.experience ?? prev?.experience ?? 0,
+                    charClass: characterData.character.charClass ?? prev?.charClass ?? -1,
+                    subclass: characterData.character.subclass ?? prev?.subclass ?? -1,
+                    second_class: characterData.character.second_class ?? prev?.second_class ?? -1,
+                    race: characterData.character.race ?? prev?.race ?? -1,
+                })
+            );
+        }
+    }, [characterData]);
+
+
+    const handleToggleActive = () => {
+        toggleActive();
+    };
+
+    const handleTransferOwnership = () => {
+        if (transferTargetId === "RETURN_TO_NPC") {
+            if (window.confirm('Tem certeza que deseja devolver esta ficha para NPC? Esta ação não pode ser desfeita.')) {
+                returnToAdmin();
+            }
+        } else {
+            const targetUserId = Number(transferTargetId);
+            if (window.confirm(`Tem certeza que deseja transferir a posse desta ficha para o usuário #${targetUserId}? Esta ação não pode ser desfeita.`)) {
+                transferOwnership(targetUserId);
+            }
+        }
+    }
+
 
     const transferOptions = useMemo(() => {
-        if (!isAdmin) {
-            return [] as User[];
-        }
-
-        return (usersData?.users ?? []).filter((listedUser) => listedUser.role === "USER");
-    }, [isAdmin, usersData?.users]);
-
-    useEffect(() => {
-        if (characterDataQuerry) {
-            const char = characterDataQuerry.character;
-            const initialTransferTarget = usersData?.users.find((listedUser) => listedUser.id === char.own);
-            setCharacterData((prev) => ({
-                ...prev,
-                informations: {
-                    nome: char.name,
-                    classe: String(char.charClass ?? ""),
-                    segunda_classe: String(char.second_class ?? ""),
-                    raca: String(char.race ?? ""),
-                    genero: char.gender,
-                    idade: char.age,
-                    subclasse: String(char.subclass ?? ""),
-                    nivel: char.level,
-                },
-                stats: {
-                    pv: char.life,
-                    defesa: char.defense,
-                    ocult: char.ocultism,
-                    san: char.sanity,
-                    mana: char.mana,
-                },
-                backstory: char.backstory ?? "",
-                equipament: char.equipament ?? "",
-                equipDescription: char.equipDescription ?? "",
-                item: char.item ?? "",
-                itemDescription: char.itemDescription ?? "",
-                physical_description: char.physical_description ?? "",
-                attributes: characterAttributesData?.attributes ?? prev.attributes,
-                pericias: characterAttributesData?.pericias ?? prev.pericias,
-            }));
-
-            if (isAdmin) {
-                setTransferTargetId(initialTransferTarget ? String(initialTransferTarget.id) : String(char.own));
-            }
-        }
-    }, [characterDataQuerry, characterAttributesData, usersData?.users, isAdmin]);
-
-    useEffect(() => {
-        if (!isAdmin || !characterDataQuerry?.character?.own || transferTargetId) {
-            return;
-        }
-
-        setTransferTargetId(String(characterDataQuerry.character.own));
-    }, [characterDataQuerry?.character?.own, isAdmin, transferTargetId]);
-
-    function updateCharacterStats() {
-        const characterRequestData = {
-            life: characterData.stats.pv,
-            defense: characterData.stats.defesa,
-            sanity: characterData.stats.san,
-            ocultism: characterData.stats.ocult,
-            mana: characterData.stats.mana
-        } as UpdateCharacterRequest
-
-        updateCharacter(characterRequestData)
-    }
-
-    function updateCharacterInformation() {
-        const selectedClassId = Number(characterData.informations.classe);
-        const selectedSecondClassId = Number(characterData.informations.segunda_classe);
-        const selectedSubclassId = Number(characterData.informations.subclasse);
-        const selectedRaceId = Number(characterData.informations.raca);
-
-        const characterRequestData = {
-            name: characterData.informations.nome, 
-            gender: characterData.informations.genero,
-            age: characterData.informations.idade,
-            level: characterData.informations.nivel,
-            charClass: Number.isNaN(selectedClassId) ? undefined : selectedClassId,
-            second_class: Number.isNaN(selectedSecondClassId) ? undefined : selectedSecondClassId,
-            subclass: Number.isNaN(selectedSubclassId) ? undefined : selectedSubclassId,
-            race: Number.isNaN(selectedRaceId) ? undefined : selectedRaceId,
-        } as UpdateCharacterRequest
-
-        updateCharacter(characterRequestData)
-    }
-
-    function updateAttributes() {
-        const payload: UpdateCharacterAttributesRequest = {
-            attributes: characterData.attributes
-                .map((attribute) => ({
-                    attribute_id: attribute.attribute_id,
-                    base: attribute.base,
-                    bonus: attribute.bonus,
-                })),
-        };
-
-        updateCharacterAttributes(payload);
-    }
-
-    function updatePericias() {
-        const payload: UpdateCharacterPericiasRequest = {
-            pericias: characterData.pericias
-                .map((pericia) => ({
-                    pericia_id: pericia.pericia_id,
-                    base: pericia.base,
-                    bonus: pericia.bonus,
-                })),
-        };
-
-        updateCharacterPericias(payload);
-    }
-
-    function updateCharacterSheet() {
-        updateAttributes();
-        updatePericias();
-    }
-
-    function handleToggleActive() {
-        if (!characterDataQuerry?.character) {
-            return;
-        }
-
-        if (characterDataQuerry.character.active) {
-            deactivateCharacter();
-            return;
-        }
-
-        activateCharacter();
-    }
-
-    function handleTransferOwnership() {
-        if (!transferTargetId) {
-            return;
-        }
-
-        if (transferTargetId === "RETURN_TO_NPC") {
-            if (window.confirm('Converter esta ficha de player para NPC? Esta ação não pode ser desfeita.')) {
-                returnCharacterToAdmin();
-            }
-            return;
-        }
-
-        const newOwnerId = Number(transferTargetId);
-        if (Number.isNaN(newOwnerId)) {
-            return;
-        }
-
-        transferCharacterOwnership(newOwnerId);
-    }
-    const handleInfoChange = (field: keyof characterInformation, value: string) => {
-        if (field === "classe") {
-            setCharacterData({
-                ...characterData,
-                informations: {
-                    ...characterData.informations,
-                    classe: value,
-                    subclasse: "",
-                }
-            });
-            return;
-        }
-
-        if (field === "nivel") {
-            setCharacterData({
-                ...characterData,
-                informations: {
-                    ...characterData.informations,
-                    [field]: (Number(value) && Number(value) >= 0 && Number(value) <= 50 || Number(value) == 888 || Number(value) == 88) ? Number(value) : 0,
-                }
-            });
-            return;
-        }
-
-        if (field === "idade") {
-            setCharacterData({
-                ...characterData,
-                informations: {
-                    ...characterData.informations,
-                    [field]: (Number(value) && Number(value) >= 0) ? Number(value) : 0,
-                }
-            });
-            return;
-        }
-
-        setCharacterData({
-            ...characterData,
-            informations: {
-                ...characterData.informations,
-                [field]: value
-            }
-        });
-    };
-
-    const handleStatsChange = (field: keyof characterStats, value: number) => {
-        setCharacterData({
-            ...characterData,
-            stats: {
-                ...characterData.stats,
-                [field]: value,
-            },
-        });
-    };
-
-    const handleAttributeChange = (attributeId: number, field: string, value: number) => {
-        const newAttributes = characterData.attributes.map((attr) => {
-            if (attr.attribute_id === attributeId) {
-                const updatedAttribute = { ...attr, [field]: value };
-                if (field === 'base') {
-                    updatedAttribute.total = updatedAttribute.base + updatedAttribute.bonus;
-                }
-                return updatedAttribute;
-            }
-            return attr;
-        });
-        setCharacterData({ ...characterData, attributes: newAttributes });
-    };
-
-    const handlePericiaChange = (periciaId: number, field: string, value: number) => {
-        const newPericias = characterData.pericias.map((pericia) => {
-            if (pericia.pericia_id === periciaId) {
-                const updatedPericia = { ...pericia, [field]: value };
-                if (field === 'base') {
-                    updatedPericia.total = updatedPericia.base + updatedPericia.bonus;
-                }
-                return updatedPericia;
-            }
-            return pericia;
-        });
-        setCharacterData({ ...characterData, pericias: newPericias });
-    };
-
-    const handleBackstoryChange = (value: string) => {
-        setCharacterData({
-            ...characterData,
-            backstory: value,
-        });
-    };
-
-    const handleEquipamentChange = (value: string) => {
-        setCharacterData({
-            ...characterData,
-            equipament: value,
-        });
-    };
-
-    const handleEquipDescriptionChange = (value: string) => {
-        setCharacterData({
-            ...characterData,
-            equipDescription: value,
-        });
-    };
-
-    const handleItemChange = (value: string) => {
-        setCharacterData({
-            ...characterData,
-            item: value,
-        });
-    };
-
-    const handleItemDescriptionChange = (value: string) => {
-        setCharacterData({
-            ...characterData,
-            itemDescription: value,
-        });
-    };
-
-    const handlePhotosChange = (photos: string[]) => {
-        setCharacterData({
-            ...characterData,
-            photos,
-        });
-    };
-
-    function updateCharacterBackstory() {
-        updateCharacter({
-            backstory: characterData.backstory,
-        } as UpdateCharacterRequest);
-    }
-
-    function updateCharacterEquipament(
-        equipament = characterData.equipament,
-        equipDescription = characterData.equipDescription,
-    ) {
-        updateCharacter({
-            equipament,
-            equipDescription,
-        } as UpdateCharacterRequest);
-    }
-
-    function updateCharacterItem(
-        item = characterData.item,
-        itemDescription = characterData.itemDescription,
-    ) {
-        updateCharacter({
-            item,
-            itemDescription,
-        } as UpdateCharacterRequest);
-    }
-
-    const handlePhysicalDescChange = (value: string) => {
-        setCharacterData({
-            ...characterData,
-            physical_description: value,
-        });
-    };
-
-    function updateCharacterPhysicalDesc() {
-        updateCharacter({
-            physical_description: characterData.physical_description,
-        } as UpdateCharacterRequest);
-    }
-
-    const handlePsycDescChange = (value: string) => {
-        setCharacterData({
-            ...characterData,
-            Psycological_description: value,
-        });
-    };
-
-    function updateCharacterPsycDesc() {
-        updateCharacter({
-            Psycological_description: characterData.Psycological_description,
-        } as UpdateCharacterRequest);
-    }
-
-    // Calculate stat limits from backend data
-    const statLimits = useMemo(() => {
-        if (!characterDataQuerry?.character?.stat_limits) {
-            return {
-                pv: { base: 100, bonus: 0, total: 100 },
-                defesa: { base: 10, bonus: 0, total: 10 },
-                ocult: { base: 10, bonus: 0, total: 10 },
-                san: { base: 100, bonus: 0, total: 100 },
-                mana: { base: 100, bonus: 0, total: 100 },
-            };
-        }
-
-        const limits = characterDataQuerry.character.stat_limits;
-        return {
-            pv: {
-                base: limits.life?.base_max || 100,
-                bonus: limits.life?.bonus_max || 0,
-                total: limits.life?.total_max || 100,
-            },
-            defesa: {
-                base: limits.defense?.base_max || 10,
-                bonus: limits.defense?.bonus_max || 0,
-                total: limits.defense?.total_max || 10,
-            },
-            ocult: {
-                base: limits.ocultism?.base_max || 10,
-                bonus: limits.ocultism?.bonus_max || 0,
-                total: limits.ocultism?.total_max || 10,
-            },
-            san: {
-                base: limits.sanity?.base_max || 100,
-                bonus: limits.sanity?.bonus_max || 0,
-                total: limits.sanity?.total_max || 100,
-            },
-            mana: {
-                base: limits.mana?.base_max || 100,
-                bonus: limits.mana?.bonus_max || 0,
-                total: limits.mana?.total_max || 100,
-            },
-        };
-    }, [characterDataQuerry]);
-
+        const options = usersData?.users.map((u) => ({
+            id: u.id,
+            username: u.username,
+            email: u.email,
+        })) ?? [];
+        return options;
+    }, [usersData?.users]);
 
     if (!characterId) {
         return <div>Character id is invalid.</div>;
     }
 
-    if (isLoading || isAttributesLoading || isRacesLoading || isClassesLoading || isSubclassesLoading) {
-        return <div>Loading...</div>;
+    if (isCharacterLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-xl text-gray-500">Carregando ficha...</p>
+            </div>
+        );
     }
+
+    const handleInfoChange = (field: "nome" | "nivel" | "experiencia", value: string) => {
+        if (!character) return;
+
+        if (field === "nome") {
+            setCharacter({
+                ...character,
+                name: value,
+            });
+        } else if (field === "nivel") {
+            const numericValue = Number(value);
+            if (!isNaN(numericValue) && numericValue > 0) {
+                setCharacter({
+                    ...character,
+                    level: numericValue,
+                });
+            }
+        } else if (field === "experiencia") {
+            const numericValue = Number(value);
+            if (!isNaN(numericValue) && numericValue >= 0) {
+                setCharacter({
+                    ...character,
+                    experience: numericValue,
+                });
+            }
+        }
+    };
+
+    const handleSafeInfo = () => {
+        if (!character) return;
+        updateGeneral({name: character.name ?? "", level: character.level ?? 0, experience: character.experience ?? 0}, {
+            onSuccess: () => { 
+                refetchCharacter();
+                toast.success("Informações atualizadas com sucesso!");
+             },
+            onError: () => { toast.error("Erro ao atualizar informações."); }
+        });
+        
+    };
+
+    
 
     return (
         <StarSky>
@@ -505,45 +172,45 @@ export default function RpgSheet() {
                     >
                         Deletar Ficha
                     </button>
-                    <button
+                    {/* <button
                         onClick={handlePrintPdf}
                         className="px-4 py-2 bg-vaccinePurple text-white rounded-md"
                         >
                         Exportar PDF
-                    </button>
+                    </button> */}
                 </Header>
                 {/* Main Content */}
                 <main className="flex-1  p-8 text-sm text-vaccineBlack">
-                <div
+                {/* <div
                     ref={sheetRef}
                     className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50 rounded-lg shadow-lg p-8 print-area"
                 >
-                </div>
+                </div> */}
                     <div className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50  rounded-lg shadow-lg p-8">
                         <h1 className="text-3xl font-walthari font-bold text-center mb-8 text-vaccineGray-300">
                             Ficha de Personagem
                         </h1>
 
-                        {isAdmin && characterDataQuerry?.character && (
+                        {isAdmin && characterData?.character && (
                             <section className="mb-8 rounded-lg border border-vaccinePurple/30 bg-white/80 p-4 space-y-4">
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                     <div>
                                         <p className="text-sm uppercase tracking-wide text-gray-600">Administração</p>
                                         <p className="text-lg font-semibold text-vaccineBlack">
-                                            Dono: {ownerUser?.username ?? `Usuário #${characterDataQuerry.character.own}`}
+                                            Dono: {ownerData?.username ?? `Usuário #${characterData.character.own}`}
                                         </p>
                                         <p className="text-gray-700">
-                                            Status: {characterDataQuerry.character.active ? "Ficha ativada" : "Ficha desativada"}
+                                            Status: {characterData.character.active ? "Ficha ativada" : "Ficha desativada"}
                                         </p>
                                     </div>
 
                                     <button
                                         type="button"
                                         onClick={handleToggleActive}
-                                        disabled={isActivating || isDeactivating}
+                                        disabled={isTogglingActive}
                                         className="px-4 py-2 rounded-md bg-vaccinePurple text-white hover:opacity-90 disabled:opacity-60 transition-colors"
                                     >
-                                        {characterDataQuerry.character.active ? "Desativar ficha" : "Ativar ficha"}
+                                        {characterData.character.active ? "Desativar ficha" : "Ativar ficha"}
                                     </button>
                                 </div>
 
@@ -560,7 +227,7 @@ export default function RpgSheet() {
                                                     {listedUser.username} ({listedUser.email})
                                                 </option>
                                             ))}
-                                            {characterDataQuerry?.character?.is_player && (
+                                            {characterData?.character?.is_player && (
                                                 <option value="RETURN_TO_NPC" className="text-vaccinePurple font-semibold">
                                                     Devolver para NPC
                                                 </option>
@@ -586,7 +253,7 @@ export default function RpgSheet() {
                             <button 
                                 onClick={() => {
                                     setIsEditingHeader(false);
-                                    updateCharacterInformation();
+                                    handleSafeInfo();
                                 }} 
                                 className="absolute top-0 right-0 px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-purple-700 transition-colors"
                             >
@@ -598,7 +265,7 @@ export default function RpgSheet() {
                             <div className="flex flex-col items-center gap-4">
                                 <input
                                     type="text"
-                                    value={characterData.informations.nome}
+                                    value={character?.name ?? ""}
                                     onChange={(e) => handleInfoChange("nome", e.target.value)}
                                     className="text-4xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-4 py-2 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple"
                                     placeholder="Nome do Personagem"
@@ -609,9 +276,19 @@ export default function RpgSheet() {
                                     <input
                                         type="number"
                                         min="1"
-                                        value={characterData.informations.nivel}
+                                        value={character?.level ?? ""}
                                         onChange={(e) => handleInfoChange("nivel", e.target.value)}
                                         className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple w-20"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-center gap-2">
+                                    <label className="text-sm font-medium text-white">Experiência:</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={character?.experience ?? ""}
+                                        onChange={(e) => handleInfoChange("experiencia", e.target.value)}
+                                        className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple w-32"
                                     />
                                 </div>
                             </div>
@@ -622,7 +299,7 @@ export default function RpgSheet() {
                                     className="text-4xl  font-bold text-vaccinePurple mb-3 cursor-pointer hover:opacity-80 transition-opacity"
                                     title="Clique para editar"
                                 >
-                                    {characterData.informations.nome || "Nome do Personagem"}
+                                    {characterData?.character.name || "Nome do Personagem"}
                                 </h2>
                                 <div 
                                     onClick={() => setIsEditingHeader(true)}
@@ -631,66 +308,31 @@ export default function RpgSheet() {
                                 >
                                     <span className="text-lg font-medium text-vaccineGray-600">Nível:</span>
                                     <span className="text-2xl font-bold text-vaccineGray-600">
-                                        {characterData.informations.nivel}
+                                        {characterData?.character.level ?? ""}
+                                    </span>
+                                </div>
+                                <div 
+                                    onClick={() => setIsEditingHeader(true)}
+                                    className="flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                    title="Clique para editar"
+                                >
+                                    <span className="text-sm font-medium text-vaccineGray-600">Experiência:</span>
+                                    <span className="text-xm font-bold text-vaccineGray-600">
+                                        {characterData?.character.experience ?? ""}
                                     </span>
                                 </div>
                             </>
                         )}
-                    </div>
+                    </div> 
 
-                    {/* Section 1: Basic Information */}
-                    <CharacterInformation 
-                        charInformations={characterData.informations}
-                        handleTextChange={handleInfoChange}
-                        update={updateCharacterInformation}
-                        classes={classesData?.classes ?? []}
-                        subclasses={subclassesData?.subclasses ?? []}
-                        races={racesData?.races ?? []}
-                    />
 
-                    {/* Section 2: Character Stats */}
-                    <CharacterStats
-                        charStats={characterData.stats}
-                        handleStatChange={handleStatsChange}
-                        update={updateCharacterStats}
-                        statLimits={statLimits}
-                        className={characterDataQuerry?.character?.charClass ? Object.values(classesData?.classes ?? []).find((c) => c.id === characterDataQuerry.character.charClass)?.name || "" : ""}
-                        secondClassName={characterDataQuerry?.character?.second_class ? Object.values(classesData?.classes ?? []).find((c) => c.id === characterDataQuerry.character.second_class)?.name || "" : ""}
-                    />
+                    <CharacterInformation characterId={characterId} />
+                    <CharacterStats characterId={characterId} />
+                    <CharacterAttributes characterId={characterId} />
+                    <CharacterLore characterId={characterId} />
 
-                    {/* Section 3: Attributes and Pericias Table */}
-                    <CharacterAttributes
-                        attributes={characterData.attributes}
-                        pericias={characterData.pericias}
-                        onAttributeChange={handleAttributeChange}
-                        onPericiaChange={handlePericiaChange}
-                        onUpdate={updateCharacterSheet}
-                    />
 
-                    <CharacterPhysicaldesc
-                        physicaldesc={characterData.physical_description}
-                        handlePhysicaldescChange={handlePhysicalDescChange}
-                        update={updateCharacterPhysicalDesc}
-                    />
-
-                    <CharacterPsycDesc
-                        psycDesc={characterData.Psycological_description}
-                        handlePsycDescChange={handlePsycDescChange}
-                        update={updateCharacterPsycDesc}
-                    />
-
-                    <CharacterBackstory
-                        backstory={characterData.backstory}
-                        handleBackstoryChange={handleBackstoryChange}
-                        update={updateCharacterBackstory}
-                    />
-
-                    <CharacterPhotos
-                        photos={characterData.photos}
-                        handlePhotosChange={handlePhotosChange}
-                    />
-
-                    <CharacterEquipament
+                    {/* <CharacterEquipament
                         equipDescription={characterData.equipDescription}
                         equipament={characterData.equipament}
                         handleEquipamentChange={handleEquipamentChange}
@@ -703,7 +345,7 @@ export default function RpgSheet() {
                         handleInventoryChange={handleItemChange}
                         handleItemDescription={handleItemDescriptionChange}
                         update={updateCharacterItem}
-                    />
+                    /> */}
 
                     </div>
                 </main>

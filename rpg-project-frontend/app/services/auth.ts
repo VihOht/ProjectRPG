@@ -7,6 +7,7 @@ import type {
   VerifyResponse,
   CurrentUserResponse,
   GetUsersResponse,
+  User,
 } from '../types/auth';
 
 /**
@@ -84,6 +85,14 @@ export const authService = {
   getStoredUsername: (): string | null => {
     return usernameStorage.getUsername();
   },
+
+  /**
+   * Get user by id (admin only)
+   */
+  getUserById: async (id: number): Promise<User> => {
+    const response = await api.get<{ user: User }>(`/auth/users/${id}`);
+    return response.data.user;
+  }
 };
 
 export default authService;

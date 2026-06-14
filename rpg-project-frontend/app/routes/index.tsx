@@ -1,7 +1,7 @@
 import { Card } from "../components/Card";
 import { Header } from "../components/Header";
 import { StarSky } from "../components/StarSky";
-import { useCreateCharacter, useGetCharacters, useGetUsers } from "../hooks";
+import { useCreateCharacter, useCharacters, useGetUsers } from "../hooks";
 import { useAuthProvider } from "../providers";
 import { useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router";
@@ -18,7 +18,7 @@ export default function Index() {
 
   const { mutate: createCharacter } = useCreateCharacter();
   const { data: characterData, isLoading: characterLoading } =
-    useGetCharacters();
+    useCharacters();
   const { data: usersData } = useGetUsers(user?.role === "ADMIN");
   const isAdmin = user?.role === "ADMIN";
 

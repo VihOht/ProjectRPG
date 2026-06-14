@@ -2,11 +2,11 @@
 Database seed script to populate initial mock data and create test users and characters
 """
 import sys
-from aplication import app, db
-from aplication.models.user import User
-from aplication.models.classes import Class, Subclass, Ability
-from aplication.models.characters import Character, Race
-from aplication.models.atributes import Attribute, CharacterAttributes
+from application import app, db
+from application.models.user import User
+from application.models.classes import Class, Subclass, Ability
+from application.models.characters import Character, Race
+from application.models.atributes import Attribute, CharacterAttributes
 from werkzeug.security import generate_password_hash
 
 

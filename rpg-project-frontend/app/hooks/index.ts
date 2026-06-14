@@ -1,3 +1,13 @@
 export * from './useAuth';
-export * from './useCharacter';
+export * from './useCharacters';
 export * from './useLore';
+export * from './useClass';
+export * from './useSubclass';
+export * from './useLevelUpRule';
+export * from './usePericia';   
+export * from './useAbilities'
+export * from './useAttributes';
+export * from './useClassPowers';
+export * from './useConversionRule';
+export * from './useRaces';
+

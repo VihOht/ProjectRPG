@@ -1,121 +1,268 @@
 
+// ATTRIBUTES
 
-// Local form types (existing)
-export type characterInformation = {
-    nome: string;
-    classe: string;
-    segunda_classe: string;
-    raca: string;
-    genero: string;
-    idade: number;
-    subclasse: string;
-    nivel: number;
+export type AttributeItem = {
+    id: number;
+    description: string;
+    name: string;
 }
 
-export type characterStats = {
-    pv: number;
-    defesa: number;
-    ocult: number;
-    san: number;
-    mana: number;
+export type CreateAttributeRequest = {
+    name: string;
+    description: string;
+}
+export type CreateAttributeResponse = {
+  attribute: AttributeItem;
+  message: string;
 }
 
-export type StatLimit = {
-    base_max: number;
-    bonus_max: number;
-    total_max: number;
+export type ListAttributesResponse = {
+  attributes: AttributeItem[];
 }
 
-export type CharacterStatLimits = {
-    life: StatLimit;
-    defense: StatLimit;
-    sanity: StatLimit;
-    ocultism: StatLimit;
-    mana: StatLimit;
+export type GetAttributeResponse = {
+  attribute: AttributeItem;
 }
 
-export type characterAttribute = {
-  attribute_id?: number;
-    nome: string;
-    base: number;
-    bonus: number;
-    total: number;
-    dt: number;
+export type UpdateAttributeRequest = {
+    name?: string;
+    description?: string;
 }
 
-export type characterAttributes = characterAttribute[];
+// PERICIAS
 
-export type characterData = {
-    informations: characterInformation;
-    stats: characterStats;
-    atributos: characterAttributes;
+export type PericiaItem = {
+    id: number;
+    name: string;
+    description: string;
+    attribute_id: number;
 }
 
-// ============================================
-// API DTOs for Backend Communication
-// ============================================
+export type ListPericiasResponse = {
+  pericias: PericiaItem[];
+}
 
-export interface CharacterAbility {
+export type GetPericiaResponse = {
+  pericia: PericiaItem;
+}
+
+export type CreatePericiaRequest = {
+    name: string;
+    description: string;
+    attribute_id: number;
+}
+
+export type CreatePericiaResponse = {
+  pericia: PericiaItem;
+  message: string;
+}
+
+export type UpdatePericiaRequest = {
+    name?: string;
+    description?: string;
+    attribute_id?: number;
+}
+
+export type UpdatePericiaResponse = {
+  pericia: PericiaItem;
+  message: string;
+}
+
+// RACES
+
+
+export type RaceItem = {
   id: number;
   name: string;
   description: string;
-  class_id?: number | null;
-  subclass_id?: number | null;
+  hidden?: boolean;
 }
 
-export interface CharacterClass {
+export type CreateRaceRequest = {
+  name: string;
+  description: string;
+}
+
+export type CreateRaceResponse = {
+  race: RaceItem;
+  message: string;
+}
+
+export type ListRacesResponse = {
+  races: RaceItem[];
+}
+
+export type GetRaceResponse = {
+  race: RaceItem;
+}
+
+export type UpdateRaceRequest = {
+  name?: string;
+  description?: string;
+}
+
+export type UpdateRaceResponse = {
+  race: RaceItem;
+  message: string;
+}
+
+// ABILITIES
+
+export type AbilityItem = {
   id: number;
   name: string;
   description: string;
-  abilities?: CharacterAbility[];
-  subclasses?: CharacterSubclass[];
+  class_id: number | null;
+  subclass_id: number | null;
+  hidden?: boolean;
 }
 
-export interface CharacterSubclass {
+export type CreateAbilityRequest = {
+  name: string;
+  description: string;
+  class_id?: number;
+  subclass_id?: number;
+}
+
+export type CreateAbilityResponse = {
+  ability: AbilityItem;
+  message: string;
+}
+
+export type ListAbilitiesResponse = {
+  abilities: AbilityItem[];
+}
+
+export type GetAbilityResponse = {
+  ability: AbilityItem;
+}
+
+export type UpdateAbilityRequest = {
+  name?: string;
+  description?: string;
+  class_id?: number;
+  subclass_id?: number;
+}
+
+export type UpdateAbilityResponse = {
+  ability: AbilityItem;
+  message: string;
+}
+
+// CLASS POWER
+
+export type ClassPowerItem = {
   id: number;
   name: string;
   description: string;
   class_id: number;
-  abilities?: CharacterAbility[];
+  level_to_unlock: number;
+  hidden?: boolean;
 }
 
-export interface CharacterRace {
+export type CreateClassPowerRequest = {
+  name: string;
+  description: string;
+  class_id: number;
+  level_to_unlock?: number;
+}
+
+export type CreateClassPowerResponse = {
+  class_power: ClassPowerItem;
+  message: string;
+}
+
+export type ListClassPowersResponse = {
+  class_powers: ClassPowerItem[];
+}
+
+export type GetClassPowerResponse = {
+  class_power: ClassPowerItem;
+}
+
+export type UpdateClassPowerRequest = {
+  name?: string;
+  description?: string;
+  class_id?: number;
+  level_to_unlock?: number;
+}
+
+export type UpdateClassPowerResponse = {
+  class_power: ClassPowerItem;
+  message: string;
+}
+
+
+// SUBCLASS
+
+export type SubclassItem = {
   id: number;
   name: string;
   description: string;
+  class_id: number;
+  abilities: AbilityItem[];
 }
 
-export interface CharacterAttributeValue {
-  id: number;
-  attribute_id: number;
+export type CreateSubclassRequest = {
   name: string;
-  base: number;
-  bonus: number;
-  total: number;
+  description: string;
+  class_id: number;
 }
 
-// Main Character DTO
-export interface Character {
+export type CreateSubclassResponse = {
+  subclass: SubclassItem;
+  message: string;
+}
+
+export type ListSubclassesResponse = {
+  subclasses: SubclassItem[];
+}
+
+export type GetSubclassResponse = {
+  subclass: SubclassItem;
+}
+
+export type UpdateSubclassRequest = {
+  name?: string;
+  description?: string;
+}
+
+export type UpdateSubclassResponse = {
+  subclass: SubclassItem;
+  message: string;
+}
+
+
+// CLASS
+
+export type ClassItem = {
   id: number;
-  own: number; // user_id (owner)
   name: string;
-  charClass: number; // class_id
-  subclass?: number; // subclass_id
-  second_class?: number; // second class_id
-  race: number; // race_id
-  gender: string;
-  age: number;
-  level: number;
-  life: number;
-  defense: number;
-  sanity: number;
-  ocultism: number;
-  mana: number;
+  description: string;
+
+  base_life: number;
+  base_defense: number;
+  base_sanity: number;
+  base_mana: number;
+  base_ocultism: number;
+
+  has_mana: boolean;
+  has_ocultism: boolean;
+
+  abilities: AbilityItem[];
+  classPowers: ClassPowerItem[];
+  subclasses: SubclassItem[];
+}
+
+export type CreateClassRequest = {
+  name: string;
+  description: string;
+
   base_life?: number;
   base_defense?: number;
   base_sanity?: number;
-  base_ocultism?: number;
   base_mana?: number;
+<<<<<<< HEAD
   stat_limits?: CharacterStatLimits;
   attributes?: CharacterAttributeValue[];
   abilities?: CharacterAbility[];
@@ -128,32 +275,169 @@ export interface Character {
   itemDescription?: string;
   physical_description?: string;
   Psycological_description?: string;
+=======
+  base_ocultism?: number;
+
+  has_mana?: boolean;
+  has_ocultism?: boolean;
+>>>>>>> 813524fe574afa8d73b64d7210a4ba9815d3789c
 }
 
-// Create Character Request
-export interface CreateCharacterRequest {
+export type CreateClassResponse = {
+  class: ClassItem;
+  message: string;
+}
+
+export type ListClassesResponse = {
+  classes: ClassItem[];
+}
+
+export type GetClassResponse = {
+  class: ClassItem;
+}
+
+export type UpdateClassRequest = {
   name?: string;
+  description?: string;
+
+  base_life?: number;
+  base_defense?: number;
+  base_sanity?: number;
+  base_mana?: number;
+  base_ocultism?: number;
+
+  has_mana?: boolean;
+  has_ocultism?: boolean;
 }
 
-// Create Character Response
-export interface CreateCharacterResponse {
+export type UpdateClassResponse = {
+  class: ClassItem;
   message: string;
-  character: Character;
 }
 
-// Get Character Response
-export interface GetCharacterResponse {
-  character: Character;
+
+// CHARACTER ATTRIBUTES
+
+export type CharacterPericiaItem = {
+  id: number;
+  pericia_id: number;
+  attribute_value_id: number;
+  value: number;
+
+  name: string;
+  description: string;
+  attribute_id: number;
 }
 
-// Get All Characters Response
-export interface GetAllCharactersResponse {
+export type CharacterAttributeItem = {
+  id: number;
+  attribute_id: number;
+  character_id: number;
+  value: number;
+
+  name: string;
+  description: string;
+
+  pericias: CharacterPericiaItem[];
+}
+
+export type ListCharacterAttributesResponse = {
+  attributes: CharacterAttributeItem[];
+}
+
+
+// CHARACTER
+
+export type CharacterItem = {
+  id: number;
+  own: number;
+
+  name: string;
+
+  charClass: number | null;
+  subclass: number | null;
+  second_class: number | null;
+  race: number | null;
+
+  gender: string;
+  age: number;
+
+  level: number;
+  experience: number;
+
+  att_life: number;
+  att_defense: number;
+  att_sanity: number;
+  att_ocultism: number;
+  att_mana: number;
+
+  offset_life: number;
+  offset_defense: number;
+  offset_sanity: number;
+  offset_ocultism: number;
+  offset_mana: number;
+
+  life: number;
+  sanity: number;
+  ocultism: number;
+  mana: number;
+
+  active: boolean;
+  is_player: boolean;
+
+  physical_description?: string;
+  psychological_description?: string;
+  backstory?: string;
+
+  attributes: any[];
+  abilities: AbilityItem[];
+}
+
+export type CharacterStatLimits = {
+  life: {
+    base: number;
+    bonus: number;
+    total_max: number;
+  };
+  defense: {
+    base: number;
+    bonus: number;
+    total_max: number;
+  };
+  sanity: {
+    base: number;
+    bonus: number;
+    total_max: number;
+  };
+  ocultism: {
+    base: number;
+    bonus: number;
+    total_max: number;
+  };
+  mana: {
+    base: number;
+    bonus: number;
+    total_max: number;
+  };
+};
+
+export type CreateCharacterResponse = {
+  character: CharacterItem;
   message: string;
-  characters: Character[];
 }
 
-// Update Character Request
-export interface UpdateCharacterRequest {
+export type ListCharactersResponse = {
+  characters: CharacterItem[];
+}
+
+export type GetCharacterResponse = {
+  character: CharacterItem;
+  stat_limits: CharacterStatLimits;
+}
+
+// CHARACTER UPDATES
+
+export type UpdateCharacterGeneralRequest = {
   name?: string;
   charClass?: number;
   subclass?: number;
@@ -162,343 +446,163 @@ export interface UpdateCharacterRequest {
   gender?: string;
   age?: number;
   level?: number;
+  experience?: number;
+}
+
+export type UpdateCharacterStatsRequest = {
   life?: number;
-  defense?: number;
+  mana?: number;
   sanity?: number;
   ocultism?: number;
-  mana?: number;
-  base_life?: number;
-  base_defense?: number;
-  base_sanity?: number;
-  base_ocultism?: number;
-  base_mana?: number;
-  active?: boolean;
-  backstory?: string;
+  defense?: number;
+}
+
+export type UpdateCharacterDescriptionRequest = {
   physical_description?: string;
+<<<<<<< HEAD
   Psycological_description?: string;
   equipament?: string;
   equipDescription?: string;
   item?: string;
   itemDescription?: string;
+=======
+  psychological_description?: string;
+  backstory?: string;
+>>>>>>> 813524fe574afa8d73b64d7210a4ba9815d3789c
 }
 
-// Update Character Response
-export interface UpdateCharacterResponse {
-  message: string;
-  character: Character;
+export type UpdateCharacterOffsetsRequest = {
+  offset_life?: number;
+  offset_defense?: number;
+  offset_sanity?: number;
+  offset_ocultism?: number;
+  offset_mana?: number;
 }
 
-export interface ActivateCharacterResponse {
-  message: string;
-}
 
-export interface DeactivateCharacterResponse {
-  message: string;
-}
+// CHARACTER PERICIA UPDATE
 
-export interface TransferCharacterOwnershipResponse {
-  message: string;
-}
-
-export interface ReturnCharacterToAdminResponse {
-  message: string;
-}
-
-// Delete Character Response
-export interface DeleteCharacterResponse {
-  message: string;
-}
-
-// Error Response
-export interface CharacterErrorResponse {
-  message: string;
-}
-
-// ============================================
-// Ability DTOs
-// ============================================
-
-export interface CreateAbilityRequest {
-  name: string;
-  description: string;
-  class_id?: number;
-  subclass_id?: number;
-  character_id?: number;
-}
-
-export interface UpdateAbilityRequest {
-  name?: string;
-  description?: string;
-}
-
-export interface GetAbilityResponse {
-  ability: CharacterAbility;
-}
-
-export interface GetAllAbilitiesResponse {
-  abilities: CharacterAbility[];
-}
-
-export interface CreateAbilityResponse {
-  message: string;
-  ability: CharacterAbility;
-}
-
-export interface UpdateAbilityResponse {
-  message: string;
-  ability: CharacterAbility;
-}
-
-export interface DeleteAbilityResponse {
-  message: string;
-}
-
-// ============================================
-// Race DTOs
-// ============================================
-
-export interface CreateRaceRequest {
-  name: string;
-  description: string;
-}
-
-export interface UpdateRaceRequest {
-  name?: string;
-  description?: string;
-}
-
-export interface GetRaceResponse {
-  race: CharacterRace;
-}
-
-export interface GetAllRacesResponse {
-  races: CharacterRace[];
-}
-
-export interface CreateRaceResponse {
-  message: string;
-  race: CharacterRace;
-}
-
-export interface UpdateRaceResponse {
-  message: string;
-  race: CharacterRace;
-}
-
-export interface DeleteRaceResponse {
-  message: string;
-}
-
-// ============================================
-// Attribute DTOs
-// ============================================
-
-export interface AttributeDefinition {
-  id: number;
-  name: string;
-  description: string;
-}
-
-export interface CharacterAttributeItem {
-  attribute_id: number;
-  name: string;
-  description: string;
-  base: number;
-  bonus: number;
-  total: number;
-  dt: number;
-}
-
-export interface CreateAttributeRequest {
-  name: string;
-  description: string;
-}
-
-export interface UpdateAttributeRequest {
-  name?: string;
-  description?: string;
-}
-
-export interface GetAttributeResponse {
-  attribute: AttributeDefinition;
-}
-
-export interface GetAllAttributesResponse {
-  attributes: AttributeDefinition[];
-}
-
-export interface CreateAttributeResponse {
-  message: string;
-  attribute: AttributeDefinition;
-}
-
-export interface UpdateAttributeResponse {
-  message: string;
-  attribute: AttributeDefinition;
-}
-
-export interface DeleteAttributeResponse {
-  message: string;
-}
-
-export interface CharacterPericiaItem {
+export type UpdateCharacterPericiaItem = {
   pericia_id: number;
-  attribute_id: number;
-  name: string;
-  description: string;
-  base: number;
-  bonus: number;
-  total: number;
+  value: number;
 }
 
-export interface GetCharacterAttributesResponse {
-  character_id: number;
-  attributes: CharacterAttributeItem[];
-  pericias: CharacterPericiaItem[];
+export type BulkUpdateCharacterPericiasRequest = {
+  pericias: UpdateCharacterPericiaItem[];
 }
 
-export interface UpdateCharacterAttributesRequest {
-  attributes: Array<{
-    attribute_id: number;
-    base: number;
-    bonus: number;
-  }>;
-}
+// CONVERSION RULES
 
-export interface UpdateCharacterAttributesResponse {
-  message: string;
-  character_id: number;
-}
-
-export interface UpdateCharacterPericiasRequest {
-  pericias: Array<{
-    pericia_id: number;
-    base: number;
-    bonus: number;
-  }>;
-}
-
-export interface UpdateCharacterPericiasResponse {
-  message: string;
-  character_id: number;
-}
-
-// ============================================
-// Class DTOs
-// ============================================
-
-export interface CreateClassRequest {
-  name: string;
-  description: string;
-  abilities?: number[];
-}
-
-export interface UpdateClassRequest {
-  name?: string;
-  description?: string;
-}
-
-export interface GetClassResponse {
-  class: CharacterClass;
-}
-
-export interface GetAllClassesResponse {
-  classes: CharacterClass[];
-}
-
-export interface CreateClassResponse {
-  message: string;
-  class: CharacterClass;
-}
-
-export interface UpdateClassResponse {
-  message: string;
-  class: CharacterClass;
-}
-
-export interface DeleteClassResponse {
-  message: string;
-}
-
-// ============================================
-// Subclass DTOs
-// ============================================
-
-export interface CreateSubclassRequest {
-  name: string;
-  description: string;
-  class_id: number;
-  abilities?: number[];
-}
-
-export interface UpdateSubclassRequest {
-  name?: string;
-  description?: string;
-}
-
-export interface GetSubclassResponse {
-  subclass: CharacterSubclass;
-}
-
-export interface GetAllSubclassesResponse {
-  subclasses: CharacterSubclass[];
-}
-
-export interface CreateSubclassResponse {
-  message: string;
-  subclass: CharacterSubclass;
-}
-
-export interface UpdateSubclassResponse {
-  message: string;
-  subclass: CharacterSubclass;
-}
-
-export interface DeleteSubclassResponse {
-  message: string;
-}
-
-// ============================================
-// Pericia DTOs
-// ============================================
-
-export interface PericiaDefinition {
+export type ConversionRuleItem = {
   id: number;
-  name: string;
-  description: string;
-  attribute_id: number;
+  attribute_id: number | null;
+  pericia_id: number | null;
+
+  conversion_type: "attribute" | "pericia";
+
+  stat: "life" | "defense" | "sanity" | "mana" | "ocultism";
+
+  rate: number;
 }
 
-export interface CreatePericiaRequest {
-  name: string;
-  description: string;
-  attribute_id: number;
+export type CreateConversionRuleRequest = {
+  conversion_type: "attribute" | "pericia";
+  target_id: number;
+  stat: string;
+  rate: number;
 }
 
-export interface UpdatePericiaRequest {
-  name?: string;
-  description?: string;
+export type CreateConversionRuleResponse = {
+  conversion_rule: ConversionRuleItem;
+  message: string;
+}
+
+export type ListConversionRulesResponse = {
+  conversion_rules: ConversionRuleItem[];
+}
+
+export type GetConversionRuleResponse = {
+  conversion_rule: ConversionRuleItem;
+}
+
+export type UpdateConversionRuleRequest = {
   attribute_id?: number;
+  stat?: string;
+  rate?: number;
 }
 
-export interface GetPericiaResponse {
-  pericia: PericiaDefinition;
+
+// LEVEL UP RULES
+
+export type LevelUpRuleItem = {
+  id: number;
+  level: number;
+  experience_required: number;
 }
 
-export interface GetAllPericiasResponse {
-  pericias: PericiaDefinition[];
+export type CreateLevelUpRuleRequest = {
+  level: number;
+  experience_required: number;
 }
 
-export interface CreatePericiaResponse {
+export type CreateLevelUpRuleResponse = {
+  level_up_rule: LevelUpRuleItem;
   message: string;
-  pericia: PericiaDefinition;
 }
 
-export interface UpdatePericiaResponse {
-  message: string;
-  pericia: PericiaDefinition;
+export type ListLevelUpRulesResponse = {
+  level_up_rules: LevelUpRuleItem[];
 }
 
-export interface DeletePericiaResponse {
+export type GetLevelUpRuleResponse = {
+  level_up_rule: LevelUpRuleItem;
+}
+
+export type UpdateLevelUpRuleRequest = {
+  level?: number;
+  experience_required?: number;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export type StandardResponse = {
   message: string;
 }
+
+export type ErrorResponse = {
+  message: string;
+}
+
+

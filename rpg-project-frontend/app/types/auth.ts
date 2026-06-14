@@ -44,8 +44,3 @@ export interface CurrentUserResponse {
 export interface GetUsersResponse {
   users: User[];
 }
-
-// Error Response
-export interface ErrorResponse {
-  message: string;
-}
