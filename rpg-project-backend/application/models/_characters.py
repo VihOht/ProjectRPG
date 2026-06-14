@@ -34,7 +34,7 @@ class ConversionRule(db.Model):
     pericia_id: int = db.Column(db.Integer, db.ForeignKey('pericia.id'), nullable=True)
     conversion_type: str = db.Column(db.Text, nullable=False)
     stat: str = db.Column(db.String(80), nullable=False)
-    rate: int = db.Column(db.Integer, nullable=False)
+    rate: float = db.Column(db.Float, nullable=False, default=0)
 
 
     def __init__(self, attribute_id, stat, rate, conversion_type, pericia_id):
