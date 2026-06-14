@@ -46,6 +46,7 @@ def ensure_default_admin_user():
 
 if __name__ == '__main__':
     with app.app_context():
+        db.drop_all()  # Drop all tables (for testing purposes)
         db.create_all()  # Create database tables if they don't exist
         ensure_default_admin_user()  # Create admin if needed
     app.run(debug=True)

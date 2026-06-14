@@ -35,12 +35,7 @@ export function ClassesTab() {
             <p className="text-gray-600">Carregando classes...</p>
         );
     }
-
-    if (!classes || classes.length === 0) {
-        return (
-            <p className="text-gray-600">Nenhuma classe cadastrada.</p>
-        );
-    }
+    
     
     if (!user) {
         return (

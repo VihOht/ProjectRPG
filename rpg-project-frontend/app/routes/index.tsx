@@ -16,7 +16,7 @@ export default function Index() {
     }
   }, [isAuthenticated, navigate]);
 
-  const { mutate: createCharacter } = useCreateCharacter();
+  const { mutate: createCharacter, isPending } = useCreateCharacter();
   const { data: characterData, isLoading: characterLoading } =
     useCharacters();
   const { data: usersData } = useGetUsers(user?.role === "ADMIN");
@@ -75,7 +75,8 @@ export default function Index() {
               },
             );
           }}
-          className="px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-purple-700 transition-colors"
+          disabled={isPending}
+          className={`px-4 py-2 bg-vaccinePurple ${isPending ? 'opacity-50 cursor-not-allowed' : 'hover:bg-purple-700'} text-white rounded-md transition-colors`}
         >
           Nova Ficha
         </button>

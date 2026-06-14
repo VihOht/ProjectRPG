@@ -76,9 +76,6 @@ export function AttributesTab() {
         return <p className="text-gray-600">Carregando atributos...</p>;
     }
 
-    if (attributes.length === 0) {
-        return <p className="text-gray-600">Nenhum atributo cadastrado.</p>;
-    }
 
 
 
