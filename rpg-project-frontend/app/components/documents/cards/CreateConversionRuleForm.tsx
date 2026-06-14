@@ -95,6 +95,25 @@ export default function CreateConversionRuleForm({ onSucess }: CreateConversionR
                     </select>
                 </div>
                 <div>
+                    <label htmlFor="stat" className="block text-sm font-medium text-gray-300 mb-1">
+                        Estatística de Destino
+                    </label>
+                    <select
+                        id="stat"
+                        name="stat"
+                        value={formData.stat}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
+                    >
+                        <option value="">Selecione uma estatística</option>
+                        {["life", "mana", "defense", "ocutism", "sanity"].map((stat) => (
+                            <option key={stat} value={stat}>
+                                {stat}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
                     <label htmlFor="subclassId" className="block text-sm font-medium text-gray-300 mb-1">
                         Taxa de Conversão
                     </label>
