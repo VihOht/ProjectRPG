@@ -17,9 +17,6 @@ type Pages = {
   "/documents": {
     params: {};
   };
-  "/classes": {
-    params: {};
-  };
   "/ficha/:id": {
     params: {
       "id": string;
@@ -36,7 +33,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/documents" | "/classes" | "/ficha/:id" | "/auth/login" | "/auth/register";
+    page: "/" | "/documents" | "/ficha/:id" | "/auth/login" | "/auth/register";
   };
   "routes/index.tsx": {
     id: "routes/index";
@@ -45,10 +42,6 @@ type RouteFiles = {
   "routes/documents.tsx": {
     id: "routes/documents";
     page: "/documents";
-  };
-  "routes/classes.tsx": {
-    id: "routes/classes";
-    page: "/classes";
   };
   "routes/rpgSheet.tsx": {
     id: "routes/rpgSheet";
@@ -68,7 +61,6 @@ type RouteModules = {
   "root": typeof import("./app/root.tsx");
   "routes/index": typeof import("./app/routes/index.tsx");
   "routes/documents": typeof import("./app/routes/documents.tsx");
-  "routes/classes": typeof import("./app/routes/classes.tsx");
   "routes/rpgSheet": typeof import("./app/routes/rpgSheet.tsx");
   "routes/auth/login": typeof import("./app/routes/auth/login.tsx");
   "routes/auth/register": typeof import("./app/routes/auth/register.tsx");
