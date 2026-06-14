@@ -97,7 +97,7 @@ class Character(db.Model):
 
     # Basic character information
     name: str = db.Column(db.String(80), nullable=False, default='Unnamed Hero')
-    charClass: int = db.Column(db.Integer, db.ForeignKey('class.id'), nullable=True, default=0)
+    charClass: int = db.Column(db.Integer, db.ForeignKey('class.id'), nullable=True)
     subclass: int = db.Column(db.Integer, db.ForeignKey('subclass.id'), nullable=True)
     second_class: int = db.Column(db.Integer, db.ForeignKey('class.id'), nullable=True)
     race: int = db.Column(db.Integer, db.ForeignKey('race.id'), nullable=True)
@@ -161,6 +161,7 @@ class Character(db.Model):
             'gender': self.gender,
             'age': self.age,
             'level': self.level,
+            'experience': self.experience,
             'att_life': self.att_life,
             'att_defense': self.att_defense,
             'att_sanity': self.att_sanity,
@@ -182,5 +183,6 @@ class Character(db.Model):
             'physical_description': self.physical_description,
             'psychological_description': self.psychological_description,
             'backstory': self.backstory
+
         }
     

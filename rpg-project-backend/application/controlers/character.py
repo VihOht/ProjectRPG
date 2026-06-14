@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from application.services.character import (
-    ClassAbilityService, RaceService, AttributeService, PericiasService,
+    AttributeValueService, ClassAbilityService, RaceService, AttributeService, PericiasService,
     ClassService, SubclassService, CharacterAttributesService,
     CharacterService, ConversionRuleService, LevelUpRuleService, ClassPowerService
 )
@@ -413,6 +413,8 @@ def create_attribute(current_user):
         name=data.get('name'),
         description=data.get('description')
     )
+
+    AttributeValueService.sync_all_attributes()  # Ensure all characters are updated
     
     return jsonify({
         'message': 'Attribute created successfully',
@@ -470,6 +472,8 @@ def delete_attribute(current_user, attribute_id):
     if not success:
         return jsonify({'message': error}), 404
     
+    AttributeValueService.sync_all_attributes()  # Ensure all characters are updated
+    
     return jsonify({'message': 'Attribute deleted successfully'}), 200
 
 
@@ -508,6 +512,8 @@ def create_pericia(current_user):
         description=data.get('description'),
         attribute_id=data.get('attribute_id')
     )
+
+    AttributeValueService.sync_all_attributes()  # Ensure all characters are updated
     
     return jsonify({
         'message': 'Pericia created successfully',
@@ -566,6 +572,7 @@ def delete_pericia(current_user, pericia_id):
     if not success:
         return jsonify({'message': error}), 404
     
+    AttributeValueService.sync_all_attributes()  # Ensure all characters are updated
     return jsonify({'message': 'Pericia deleted successfully'}), 200
 
 
@@ -976,7 +983,7 @@ def update_character_general(current_user, character_id):
     
     data = request.get_json(silent=True) or {}
 
-    allowed_fields = ['name', 'charClass', 'race', 'gender', 'age', 'subclass', 'second_class']
+    allowed_fields = ['name', 'charClass', 'race', 'gender', 'age', 'subclass', 'second_class', 'level', 'experience']
     for key in data.keys():
         if key not in allowed_fields:
             return jsonify({'message': f'Unexpected field: {key}'}), 400

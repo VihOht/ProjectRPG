@@ -148,6 +148,7 @@ def get_users(current_user):
 
 @auth_bp.route('/users/<int:user_id>', methods=['GET'])
 @token_required
-def get_user_by_id(user_id):
+def get_user_by_id(current_user, user_id):
     """Helper function to get user by ID"""
-    return AuthService.get_user_by_id(user_id)
+
+    return jsonify({"user": AuthService.get_user_by_id(user_id).toDict()}) if AuthService.get_user_by_id(user_id) else None

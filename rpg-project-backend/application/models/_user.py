@@ -10,6 +10,14 @@ class User(db.Model):
     @property
     def is_admin(self):
         return self.role == 'admin'
+    
+    def toDict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'role': self.role
+        }
 
     def __repr__(self):
         return f'<User {self.username}> - Admin: {self.is_admin}'

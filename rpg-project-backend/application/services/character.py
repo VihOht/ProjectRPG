@@ -458,7 +458,7 @@ class AttributeValueService:
             for pericia in pericias:
                 char_pericia_value = PericiaValue(pericia_id=pericia.id, attribute_value_id=char_attr_value.id)
                 char_attr_value.pericias.append(char_pericia_value)
-        
+      
         db.session.commit()
 
     @staticmethod
@@ -489,6 +489,13 @@ class AttributeValueService:
                 char_attr_value = existing_attr_values[attr_id]
                 db.session.delete(char_attr_value)
         db.session.commit()
+
+    @staticmethod
+    def sync_all_attributes():
+        """Sync attributes and pericias for all characters (useful when an attribute or pericia is created/deleted)"""
+        characters = Character.query.all()
+        for character in characters:
+            AttributeValueService.sync_character_attributes(character.id)
 
     @staticmethod
     def delete_character_attributes(character_id):
@@ -565,29 +572,26 @@ class CharacterService:
             return None, "Character not found"
 
         character_class = Class.query.get(character.charClass) if character.charClass else None
-        if not character_class:
-            return None, "Character class not found"
-        
 
         stats = {
             "life": {
-                "base": getattr(character_class, "base_life") + getattr(character, "offset_life", 0),
+                "base": getattr(character_class, "base_life", 0) + getattr(character, "offset_life", 0),
                 "bonus": getattr(character, "att_life", 0)
             },
             "sanity": {
-                "base": getattr(character_class, "base_sanity") + getattr(character, "offset_sanity", 0),
+                "base": getattr(character_class, "base_sanity", 0) + getattr(character, "offset_sanity", 0),
                 "bonus": getattr(character, "att_sanity", 0)
             },
             "ocultism": {
-                "base": getattr(character_class, "base_ocultism") + getattr(character, "offset_ocultism", 0),
+                "base": getattr(character_class, "base_ocultism", 0) + getattr(character, "offset_ocultism", 0),
                 "bonus": getattr(character, "att_ocultism", 0)
             },
             "mana": {
-                "base": getattr(character_class, "base_mana") + getattr(character, "offset_mana", 0),
+                "base": getattr(character_class, "base_mana", 0) + getattr(character, "offset_mana", 0),
                 "bonus": getattr(character, "att_mana", 0)
             },
             "defense": {
-                "base": getattr(character_class, "base_defense") + getattr(character, "offset_defense", 0),
+                "base": getattr(character_class, "base_defense", 0) + getattr(character, "offset_defense", 0),
                 "bonus": getattr(character, "att_defense", 0)
             }
         }
@@ -759,6 +763,7 @@ class CharacterService:
         character.att_sanity = 0
         character.att_ocultism = 0
         character.att_mana = 0
+        pericias_ids = [pericia_value.pericia_id for attr_value in character.attributes for pericia_value in attr_value.pericias]
 
         for rule in conversion_rules:
             if rule.conversion_type == "attribute":
@@ -770,10 +775,16 @@ class CharacterService:
                 att_stat = total_pericia_bonus * rule.rate
             elif rule.conversion_type == "pericia":
                 # Get the pericia value for the character
-                pericia_value = PericiaValue.query.get(rule.pericia_id)
-                if not pericia_value:
-                    continue
-                att_stat = pericia_value.value * rule.rate
+                pericias_values = PericiaValue.query.filter(PericiaValue.pericia_id == rule.pericia_id).all()
+                for pericia_value in pericias_values:
+                    attr_value = AttributeValue.query.get(pericia_value.attribute_value_id)
+                    if attr_value and attr_value.character_id == character_id:
+                        att_stat = pericia_value.value * rule.rate
+                        break
+                else:
+                    att_stat = 0
+            else:
+                continue
         
             # Update the corresponding stat on the character
             if rule.stat == "life":
