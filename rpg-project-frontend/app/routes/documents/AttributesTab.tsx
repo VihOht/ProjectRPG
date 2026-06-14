@@ -1,13 +1,13 @@
-import type { AttributeDefinition, PericiaDefinition } from "../../types/character";
+import type { AttributeItem, PericiaItem } from "../../types/character";
 
 interface AttributesTabProps {
-    attributes: AttributeDefinition[];
-    periciasByAttribute: Record<number, PericiaDefinition[]>;
+    attributes: AttributeItem[];
+    periciasByAttribute: Record<number, PericiaItem[]>;
     isLoading: boolean;
     selectedAttributeId: number | null;
     selectedPericiaId: number | null;
-    onAttributeClick: (attribute: AttributeDefinition) => void;
-    onPericiaClick: (pericia: PericiaDefinition) => void;
+    onAttributeClick: (attribute: AttributeItem) => void;
+    onPericiaClick: (pericia: PericiaItem) => void;
     isAdmin: boolean;
     onDeleteAttribute: (attributeId: number) => void;
     onDeletePericia: (periciaId: number) => void;

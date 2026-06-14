@@ -1,7 +1,7 @@
-import type { CharacterClass } from "../../types/character";
+import type { ClassItem } from "../../types/character";
 
 interface ClassesTabProps {
-    classes: CharacterClass[];
+    classes: ClassItem[];
     isLoading: boolean;
     isAdmin: boolean;
     onDeleteClass: (classId: number) => void;

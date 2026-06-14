@@ -22,12 +22,12 @@ import {
     useDeleteLoreSubdocument,
     useDeletePericia,
     useDeleteSubclass,
-    useGetAttributes,
-    useGetClasses,
+    useAttributes,
+    useClasses,
     useGetLoreSessions,
-    useGetPericias,
+    usePericias,
 } from "../hooks";
-import type { AttributeDefinition, PericiaDefinition } from "../types/character";
+import type { AttributeItem, PericiaItem } from "../types/character";
 import type { LoreDocument, LoreSession, LoreSubdocument } from "../types/lore";
 import { ClassesTab } from "./documents/ClassesTab";
 import { AttributesTab } from "./documents/AttributesTab";
@@ -50,7 +50,7 @@ export default function DocumentsPage() {
     const { isAuthenticated, user } = useAuthProvider();
     const navigate = useNavigate();
 
-    const [activeTab, setActiveTab] = useState<DocumentsTab>("attributes");
+    const [activeTab, setActiveTab] = useState<DocumentsTab>("classes");
     const [selectedAttributeId, setSelectedAttributeId] = useState<number | null>(null);
     const [selectedPericiaId, setSelectedPericiaId] = useState<number | null>(null);
     const [selectedLoreSessionId, setSelectedLoreSessionId] = useState<number | null>(null);
@@ -67,9 +67,9 @@ export default function DocumentsPage() {
     const [adminDocumentId, setAdminDocumentId] = useState("");
     const [adminUrl, setAdminUrl] = useState("");
 
-    const { data: classesData, isLoading: classesLoading } = useGetClasses();
-    const { data: attributesData, isLoading: attributesLoading } = useGetAttributes();
-    const { data: periciasData } = useGetPericias();
+    const { data: classesData, isLoading: classesLoading } = useClasses();
+    const { data: attributesData, isLoading: attributesLoading } = useAttributes();
+    const { data: periciasData } = usePericias();
     const { data: loreData, isLoading: loreLoading } = useGetLoreSessions();
 
     const { mutate: createClass, isPending: isCreatingClass } = useCreateClass();
@@ -92,14 +92,19 @@ export default function DocumentsPage() {
     const { mutate: deleteLoreImage } = useDeleteLoreImage();
     const { mutate: deleteLoreSubdocument } = useDeleteLoreSubdocument();
 
-    const classes = classesData?.classes ?? [];
-    const attributes = attributesData?.attributes ?? [];
-    const pericias = periciasData?.pericias ?? [];
-    const loreSessions = loreData?.sessions ?? [];
-    const selectedAdminSession = loreSessions.find((session) => session.id === Number(adminSessionId)) ?? null;
+    const isAdmin = user?.role === "ADMIN";
+    const visibleActiveTab = isAdmin ? activeTab : "classes";
+    const classes = useMemo(() => classesData?.classes ?? [], [classesData?.classes]);
+    const attributes = useMemo(() => attributesData?.attributes ?? [], [attributesData?.attributes]);
+    const pericias = useMemo(() => periciasData?.pericias ?? [], [periciasData?.pericias]);
+    const loreSessions = useMemo(() => loreData?.sessions ?? [], [loreData?.sessions]);
+    const selectedAdminSession = useMemo(
+        () => loreSessions.find((session) => session.id === Number(adminSessionId)) ?? null,
+        [adminSessionId, loreSessions],
+    );
 
     const periciasByAttribute = useMemo(() => {
-        return pericias.reduce<Record<number, PericiaDefinition[]>>((accumulator, pericia) => {
+        return pericias.reduce<Record<number, PericiaItem[]>>((accumulator, pericia) => {
             if (!accumulator[pericia.attribute_id]) {
                 accumulator[pericia.attribute_id] = [];
             }
@@ -108,99 +113,60 @@ export default function DocumentsPage() {
         }, {});
     }, [pericias]);
 
+    const visibleSelectedAttributeId =
+        selectedAttributeId === null ? attributes[0]?.id ?? null : selectedAttributeId;
+
+    const selectedLoreSession = useMemo(() => {
+        if (selectedLoreSessionId === -1) {
+            return null;
+        }
+
+        if (selectedLoreSessionId === null) {
+            return loreSessions[0] ?? null;
+        }
+
+        return loreSessions.find((session) => session.id === selectedLoreSessionId) ?? loreSessions[0] ?? null;
+    }, [loreSessions, selectedLoreSessionId]);
+
+    const selectedLoreDocument = useMemo(() => {
+        if (!selectedLoreSession || selectedLoreDocumentId === -1) {
+            return null;
+        }
+
+        if (selectedLoreDocumentId === null) {
+            return selectedLoreSession.documents[0] ?? null;
+        }
+
+        return (
+            selectedLoreSession.documents.find((document) => document.id === selectedLoreDocumentId) ??
+            selectedLoreSession.documents[0] ??
+            null
+        );
+    }, [selectedLoreDocumentId, selectedLoreSession]);
+
+    const selectedLoreSubdocument = useMemo(() => {
+        if (!selectedLoreDocument || selectedLoreSubdocumentId === null || selectedLoreSubdocumentId === -1) {
+            return null;
+        }
+
+        return (
+            selectedLoreDocument.subdocuments.find((subdocument) => subdocument.id === selectedLoreSubdocumentId) ??
+            null
+        );
+    }, [selectedLoreDocument, selectedLoreSubdocumentId]);
+
+    const visibleSelectedLoreSessionId = selectedLoreSession?.id ?? null;
+    const visibleSelectedLoreDocumentId = selectedLoreDocument?.id ?? null;
+    const visibleSelectedLoreSubdocumentId = selectedLoreSubdocument?.id ?? null;
+
     useEffect(() => {
         if (!isAuthenticated) {
             navigate("/auth/login");
-            return;
         }
+    }, [isAuthenticated, navigate]);
 
-        if (user?.role !== "ADMIN" && activeTab !== "classes") {
-            setActiveTab("classes");
-        }
-    }, [activeTab, isAuthenticated, navigate, user?.role]);
-
-    useEffect(() => {
-        if (!selectedAttributeId && attributes.length > 0) {
-            setSelectedAttributeId(attributes[0].id);
-        }
-    }, [attributes, selectedAttributeId]);
-
-    useEffect(() => {
-        if (!isAdminModalOpen) {
-            return;
-        }
-
-        if (
-            (adminCreateType === "lore_document" ||
-                adminCreateType === "lore_image" ||
-                adminCreateType === "lore_subdocument") &&
-            !adminSessionId &&
-            loreSessions.length > 0
-        ) {
-            setAdminSessionId(String(loreSessions[0].id));
-        }
-
-        if (adminCreateType === "lore_subdocument") {
-            const sessionId = Number(adminSessionId || loreSessions[0]?.id);
-            const session = loreSessions.find((item) => item.id === sessionId);
-            if (!adminDocumentId && session?.documents.length) {
-                setAdminDocumentId(String(session.documents[0].id));
-            }
-        }
-    }, [adminCreateType, adminDocumentId, adminSessionId, isAdminModalOpen, loreSessions]);
-
-    useEffect(() => {
-        if (!selectedLoreSessionId && loreSessions.length > 0) {
-            setSelectedLoreSessionId(loreSessions[0].id);
-            setSelectedLoreDocumentId(loreSessions[0].documents[0]?.id ?? null);
-            setSelectedLoreSubdocumentId(null);
-        }
-    }, [loreSessions, selectedLoreSessionId]);
-
-    useEffect(() => {
-        if (!selectedLoreSessionId) {
-            setSelectedLoreDocumentId(null);
-            setSelectedLoreSubdocumentId(null);
-            return;
-        }
-
-        const selectedSession = loreSessions.find((session) => session.id === selectedLoreSessionId);
-        if (!selectedSession) {
-            return;
-        }
-
-        if (
-            !selectedLoreDocumentId ||
-            !selectedSession.documents.some((document) => document.id === selectedLoreDocumentId)
-        ) {
-            setSelectedLoreDocumentId(selectedSession.documents[0]?.id ?? null);
-            setSelectedLoreSubdocumentId(null);
-        }
-    }, [loreSessions, selectedLoreSessionId, selectedLoreDocumentId]);
-
-    useEffect(() => {
-        if (!selectedLoreSessionId || !selectedLoreDocumentId) {
-            setSelectedLoreSubdocumentId(null);
-            return;
-        }
-
-        const selectedSession = loreSessions.find((session) => session.id === selectedLoreSessionId);
-        const selectedDocument = selectedSession?.documents.find((document) => document.id === selectedLoreDocumentId);
-
-        if (!selectedDocument) {
-            return;
-        }
-
-        if (
-            selectedLoreSubdocumentId &&
-            !selectedDocument.subdocuments.some((subdocument) => subdocument.id === selectedLoreSubdocumentId)
-        ) {
-            setSelectedLoreSubdocumentId(null);
-        }
-    }, [loreSessions, selectedLoreSessionId, selectedLoreDocumentId, selectedLoreSubdocumentId]);
-
-    const handleAttributeClick = (attribute: AttributeDefinition) => {
-        if (selectedAttributeId === attribute.id) {
+    const handleAttributeClick = (attribute: AttributeItem) => {
+        if (visibleSelectedAttributeId === attribute.id) {
             setSelectedAttributeId(-1);
             setSelectedPericiaId(null);
             return;
@@ -209,7 +175,7 @@ export default function DocumentsPage() {
         setSelectedPericiaId(null);
     };
 
-    const handlePericiaClick = (pericia: PericiaDefinition) => {
+    const handlePericiaClick = (pericia: PericiaItem) => {
         if (selectedPericiaId === pericia.id) {
             setSelectedPericiaId(-1);
             return;
@@ -219,10 +185,10 @@ export default function DocumentsPage() {
     };
 
     const handleLoreSessionClick = (session: LoreSession) => {
-        if (selectedLoreSessionId === session.id) {
-            setSelectedLoreSessionId(null);
-            setSelectedLoreDocumentId(null);
-            setSelectedLoreSubdocumentId(null);
+        if (visibleSelectedLoreSessionId === session.id) {
+            setSelectedLoreSessionId(-1);
+            setSelectedLoreDocumentId(-1);
+            setSelectedLoreSubdocumentId(-1);
             return;
         }
 
@@ -232,9 +198,9 @@ export default function DocumentsPage() {
     };
 
     const handleLoreDocumentClick = (sessionId: number, document: LoreDocument) => {
-        if (selectedLoreDocumentId === document.id) {
-            setSelectedLoreDocumentId(null);
-            setSelectedLoreSubdocumentId(null);
+        if (visibleSelectedLoreDocumentId === document.id) {
+            setSelectedLoreDocumentId(-1);
+            setSelectedLoreSubdocumentId(-1);
             return;
         }
 
@@ -247,8 +213,8 @@ export default function DocumentsPage() {
         setSelectedLoreSessionId(sessionId);
         setSelectedLoreDocumentId(documentId);
 
-        if (selectedLoreSubdocumentId === subdocument.id) {
-            setSelectedLoreSubdocumentId(null);
+        if (visibleSelectedLoreSubdocumentId === subdocument.id) {
+            setSelectedLoreSubdocumentId(-1);
             return;
         }
 
@@ -256,6 +222,14 @@ export default function DocumentsPage() {
     };
 
     const openAdminModal = (type: AdminCreateType) => {
+        const isLoreType =
+            type === "lore_session" ||
+            type === "lore_document" ||
+            type === "lore_image" ||
+            type === "lore_subdocument";
+        const defaultLoreSession = selectedLoreSession ?? loreSessions[0] ?? null;
+        const defaultLoreDocument = selectedLoreDocument ?? defaultLoreSession?.documents[0] ?? null;
+
         setAdminCreateType(type);
         if (type === "class" || type === "subclass" || type === "ability") {
             setAdminArea("classes");
@@ -268,8 +242,8 @@ export default function DocumentsPage() {
         setAdminDescription("");
         setAdminClassId("");
         setAdminAttributeId("");
-        setAdminSessionId(String(selectedLoreSessionId ?? loreSessions[0]?.id ?? ""));
-        setAdminDocumentId(String(selectedLoreDocumentId ?? loreSessions[0]?.documents[0]?.id ?? ""));
+        setAdminSessionId(isLoreType && defaultLoreSession ? String(defaultLoreSession.id) : "");
+        setAdminDocumentId(isLoreType && defaultLoreDocument ? String(defaultLoreDocument.id) : "");
         setAdminUrl("");
         setIsAdminModalOpen(true);
     };
@@ -480,7 +454,7 @@ export default function DocumentsPage() {
                                 </p>
                             </div>
 
-                            {user?.role === "ADMIN" && (
+                            {isAdmin && (
                                 <div className="flex flex-wrap gap-2">
                                     <button
                                         type="button"
@@ -513,51 +487,53 @@ export default function DocumentsPage() {
                             { id: "classes", label: "Classes" },
                             { id: "attributes", label: "Atributos" },
                             { id: "lore", label: "Lore" },
-                        ].map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id as DocumentsTab)}
-                                className={`px-4 py-2 rounded-md transition-colors ${activeTab === tab.id ? "bg-vaccinePurple text-white" : "bg-white text-vaccineBlack hover:bg-gray-100"}`}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
+                        ]
+                            .filter((tab) => isAdmin || tab.id === "classes")
+                            .map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id as DocumentsTab)}
+                                    className={`px-4 py-2 rounded-md transition-colors ${visibleActiveTab === tab.id ? "bg-vaccinePurple text-white" : "bg-white text-vaccineBlack hover:bg-gray-100"}`}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
                     </div>
 
-                    {activeTab === "classes" && (
+                    {visibleActiveTab === "classes" && (
                         <ClassesTab
                             classes={classes}
                             isLoading={classesLoading}
-                            isAdmin={user?.role === "ADMIN"}
+                            isAdmin={isAdmin}
                             onDeleteClass={handleDeleteClass}
                             onDeleteSubclass={handleDeleteSubclass}
                             onDeleteAbility={handleDeleteAbility}
                         />
                     )}
 
-                    {activeTab === "attributes" && (
+                    {visibleActiveTab === "attributes" && (
                         <AttributesTab
                             attributes={attributes}
                             periciasByAttribute={periciasByAttribute}
                             isLoading={attributesLoading}
-                            selectedAttributeId={selectedAttributeId}
+                            selectedAttributeId={visibleSelectedAttributeId}
                             selectedPericiaId={selectedPericiaId}
                             onAttributeClick={handleAttributeClick}
                             onPericiaClick={handlePericiaClick}
-                            isAdmin={user?.role === "ADMIN"}
+                            isAdmin={isAdmin}
                             onDeleteAttribute={handleDeleteAttribute}
                             onDeletePericia={handleDeletePericia}
                         />
                     )}
 
-                    {activeTab === "lore" && (
+                    {visibleActiveTab === "lore" && (
                         <LoreTab
                             sessions={loreSessions}
                             isLoading={loreLoading}
-                            selectedSessionId={selectedLoreSessionId}
-                            selectedDocumentId={selectedLoreDocumentId}
-                            selectedSubdocumentId={selectedLoreSubdocumentId}
-                            isAdmin={user?.role === "ADMIN"}
+                            selectedSessionId={visibleSelectedLoreSessionId}
+                            selectedDocumentId={visibleSelectedLoreDocumentId}
+                            selectedSubdocumentId={visibleSelectedLoreSubdocumentId}
+                            isAdmin={isAdmin}
                             onSessionClick={handleLoreSessionClick}
                             onDocumentClick={handleLoreDocumentClick}
                             onSubdocumentClick={handleLoreSubdocumentClick}
@@ -570,7 +546,7 @@ export default function DocumentsPage() {
                 </section>
             </main>
 
-            {classModalActive && user?.role === "ADMIN" && (
+            {classModalActive && isAdmin && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
                     <div className="w-full max-w-2xl rounded-xl bg-vaccineGray-300 p-6 shadow-2xl">
                         <div className="flex items-start justify-between gap-4 mb-4">
@@ -659,7 +635,7 @@ export default function DocumentsPage() {
                 </div>
             )}
 
-            {attributeModalActive && user?.role === "ADMIN" && (
+            {attributeModalActive && isAdmin && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
                     <div className="w-full max-w-2xl rounded-xl bg-vaccineGray-300 p-6 shadow-2xl">
                         <div className="flex items-start justify-between gap-4 mb-4">
@@ -739,7 +715,7 @@ export default function DocumentsPage() {
                 </div>
             )}
 
-            {loreModalActive && user?.role === "ADMIN" && (
+            {loreModalActive && isAdmin && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
                     <div className="w-full max-w-2xl rounded-xl bg-vaccineGray-300 p-6 shadow-2xl">
                         <div className="flex items-start justify-between gap-4 mb-4">
