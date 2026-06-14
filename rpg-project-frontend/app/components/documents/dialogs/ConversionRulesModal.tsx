@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { AppModal } from "../../ui/AppModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
-import CreateAttributeForm from "../cards/CreateAttributeForm";
-import CreatePericiaForm from "../cards/CreatePericiaForm";
 import CreateConversionRuleForm from "../cards/CreateConversionRuleForm";
 import CreateLevelUpRuleForm from "../cards/CreateLevelUpRuleForm";
 

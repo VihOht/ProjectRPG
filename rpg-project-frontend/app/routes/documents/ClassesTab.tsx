@@ -8,7 +8,7 @@ import ClassModal from "../../components/documents/dialogs/ClassModal";
 
 export function ClassesTab() {
 
-    const { user, isAuthenticated } = useAuthProvider();
+    const { user } = useAuthProvider();
     const { data: classesData, isLoading } = useClasses();
     const { mutate: deleteClassService } = useDeleteClass();
     const { mutate: deleteAbilityService } = useDeleteAbility();

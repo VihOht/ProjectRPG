@@ -7,8 +7,7 @@ import {
 } from "../../hooks/useCharacters";
 
 import type {
-    CharacterAttributeItem,
-    CharacterPericiaItem,
+    CharacterAttributeItem
 } from "../../types";
 
 interface CharacterAttributesProps {

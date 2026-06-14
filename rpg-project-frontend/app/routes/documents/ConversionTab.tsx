@@ -1,5 +1,5 @@
 import { useConversionRules, useLevelUpRules, useDeleteConversionRule, useDeleteLevelUpRule, useAttributes, usePericias } from "../../hooks"
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ConversionRuleItem, LevelUpRuleItem, AttributeItem, PericiaItem } from "../../types";
 import { useAuthProvider } from "../../providers"
 import ConversionRulesModal from "../../components/documents/dialogs/ConversionRulesModal";

@@ -1,23 +1,12 @@
 import { StarSky } from "../components/StarSky";
-import { useAuth } from "../hooks";
 import { Header } from "../components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { ClassesTab } from "./documents/ClassesTab";
 import { AttributesTab } from "./documents/AttributesTab";
-import { useState, useEffect } from "react";
-import ClassModal from "../components/documents/dialogs/ClassModal";
 import ConversionTab from "./documents/ConversionTab";
 
 
 export default function DocumentsPage() {
-    const { user } = useAuth();
-    const [isAdmin, setIsAdmin] = useState(false);
-
-    useEffect(() => {
-        if (!user) return;
-        setIsAdmin(user.role === "ADMIN");
-    }, [user]);
-
     return (
         <StarSky>
             <Header />

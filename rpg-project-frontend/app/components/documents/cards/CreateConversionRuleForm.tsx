@@ -1,7 +1,7 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePericias, useAttributes, useCreateConversionRule, useConversionRules } from "../../../hooks";
-import type { CreateConversionRuleRequest, AttributeItem, PericiaItem, SubclassItem } from '../../../types'
+import type { CreateConversionRuleRequest, AttributeItem, PericiaItem } from '../../../types'
 import toast from "react-hot-toast";
 
 export interface CreateConversionRuleFormProps {

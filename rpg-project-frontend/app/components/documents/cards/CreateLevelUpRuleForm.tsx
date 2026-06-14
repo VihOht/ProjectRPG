@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCreateLevelUpRule, useLevelUpRules } from "../../../hooks";
 import type { CreateLevelUpRuleRequest } from '../../../types'
 import toast from "react-hot-toast";

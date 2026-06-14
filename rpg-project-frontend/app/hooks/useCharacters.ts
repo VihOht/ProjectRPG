@@ -3,7 +3,6 @@ import {
   createGetAllHook,
   createGetByIdHook,
   createCreateHook,
-  createUpdateHook,
   createDeleteHook,
 } from './common';
 
@@ -44,7 +43,6 @@ import {
 import { AxiosError } from 'axios';
 
 import type {
-  CharacterItem,
   CreateCharacterResponse,
   ListCharacterAttributesResponse,
   BulkUpdateCharacterPericiasRequest,

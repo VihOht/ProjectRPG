@@ -1,5 +1,5 @@
 import { StarSky } from "../components/StarSky";
-import { useEffect, useMemo, useState, useRef  } from "react";
+import { useEffect, useMemo, useState  } from "react";
 import { useParams, useNavigate } from "react-router";
 import { CharacterInformation } from "../components/character/Informations";
 import { CharacterStats } from "../components/character/Stats";

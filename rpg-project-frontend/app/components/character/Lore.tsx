@@ -21,7 +21,7 @@ export function CharacterLore({
 }: CharacterLoreProps) {
     const { data: characterData } = useCharacter(characterId);
 
-    const { mutate: updateDescription, error: updateError } = useUpdateCharacterDescription(characterId);
+    const { mutate: updateDescription } = useUpdateCharacterDescription(characterId);
 
      const [isEditing, setIsEditing] = useState(false);
 

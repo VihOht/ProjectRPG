@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useClasses, useCreateAbility, useSubclasses } from "../../../hooks";
+import { useClasses, useCreateAbility } from "../../../hooks";
 import type { CreateAbilityRequest, SubclassItem } from '../../../types'
 import toast from "react-hot-toast";
 
