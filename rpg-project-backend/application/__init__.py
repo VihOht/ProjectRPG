@@ -16,9 +16,9 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 # CORS configuration for frontend requests
 CORS(
     app,
-    resources={r"/*": {"origins": ["http://localhost:5173"]}},
+    resources={r"/*": {"origins": ["*"]}},
     supports_credentials=True,
-    allow_headers=["Content-Type", "Authorization", "X-Username"],
+    allow_headers=["Content-Type", "Authorization"],
     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 )
 
