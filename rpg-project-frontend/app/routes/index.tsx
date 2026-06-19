@@ -3,12 +3,14 @@ import { Header } from "../components/Header";
 import { StarSky } from "../components/StarSky";
 import { useCreateCharacter, useCharacters, useGetUsers } from "../hooks";
 import { useAuthProvider } from "../providers";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 export default function Index() {
   const { isAuthenticated, user } = useAuthProvider();
   const navigate = useNavigate();
+  const [isDocumentOpening, setIsDocumentOpening] = useState(false);
+  const [isAccountOpening, setIsAccountOpening] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -58,9 +60,19 @@ export default function Index() {
   return (
     <StarSky>
       <Header>
+        {isAdmin && (
+          <Link
+            to="/accounts"
+            className={`px-3 py-2 bg-vaccineGray-300 rounded-md ${isAccountOpening ? 'bg-vaccineGray-800' : 'hover:bg-vaccineGray-400'} cursor-pointer text-center transition-colors`}
+            onClick={() => setIsAccountOpening(true)}
+          >
+            Contas
+          </Link>
+        )}
         <Link
           to="/documents"
-          className="px-3 py-2 bg-vaccineGray-300 rounded-md hover:bg-vaccineGray-400 transition-colors"
+          className={`px-3 py-2 bg-vaccineGray-300 rounded-md ${isDocumentOpening ? 'bg-vaccineGray-800' : 'hover:bg-vaccineGray-400 cursor-pointer'} text-center transition-colors`}
+          onClick={() => setIsDocumentOpening(true)}
         >
           Documentos
         </Link>
@@ -83,7 +95,7 @@ export default function Index() {
       </Header>
 
       <main className="flex-1 flex font-vollkorn items-center justify-center p-8 ">
-        <div className="bg-vaccineGray-300/0 border-1 border-vaccineGray-300/50 text-shadow-lg rounded-lg shadow-lg p-8 max-w-6xl w-full mx-auto">
+        <div className="bg-vaccineGray-300/0 md:border-1 md:border-vaccineGray-300/50 text-shadow-lg rounded-lg shadow-lg md:p-8 md:max-w-6xl w-full mx-auto">
           <h3 className="text-4xl w-full text-center font-bold mb-6 text-vaccinePurple ">
             Fichas
           </h3>

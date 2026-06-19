@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from application.services.character import (
-    AttributeValueService, ClassAbilityService, RaceService, AttributeService, PericiasService,
-    ClassService, SubclassService, CharacterAttributesService,
+    AttributePowerService, AttributeValueService, ClassAbilityService, RaceService, AttributeService, PericiasService,
+    ClassService, SpecialAbilityService, SubclassService, CharacterAttributesService,
     CharacterService, ConversionRuleService, LevelUpRuleService, ClassPowerService
 )
 from application.controlers.auth import token_required
@@ -39,12 +39,12 @@ def get_abilities(current_user):
 def create_ability(current_user):
     """Create a new ability"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
     if not data or not data.get('name') or not data.get('description'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
     
     ability = ClassAbilityService.create_ability(
         name=data.get('name'),
@@ -56,7 +56,7 @@ def create_ability(current_user):
 
     
     return jsonify({
-        'message': 'Ability created successfully',
+        'message': 'Abilidade criada com sucesso',
         'ability': ability_dict
     }), 201
 
@@ -67,10 +67,10 @@ def get_ability(current_user, ability_id):
     """Get ability by ID"""
     ability = ClassAbilityService.get_ability_by_id(ability_id)
     if not ability or (ability.hidden and not _is_admin(current_user)):
-        return jsonify({'message': 'Ability not found'}), 404
+        return jsonify({'message': 'Abilidade não encontrada'}), 404
     
     if not ability:
-        return jsonify({'message': 'Ability not found'}), 404
+        return jsonify({'message': 'Abilidade não encontrada'}), 404
     
     ability_dict = ability.toDict()
     if not _is_admin(current_user):
@@ -86,7 +86,7 @@ def get_ability(current_user, ability_id):
 def update_ability(current_user, ability_id):
     """Update ability"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
@@ -94,7 +94,6 @@ def update_ability(current_user, ability_id):
         ability_id,
         name=data.get('name'),
         description=data.get('description'),
-        class_id=data.get('class_id'),
         subclass_id=data.get('subclass_id'),
     )
     
@@ -102,7 +101,7 @@ def update_ability(current_user, ability_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': 'Ability updated successfully',
+        'message': 'Abilidade atualizada com sucesso',
         'ability': ability.toDict()
     }), 200
 
@@ -113,21 +112,21 @@ def update_ability(current_user, ability_id):
 def delete_ability(current_user, ability_id):
     """Delete ability"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = ClassAbilityService.delete_ability(ability_id)
     
     if not success:
         return jsonify({'message': error}), 404
     
-    return jsonify({'message': 'Ability deleted successfully'}), 200
+    return jsonify({'message': 'Abilidade excluída com sucesso'}), 200
 
 @character_bp.route('/abilities/<int:ability_id>/visibility', methods=['POST'])
 @token_required
 def toggle_ability_visibility(current_user, ability_id):
-    """Toggle ability visibility (admin only)"""
+    """Toggle ability visibility (Acesso Negado)"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     ability, error = ClassAbilityService.toggle_ability_visibility(ability_id)
     
@@ -135,9 +134,163 @@ def toggle_ability_visibility(current_user, ability_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': f'Ability visibility toggled to {"hidden" if ability.hidden else "visible"}',
+        'message': f'Visibility da abilidade alternada para {"oculta" if ability.hidden else "visível"}',
         'ability': ability.toDict()
     }), 200
+
+
+
+@character_bp.route('/abilities/<int:ability_id>/assign/<int:character_id>', methods=['POST'])
+@token_required
+def assign_ability_to_character(current_user, ability_id, character_id):
+    """Assign an ability to a character""" 
+    character = CharacterService.get_character_by_id(character_id)
+    if not character:
+        return jsonify({'message': 'Personagem não encontrado'}), 404
+    if character.own != current_user.id and not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    _, error = ClassAbilityService.add_ability_to_character(character_id, ability_id)
+    if error:
+        return jsonify({'message': error}), 404
+
+    return jsonify({
+        'message': 'Abilidade atribuída ao personagem com sucesso',
+    }), 200
+
+
+@character_bp.route('/abilities/<int:ability_id>/unassign/<int:character_id>', methods=['POST'])
+@token_required
+def unassign_ability_from_character(current_user, ability_id, character_id):
+    """Unassign an ability from a character"""
+    character = CharacterService.get_character_by_id(character_id)
+    if not character:
+        return jsonify({'message': 'Personagem não encontrado'}), 404
+
+    if character.own != current_user.id and not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    _, error = ClassAbilityService.remove_ability_from_character(character_id, ability_id)
+    if error:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({
+        'message': 'Abilidade removida do personagem com sucesso',
+    }), 200
+
+
+# =============== SPECIAL ABILITIES =============
+
+@character_bp.route('/special-abilities', methods=['GET'])
+@token_required
+def get_special_abilities(current_user):
+    """Get all special abilities"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+    special_abilities = SpecialAbilityService.get_all_special_abilities()
+
+    return jsonify({
+        'special_abilities': [sa.toDict() for sa in special_abilities]
+    }), 200
+
+@character_bp.route('/special-abilities/<int:special_ability_id>', methods=['GET'])
+@token_required
+def get_special_ability_by_id(current_user, special_ability_id):
+    """Get a special ability by ID"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+    special_ability, error = SpecialAbilityService.get_special_ability_by_id(special_ability_id)
+    if error:
+        return jsonify({'message': error}), 404
+    
+    character, error = CharacterService.get_character_by_id(special_ability.character_id)
+    if character.own != current_user.id and not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    return jsonify({
+        'special_ability': special_ability.toDict()
+    }), 200
+
+@character_bp.route('/special-abilities', methods=['POST'])
+@token_required
+def create_special_ability(current_user):
+    """Create a new special ability"""
+    data = request.get_json(silent=True) or {}
+
+    character_id = data.get('character_id')
+    character = CharacterService.get_character_by_id(character_id)
+    if not character:
+        return jsonify({'message': 'Personagem não encontrado'}), 404
+    if character.own != current_user.id and not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+    
+    if not data or not data.get('name') or not data.get('description'):
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
+    
+    special_ability, error = SpecialAbilityService.create_special_ability(
+        name=data.get('name'),
+        description=data.get('description'),
+        character_id=character_id
+    )
+    if error:
+        return jsonify({'message': error}), 400
+
+
+    return jsonify({
+        'message': 'Habilidade especial criada com sucesso',
+        'special_ability': special_ability.toDict()
+    }), 201
+
+@character_bp.route('/special-abilities/<int:special_ability_id>', methods=['DELETE'])
+@token_required
+def delete_special_ability(current_user, special_ability_id):
+    """Delete a special ability"""
+    special_ability = SpecialAbilityService.get_special_ability_by_id(special_ability_id)
+    if not special_ability:
+        return jsonify({'message': 'Habilidade especial não encontrada'}), 404
+
+    character = CharacterService.get_character_by_id(special_ability.character_id)
+    if not character:
+        return jsonify({'message': 'Personagem não encontrado'}), 404
+    if character.own != current_user.id and not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    success, error = SpecialAbilityService.delete_special_ability(special_ability_id)
+    
+    if not success:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({}), 204
+
+@character_bp.route('/special-abilities/<int:special_ability_id>', methods=['PUT'])
+@token_required
+def update_special_ability(current_user, special_ability_id):
+    """Update a special ability"""
+    special_ability = SpecialAbilityService.get_special_ability_by_id(special_ability_id)
+    if not special_ability:
+        return jsonify({'message': 'Habilidade especial não encontrada'}), 404
+
+    character = CharacterService.get_character_by_id(special_ability.character_id)
+    if not character:
+        return jsonify({'message': 'Personagem não encontrado'}), 404
+    if character.own != current_user.id and not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    data = request.get_json(silent=True) or {}
+
+    if not data:
+        return jsonify({'message': 'Nenhum dado fornecido'}), 400
+
+    success, error = SpecialAbilityService.update_special_ability(
+        special_ability_id,
+        name=data.get('name'),
+        description=data.get('description')
+    )
+
+    if not success:
+        return jsonify({'message': error}), 400
+
+    return jsonify({'message': 'Habilidade especial atualizada com sucesso'}), 200
 
 
 # ================ POWER ABILITIES ==============
@@ -160,24 +313,59 @@ def get_class_powers(current_user):
         'class_powers': l
     }), 200
 
+@character_bp.route('/class-powers/<int:class_power_id>', methods=['GET'])
+@token_required
+def get_class_power(current_user, class_power_id):
+    """Get class power by ID"""
+    class_power = ClassPowerService.get_class_power_by_id(class_power_id)
+    
+    if not class_power or (class_power.hidden and not _is_admin(current_user)):
+        return jsonify({'message': 'Class power não encontrada'}), 404
+    
+    cp_dict = class_power.toDict()
+    if not _is_admin(current_user):
+        cp_dict.pop('hidden', None)
+
+    return jsonify({
+        'class_power': cp_dict
+    }), 200
+
+@character_bp.route('/classes/<int:class_id>/class-powers', methods=['GET'])
+@token_required
+def get_class_powers_by_class(current_user, class_id):
+    """Get all class powers for a specific class"""
+    class_powers = ClassPowerService.get_class_powers_by_class(class_id)
+    l = []
+    for cp in class_powers:
+        if cp.hidden and not _is_admin(current_user):
+            continue
+        cp_dict = cp.toDict()
+        if not _is_admin(current_user):
+            cp_dict.pop('hidden', None)
+        l.append(cp_dict)
+
+    return jsonify({
+        'class_powers': l
+    }), 200
+
 
 @character_bp.route('/class-powers', methods=['POST'])
 @token_required
 def create_class_power(current_user):
     """Create a new class power"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
     if not data or not data.get('name') or not data.get('description'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
     
     if not data.get('class_id'):
-        return jsonify({'message': 'Missing required field: class_id'}), 400
+        return jsonify({'message': 'Campo obrigatório ausente: class_id'}), 400
     
     if not ClassService.get_class_by_id(data.get('class_id')):
-        return jsonify({'message': 'Class not found'}), 404
+        return jsonify({'message': 'Classe não encontrada'}), 404
     
 
     class_power = ClassPowerService.create_class_power(
@@ -188,34 +376,17 @@ def create_class_power(current_user):
     )
     
     return jsonify({
-        'message': 'Class power created successfully',
+        'message': 'Class power criada com sucesso',
         'class_power': class_power.toDict()
     }), 201
 
-
-@character_bp.route('/class-powers/<int:class_power_id>', methods=['GET'])
-@token_required
-def get_class_power(current_user, class_power_id):
-    """Get class power by ID"""
-    class_power = ClassPowerService.get_class_power_by_id(class_power_id)
-    
-    if not class_power or (class_power.hidden and not _is_admin(current_user)):
-        return jsonify({'message': 'Class power not found'}), 404
-    
-    cp_dict = class_power.toDict()
-    if not _is_admin(current_user):
-        cp_dict.pop('hidden', None)
-
-    return jsonify({
-        'class_power': cp_dict
-    }), 200
 
 @character_bp.route('/class-powers/<int:class_power_id>', methods=['PUT'])
 @token_required
 def update_class_power(current_user, class_power_id):
     """Update class power"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
@@ -231,7 +402,7 @@ def update_class_power(current_user, class_power_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': 'Class power updated successfully',
+        'message': 'Class power atualizada com sucesso',
         'class_power': class_power.toDict()
     }), 200
 
@@ -240,21 +411,21 @@ def update_class_power(current_user, class_power_id):
 def delete_class_power(current_user, class_power_id):
     """Delete class power"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = ClassPowerService.delete_class_power(class_power_id)
 
     if not success:
         return jsonify({'message': error}), 404
     
-    return jsonify({'message': 'Class power deleted successfully'}), 200
+    return jsonify({'message': 'Class power excluída com sucesso'}), 200
 
 @character_bp.route('/class-powers/<int:class_power_id>/visibility', methods=['POST'])
 @token_required
 def toggle_class_power_visibility(current_user, class_power_id):
-    """Toggle class power visibility (admin only)"""
+    """Toggle class power visibility (Acesso Negado)"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     class_power, error = ClassPowerService.toggle_class_power_visibility(class_power_id)
     
@@ -262,9 +433,11 @@ def toggle_class_power_visibility(current_user, class_power_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': f'Class power visibility toggled to {"hidden" if class_power.hidden else "visible"}',
+        'message': f'Visibility da class power alternada para {"oculta" if class_power.hidden else "visível"}',
         'class_power': class_power.toDict()
     }), 200
+
+
 
 # ==================== RACES ====================
 
@@ -292,12 +465,12 @@ def get_races(current_user):
 def create_race(current_user):
     """Create a new race"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
     if not data or not data.get('name') or not data.get('description'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
     
     race = RaceService.create_race(
         name=data.get('name'),
@@ -305,7 +478,7 @@ def create_race(current_user):
     )
     
     return jsonify({
-        'message': 'Race created successfully',
+        'message': 'Raça criada com sucesso',
         'race': race.toDict()
     }), 201
 
@@ -317,10 +490,10 @@ def get_race(current_user, race_id):
     race = RaceService.get_race_by_id(race_id)
 
     if not race:
-        return jsonify({'message': 'Race not found'}), 404
+        return jsonify({'message': 'Raça não encontrada'}), 404
     
     if race.hidden and not _is_admin(current_user):
-        return jsonify({'message': 'Race not found'}), 404
+        return jsonify({'message': 'Raça não encontrada'}), 404
     
     r_dict = race.toDict()
     if not _is_admin(current_user):
@@ -336,7 +509,7 @@ def get_race(current_user, race_id):
 def update_race(current_user, race_id):
     """Update race"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
@@ -350,7 +523,7 @@ def update_race(current_user, race_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': 'Race updated successfully',
+        'message': 'Raça atualizada com sucesso',
         'race': race.toDict()
     }), 200
 
@@ -360,28 +533,28 @@ def update_race(current_user, race_id):
 def delete_race(current_user, race_id):
     """Delete race"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = RaceService.delete_race(race_id)
     
     if not success:
         return jsonify({'message': error}), 404
     
-    return jsonify({'message': 'Race deleted successfully'}), 200
+    return jsonify({'message': 'Raça excluída com sucesso'}), 200
 
 @character_bp.route('/races/<int:race_id>/visibility', methods=['POST'])
 @token_required
 def toggle_race_visibility(current_user, race_id):
-    """Toggle race visibility (admin only)"""
+    """Toggle race visibility (Acesso Negado)"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
     
     race, error = RaceService.toggle_race_visibility(race_id)
     if error:
         return jsonify({'message': error}), 404
     else:
         return jsonify({
-            'message': f'Race visibility toggled to {"hidden" if race.hidden else "visible"}',
+            'message': f'Visibilidade da raça alternada para {"oculta" if race.hidden else "visível"}',
             'race': race.toDict()
         }), 200
 
@@ -402,12 +575,12 @@ def get_attributes(current_user):
 def create_attribute(current_user):
     """Create a new attribute"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
     if not data or not data.get('name') or not data.get('description'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
     
     attribute = AttributeService.create_attribute(
         name=data.get('name'),
@@ -417,7 +590,7 @@ def create_attribute(current_user):
     AttributeValueService.sync_all_attributes()  # Ensure all characters are updated
     
     return jsonify({
-        'message': 'Attribute created successfully',
+        'message': 'Atributo criado com sucesso',
         'attribute': attribute.toDict()
     }), 201
 
@@ -429,7 +602,7 @@ def get_attribute(current_user, attribute_id):
     attribute = AttributeService.get_attribute_by_id(attribute_id)
     
     if not attribute:
-        return jsonify({'message': 'Attribute not found'}), 404
+        return jsonify({'message': 'Atributo não encontrado'}), 404
     
     return jsonify({
         'attribute': attribute.toDict()
@@ -441,7 +614,7 @@ def get_attribute(current_user, attribute_id):
 def update_attribute(current_user, attribute_id):
     """Update attribute"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
@@ -455,7 +628,7 @@ def update_attribute(current_user, attribute_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': 'Attribute updated successfully',
+        'message': 'Atributo atualizado com sucesso',
         'attribute': attribute.toDict()
     }), 200
 
@@ -465,7 +638,7 @@ def update_attribute(current_user, attribute_id):
 def delete_attribute(current_user, attribute_id):
     """Delete attribute"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = AttributeService.delete_attribute(attribute_id)
     
@@ -474,8 +647,142 @@ def delete_attribute(current_user, attribute_id):
     
     AttributeValueService.sync_all_attributes()  # Ensure all characters are updated
     
-    return jsonify({'message': 'Attribute deleted successfully'}), 200
+    return jsonify({'message': 'Atributo excluído com sucesso'}), 200
 
+
+# ================= ATTRIBUTE POWERS ===============
+@character_bp.route('/attribute-powers', methods=['GET'])
+@token_required
+def get_attribute_powers(current_user):
+    """Get all attribute powers"""
+    attribute_powers = AttributePowerService.get_all_attribute_powers()
+    l = []
+    for ap in attribute_powers:
+        if ap.hidden and not _is_admin(current_user):
+            continue
+        ap_dict = ap.toDict()
+        if not _is_admin(current_user):
+            ap_dict.pop('hidden', None)
+        l.append(ap_dict)
+    return jsonify({
+        'attribute_powers': l
+    }), 200
+
+@character_bp.route('/attribute-powers/<int:attribute_power_id>', methods=['GET'])
+@token_required
+def get_attribute_power_by_id(current_user, attribute_power_id):
+    """Get attribute power by ID"""
+    attribute_power = AttributePowerService.get_attribute_power_by_id(attribute_power_id)
+    
+    if not attribute_power or (attribute_power.hidden and not _is_admin(current_user)):
+        return jsonify({'message': 'Poder de atributo não encontrado'}), 404
+    
+    ap_dict = attribute_power.toDict()
+    if not _is_admin(current_user):
+        ap_dict.pop('hidden', None)
+
+    return jsonify({
+        'attribute_power': ap_dict
+    }), 200
+
+@character_bp.route('/attributes/<int:attribute_id>/attribute-powers', methods=['GET'])
+@token_required
+def get_attribute_powers_by_attribute(current_user, attribute_id):
+    """Get all attribute powers for a specific attribute"""
+    attribute_powers = AttributePowerService.get_attribute_powers_by_attribute(attribute_id)
+    l = []
+    for ap in attribute_powers:
+        if ap.hidden and not _is_admin(current_user):
+            continue
+        ap_dict = ap.toDict()
+        if not _is_admin(current_user):
+            ap_dict.pop('hidden', None)
+        l.append(ap_dict)
+    return jsonify({
+        'attribute_powers': l
+    }), 200
+
+@character_bp.route('/attribute-powers', methods=['POST'])
+@token_required
+def create_attribute_power(current_user):
+    """Create a new attribute power"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    data = request.get_json(silent=True) or {}
+    
+    if not data or not data.get('name') or not data.get('description') or not data.get('attribute_id'):
+        return jsonify({'message': 'Campos obrigatórios ausentes (name, description, attribute_id)'}), 400
+    
+    if not AttributeService.get_attribute_by_id(data.get('attribute_id')):
+        return jsonify({'message': 'Atributo não encontrado'}), 404
+
+    attribute_power = AttributePowerService.create_attribute_power(
+        name=data.get('name'),
+        description=data.get('description'),
+        attribute_id=data.get('attribute_id'),
+        level_to_unlock=data.get('level_to_unlock', 1)
+    )
+
+    return jsonify({
+        'message': 'Poder de atributo criado com sucesso',
+        'attribute_power': attribute_power.toDict()
+    }), 201
+
+@character_bp.route('/attribute-powers/<int:attribute_power_id>', methods=['PUT'])
+@token_required
+def update_attribute_power(current_user, attribute_power_id):
+    """Update attribute power"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    data = request.get_json(silent=True) or {}
+    
+    attribute_power, error = AttributePowerService.update_attribute_power(
+        attribute_power_id,
+        name=data.get('name'),
+        description=data.get('description'),
+        level_to_unlock=data.get('level_to_unlock'),
+    )
+    
+    if error:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({
+        'message': 'Poder de atributo atualizado com sucesso',
+        'attribute_power': attribute_power.toDict()
+    }), 200
+
+@character_bp.route('/attribute-powers/<int:attribute_power_id>', methods=['DELETE'])
+@token_required
+def delete_attribute_power(current_user, attribute_power_id):
+    """Delete attribute power"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    success, error = AttributePowerService.delete_attribute_power(attribute_power_id)
+    
+    if not success:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({'message': 'Poder de atributo excluído com sucesso'}), 200
+
+@character_bp.route('/attribute-powers/<int:attribute_power_id>/visibility', methods=['POST'])
+@token_required
+def toggle_attribute_power_visibility(current_user, attribute_power_id):
+    """Toggle attribute power visibility (Acesso Negado)"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    attribute_power, error = AttributePowerService.toggle_attribute_power_visibility(attribute_power_id)
+    
+    if error:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({
+        'message': f'Visibility do poder de atributo alternada para {"oculta" if attribute_power.hidden else "visível"}',
+        'attribute_power': attribute_power.toDict()
+    }), 200
 
 # ==================== PERICIAS ====================
 
@@ -497,15 +804,15 @@ def get_pericias(current_user):
 def create_pericia(current_user):
     """Create a new pericia"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
     if not data or not data.get('name') or not data.get('description') or not data.get('attribute_id'):
-        return jsonify({'message': 'Missing required fields (name, description, attribute_id)'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes (name, description, attribute_id)'}), 400
     
     if not AttributeService.get_attribute_by_id(data.get('attribute_id')):
-        return jsonify({'message': 'Attribute not found'}), 404
+        return jsonify({'message': 'Atributo não encontrado'}), 404
 
     pericia = PericiasService.create_pericia(
         name=data.get('name'),
@@ -516,7 +823,7 @@ def create_pericia(current_user):
     AttributeValueService.sync_all_attributes()  # Ensure all characters are updated
     
     return jsonify({
-        'message': 'Pericia created successfully',
+        'message': 'Pericia criada com sucesso',
         'pericia': pericia.toDict()
     }), 201
 
@@ -528,7 +835,7 @@ def get_pericia(current_user, pericia_id):
     pericia = PericiasService.get_pericia_by_id(pericia_id)
     
     if not pericia:
-        return jsonify({'message': 'Pericia not found'}), 404
+        return jsonify({'message': 'Pericia não encontrada'}), 404
     
     return jsonify({
         'pericia': pericia.toDict()
@@ -540,7 +847,7 @@ def get_pericia(current_user, pericia_id):
 def update_pericia(current_user, pericia_id):
     """Update pericia"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
@@ -555,7 +862,7 @@ def update_pericia(current_user, pericia_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': 'Pericia updated successfully',
+        'message': 'Pericia atualizada com sucesso',
         'pericia': pericia.toDict()
     }), 200
 
@@ -565,7 +872,7 @@ def update_pericia(current_user, pericia_id):
 def delete_pericia(current_user, pericia_id):
     """Delete pericia"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = PericiasService.delete_pericia(pericia_id)
     
@@ -573,7 +880,7 @@ def delete_pericia(current_user, pericia_id):
         return jsonify({'message': error}), 404
     
     AttributeValueService.sync_all_attributes()  # Ensure all characters are updated
-    return jsonify({'message': 'Pericia deleted successfully'}), 200
+    return jsonify({'message': 'Pericia excluída com sucesso'}), 200
 
 
 # ==================== CLASSES ====================
@@ -600,7 +907,6 @@ def get_classes(current_user):
                 power.pop('hidden', None)
     
         l.append(class_dict)
-
     return jsonify({
         'classes': l
     }), 200
@@ -611,12 +917,12 @@ def get_classes(current_user):
 def create_class(current_user):
     """Create a new class"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
     if not data or not data.get('name') or not data.get('description'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes (name, description)'}), 400
     
 
     
@@ -633,7 +939,7 @@ def create_class(current_user):
     )
     
     return jsonify({
-        'message': 'Class created successfully',
+        'message': 'Classe criada com sucesso',
         'class': char_class.toDict()
     }), 201
 
@@ -645,7 +951,7 @@ def get_class(current_user, class_id):
     char_class = ClassService.get_class_by_id(class_id)
     
     if not char_class:
-        return jsonify({'message': 'Class not found'}), 404
+        return jsonify({'message': 'Classe não encontrada'}), 404
     
     class_dict = char_class.toDict()
 
@@ -671,10 +977,9 @@ def get_class(current_user, class_id):
 def update_class(current_user, class_id):
     """Update class"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
-    print(data)
     char_class, error = ClassService.update_class(
         class_id,
         name=data.get('name'),
@@ -692,7 +997,7 @@ def update_class(current_user, class_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': 'Class updated successfully',
+        'message': 'Classe atualizada com sucesso',
         'class': char_class.toDict()
     }), 200
 
@@ -702,14 +1007,14 @@ def update_class(current_user, class_id):
 def delete_class(current_user, class_id):
     """Delete class"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = ClassService.delete_class(class_id)
     
     if not success:
         return jsonify({'message': error}), 404
     
-    return jsonify({'message': 'Class deleted successfully'}), 200
+    return jsonify({'message': 'Classe excluída com sucesso'}), 200
 
 
 # ==================== SUBCLASSES ====================
@@ -741,7 +1046,7 @@ def get_subclasses(current_user):
 def create_subclass(current_user):
     """Create a new subclass (must specify parent class)"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
@@ -761,7 +1066,7 @@ def create_subclass(current_user):
         return jsonify({'message': error}), 400
     
     return jsonify({
-        'message': 'Subclass created successfully',
+        'message': 'Subclass criada com sucesso',
         'subclass': subclass.toDict()
     }), 201
 
@@ -773,7 +1078,7 @@ def get_subclass(current_user, subclass_id):
     subclass = SubclassService.get_subclass_by_id(subclass_id)
     
     if not subclass:
-        return jsonify({'message': 'Subclass not found'}), 404
+        return jsonify({'message': 'Subclass não encontrada'}), 404
     
     return jsonify({
         'subclass': subclass.toDict()
@@ -785,7 +1090,7 @@ def get_subclass(current_user, subclass_id):
 def update_subclass(current_user, subclass_id):
     """Update subclass"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     
@@ -799,7 +1104,7 @@ def update_subclass(current_user, subclass_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': 'Subclass updated successfully',
+        'message': 'Subclass atualizada com sucesso',
         'subclass': subclass.toDict()
     }), 200
 
@@ -809,14 +1114,14 @@ def update_subclass(current_user, subclass_id):
 def delete_subclass(current_user, subclass_id):
     """Delete subclass"""
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = SubclassService.delete_subclass(subclass_id)
     
     if not success:
         return jsonify({'message': error}), 404
     
-    return jsonify({'message': 'Subclass deleted successfully'}), 200
+    return jsonify({'message': 'Subclass excluída com sucesso'}), 200
 
 
 # ==================== CHARACTER ATTRIBUTES ====================
@@ -856,7 +1161,7 @@ def bulk_update_character_pericias(current_user, character_id):
     data = request.get_json(silent=True) or {}
     
     if not data or data.get('pericias') is None:
-        return jsonify({'message': 'Missing pericias array'}), 400
+        return jsonify({'message': 'Array de perícias ausente'}), 400
     
     char_attrs, error = CharacterAttributesService.bulk_update_character_pericias(
         character_id,
@@ -871,7 +1176,7 @@ def bulk_update_character_pericias(current_user, character_id):
         return jsonify({'message': error}), 404
 
     return jsonify({
-        'message': 'Character pericias updated successfully',
+        'message': 'Perícias do personagem atualizadas com sucesso',
         'character_id': character_id
     }), 200
 
@@ -889,7 +1194,7 @@ def create_character(current_user):
         return jsonify({'message': error}), 400
     
     return jsonify({
-        'message': 'Character created successfully',
+        'message': 'Personagem criado com sucesso',
         'character': character.toDict()
     }), 201
 
@@ -918,20 +1223,20 @@ def get_character(current_user, character_id):
     character = CharacterService.get_character_by_id(character_id)
     
     if not character:
-        return jsonify({'message': 'Character not found'}), 404
+        return jsonify({'message': 'Personagem não encontrado'}), 404
     
     # Check if character belongs to current user
     if character.own != current_user.id and not _is_admin(current_user):
-        return jsonify({'message': 'Unauthorized'}), 403
+        return jsonify({'message': 'Não autorizado'}), 403
     
     if character.own == current_user.id and not _is_admin(current_user) and not character.active:
-        return jsonify({'message': 'Character is not active'}), 403
+        return jsonify({'message': 'Personagem não está ativo'}), 403
     
     # Calculate stat limits
     stat_limits, error = CharacterService.calculate_stat_limits(character_id)
     if error:
         return jsonify({'message': error}), 404
-    
+
     return jsonify({
         'character': character.toDict(),
         'stat_limits': stat_limits
@@ -944,18 +1249,18 @@ def update_character_stats(current_user, character_id):
     character = CharacterService.get_character_by_id(character_id)
     
     if not character:
-        return jsonify({'message': 'Character not found'}), 404
+        return jsonify({'message': 'Personagem não encontrado'}), 404
     
     # Check if character belongs to current user
     if character.own != current_user.id and not _is_admin(current_user):
-        return jsonify({'message': 'Unauthorized'}), 403
+        return jsonify({'message': 'Não autorizado'}), 403
     
     data = request.get_json(silent=True) or {}
 
     allowed_fields = ['life', 'mana', 'sanity', 'ocultism']
     for key in data.keys():
         if key not in allowed_fields:
-            return jsonify({'message': f'Unexpected field: {key}'}), 400
+            return jsonify({'message': f'Campo inesperado: {key}'}), 400
     
     character, error = CharacterService.update_character_stats(character_id, **data)
     
@@ -963,7 +1268,7 @@ def update_character_stats(current_user, character_id):
         return jsonify({'message': error}), 404
     
     return jsonify({
-        'message': 'Character stats updated successfully',
+        'message': 'Estatísticas do personagem atualizadas com sucesso',
         'character': character.toDict()
     }), 200
 
@@ -975,25 +1280,25 @@ def update_character_general(current_user, character_id):
     character = CharacterService.get_character_by_id(character_id)
     
     if not character:
-        return jsonify({'message': 'Character not found'}), 404
+        return jsonify({'message': 'Personagem não encontrado'}), 404
     
     # Check if character belongs to current user
     if character.own != current_user.id and not _is_admin(current_user):
-        return jsonify({'message': 'Unauthorized'}), 403
+        return jsonify({'message': 'Não autorizado'}), 403
     
     data = request.get_json(silent=True) or {}
 
     allowed_fields = ['name', 'charClass', 'race', 'gender', 'age', 'subclass', 'second_class', 'level', 'experience']
     for key in data.keys():
         if key not in allowed_fields:
-            return jsonify({'message': f'Unexpected field: {key}'}), 400
+            return jsonify({'message': f'Campo inesperado: {key}'}), 400
     
     character, error = CharacterService.update_character_general(character_id, **data)
     if error:
         return jsonify({'message': error}), 404
 
     return jsonify({
-        'message': 'Character general info updated successfully',
+        'message': 'Informações gerais do personagem atualizadas com sucesso',
         'character': character.toDict()
     }), 200
 
@@ -1005,25 +1310,25 @@ def update_character_description(current_user, character_id):
     character = CharacterService.get_character_by_id(character_id)
     
     if not character:
-        return jsonify({'message': 'Character not found'}), 404
+        return jsonify({'message': 'Personagem não encontrado'}), 404
     
     # Check if character belongs to current user
     if character.own != current_user.id and not _is_admin(current_user):
-        return jsonify({'message': 'Unauthorized'}), 403
+        return jsonify({'message': 'Não autorizado'}), 403
     
     data = request.get_json(silent=True) or {}
 
     allowed_fields = ['physical_description', 'psychological_description', 'backstory']
     for key in data.keys():
         if key not in allowed_fields:
-            return jsonify({'message': f'Unexpected field: {key}'}), 400
+            return jsonify({'message': f'Campo inesperado: {key}'}), 400
 
     character, error = CharacterService.update_character_description(character_id, **data)
     if error:
         return jsonify({'message': error}), 404
 
     return jsonify({
-        'message': 'Character description updated successfully',
+        'message': 'Descrição do personagem atualizada com sucesso',
         'character': character.toDict()
     }), 200
 
@@ -1035,18 +1340,18 @@ def update_character_stats_offset(current_user, character_id):
     character = CharacterService.get_character_by_id(character_id)
 
     if not character:
-        return jsonify({'message': 'Character not found'}), 404
+        return jsonify({'message': 'Personagem não encontrado'}), 404
 
     # Check if the current user is admin
     if not _is_admin(current_user):
-        return jsonify({'message': 'Unauthorized'}), 403
+        return jsonify({'message': 'Não autorizado'}), 403
 
     data = request.get_json(silent=True) or {}
 
     allowed_fields = ['offset_life', 'offset_defense', 'offset_sanity', 'offset_ocultism', 'offset_mana']
     for key in data.keys():
         if key not in allowed_fields:
-            return jsonify({'message': f'Unexpected field: {key}'}), 400
+            return jsonify({'message': f'Campo inesperado: {key}'}), 400
 
     character, error = CharacterService.update_stats_off_sets(character_id, **data)
 
@@ -1071,15 +1376,15 @@ def toggle_character_active_status(current_user, character_id):
     character = CharacterService.get_character_by_id(character_id)
     
     if not character:
-        return jsonify({'message': 'Character not found'}), 404
+        return jsonify({'message': 'Personagem não encontrado'}), 404
     
     # Check if the current user is admin
     if not _is_admin(current_user):
-        return jsonify({'message': 'Unauthorized'}), 403
+        return jsonify({'message': 'Não autorizado'}), 403
     
     CharacterService.toggle_character_active_status(character_id)
     
-    return jsonify({'message': 'Character ' + ('activated successfully' if character.active else 'deactivated successfully')}), 200
+    return jsonify({'message': 'Personagem ' + ('ativado com sucesso' if character.active else 'desativado com sucesso')}), 200
 
 
 
@@ -1089,13 +1394,13 @@ def transfer_character_ownership(current_user, character_id, new_user_id):
     """Transfer character ownership to another user (only for admin)"""
     # Check if the current user is admin
     if not _is_admin(current_user):
-        return jsonify({'message': 'Unauthorized'}), 403
+        return jsonify({'message': 'Não autorizado'}), 403
 
     character, error = CharacterService.transferCharacterOwnership(character_id, new_user_id)
     if error:
         return jsonify({'message': error}), 404
 
-    return jsonify({'message': 'Character ownership transferred successfully'}), 200    
+    return jsonify({'message': 'Propriedade do personagem transferida com sucesso'}), 200    
 
 
 @character_bp.route('/characters/<int:character_id>/return-to-admin', methods=['POST'])
@@ -1105,21 +1410,21 @@ def return_character_to_admin(current_user, character_id):
     character = CharacterService.get_character_by_id(character_id)
     
     if not character:
-        return jsonify({'message': 'Character not found'}), 404
+        return jsonify({'message': 'Personagem não encontrado'}), 404
     
     # Only admins can convert player characters to NPC
     if not _is_admin(current_user):
-        return jsonify({'message': 'Only admins can convert characters to NPC'}), 403
+        return jsonify({'message': 'Apenas administradores podem converter personagens em NPC'}), 403
     
     if character.own == current_user.id:
-        return jsonify({'message': 'Character already belongs to admin'}), 400
+        return jsonify({'message': 'Personagem já pertence ao admin'}), 400
     
     # Transfer ownership to admin
     CharacterService.transferCharacterOwnership(character_id, current_user.id)
     if character.is_player:
         CharacterService.toggle_character_player_status(character_id)
     
-    return jsonify({'message': 'Character converted to NPC and transferred to admin successfully'}), 200
+    return jsonify({'message': 'Personagem convertido para NPC e transferido para o admin com sucesso'}), 200
 
 
 @character_bp.route('/characters/<int:character_id>', methods=['DELETE'])
@@ -1129,23 +1434,23 @@ def delete_character(current_user, character_id):
     character = CharacterService.get_character_by_id(character_id)
     
     if not character:
-        return jsonify({'message': 'Character not found'}), 404
+        return jsonify({'message': 'Personagem não encontrado'}), 404
     
     # Check if character belongs to current user
     if character.own != current_user.id and not _is_admin(current_user):
-        return jsonify({'message': 'Unauthorized'}), 403
+        return jsonify({'message': 'Não autorizado'}), 403
     
     if character.own == current_user.id and not _is_admin(current_user):
         if character.active:
             CharacterService.toggle_character_active_status(character_id)
-        return jsonify({'message': 'Character deactivated successfully'}), 200
+        return jsonify({'message': 'Personagem desativado com sucesso'}), 200
 
     success, error = CharacterService.delete_character(character_id)
     
     if not success:
         return jsonify({'message': error}), 404
     
-    return jsonify({'message': 'Character deleted successfully'}), 200
+    return jsonify({'message': 'Personagem excluído com sucesso'}), 200
 
 
 # ==================== CONVERSION RULES ====================
@@ -1167,7 +1472,7 @@ def get_conversion_rules(current_user):
 def get_conversion_rule(current_user, rule_id):
     rule = ConversionRuleService.get_conversion_rule_by_id(rule_id)
     if not rule:
-        return jsonify({'message': 'Conversion rule not found'}), 404
+        return jsonify({'message': 'Regra de conversão não encontrada'}), 404
 
     return jsonify({
         'conversion_rule': rule.toDict()
@@ -1178,7 +1483,7 @@ def get_conversion_rule(current_user, rule_id):
 @token_required
 def create_conversion_rule(current_user):
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     required_fields = ['stat', 'rate', 'conversion_type', 'target_id']
@@ -1188,9 +1493,9 @@ def create_conversion_rule(current_user):
         if data.get(field) is None:
             missing.append(field)
         if field not in required_fields:
-            return jsonify({'message': f'Unexpected field: {field}'}), 400
+            return jsonify({'message': f'Campo inválido: {field}'}), 400
     if missing:
-        return jsonify({'message': f'Missing required fields: {", ".join(missing)}'}), 400
+        return jsonify({'message': f'Campos obrigatórios ausentes: {", ".join(missing)}'}), 400
 
     rule, error = ConversionRuleService.create_conversion_rule(
         attribute_id=data.get('attribute_id'),
@@ -1208,7 +1513,7 @@ def create_conversion_rule(current_user):
         return jsonify({'message': error}), 404
 
     return jsonify({
-        'message': 'Conversion rule created successfully',
+        'message': 'Regra de conversão criada com sucesso',
         'conversion_rule': rule.toDict()
     }), 201
 
@@ -1217,7 +1522,7 @@ def create_conversion_rule(current_user):
 @token_required
 def update_conversion_rule(current_user, rule_id):
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     rule, error = ConversionRuleService.update_conversion_rule(
@@ -1231,7 +1536,7 @@ def update_conversion_rule(current_user, rule_id):
         return jsonify({'message': error}), 404
 
     return jsonify({
-        'message': 'Conversion rule updated successfully',
+        'message': 'Regra de conversão atualizada com sucesso',
         'conversion_rule': rule.toDict()
     }), 200
 
@@ -1239,14 +1544,14 @@ def update_conversion_rule(current_user, rule_id):
 @token_required
 def delete_conversion_rule(current_user, rule_id):
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = ConversionRuleService.delete_conversion_rule(rule_id)
     
     if not success:
         return jsonify({'message': error}), 404
     
-    return jsonify({'message': 'Conversion rule deleted successfully'}), 200
+    return jsonify({'message': 'Regra de conversão excluída com sucesso'}), 200
 
 
 # ==================== LEVEL UP RULES ====================
@@ -1268,7 +1573,7 @@ def get_level_up_rules(current_user):
 def get_level_up_rule(current_user, rule_id):
     rule = LevelUpRuleService.get_level_up_rule_by_id(rule_id)
     if not rule:
-        return jsonify({'message': 'Level up rule not found'}), 404
+        return jsonify({'message': 'Regra de subida de nível não encontrada'}), 404
 
     return jsonify({
         'level_up_rule': rule.toDict()
@@ -1279,23 +1584,20 @@ def get_level_up_rule(current_user, rule_id):
 @token_required
 def create_level_up_rule(current_user):
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     if data.get('level') is None or data.get('experience_required') is None or data.get("description") is None:
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
 
-    rule, error = LevelUpRuleService.create_level_up_rule(
+    rule = LevelUpRuleService.create_level_up_rule(
         level=data.get('level'),
         experience_required=data.get('experience_required'),
         description=data.get('description')
     )
 
-    if error:
-        return jsonify({'message': error}), 400
-
     return jsonify({
-        'message': 'Level up rule created successfully',
+        'message': 'Regra de subida de nível criada com sucesso',
         'level_up_rule': rule.toDict()
     }), 201
 
@@ -1304,7 +1606,7 @@ def create_level_up_rule(current_user):
 @token_required
 def update_level_up_rule(current_user, rule_id):
     if not _is_admin(current_user):
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     rule, error = LevelUpRuleService.update_level_up_rule(
@@ -1318,6 +1620,19 @@ def update_level_up_rule(current_user, rule_id):
         return jsonify({'message': error}), 404
 
     return jsonify({
-        'message': 'Level up rule updated successfully',
+        'message': 'Regra de subida de nível atualizada com sucesso',
         'level_up_rule': rule.toDict()
     }), 200
+
+@character_bp.route('/level-up-rules/<int:rule_id>', methods=['DELETE'])
+@token_required
+def delete_level_up_rule(current_user, rule_id):
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    success, error = LevelUpRuleService.delete_level_up_rule(rule_id)
+    
+    if not success:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({'message': 'Regra de subida de nível excluída com sucesso'}), 200

@@ -1,19 +1,45 @@
-import { useState, useEffect, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router";
 import { useRegister } from "../../hooks";
 import { useAuthProvider } from "../../providers";
 import { StarSky } from "../../components/StarSky";
+import type { RegisterRequest } from "../../types";
+import { jwtDecode } from "jwt-decode";
+import { toast } from "react-hot-toast";
+
+type DecodedToken = {
+  role: string;
+  email: string;
+  exp: number;
+  iat: number;
+};
 
 export default function RegisterPage() {
   const { isAuthenticated, isLoading } = useAuthProvider()
   const navigate = useNavigate();
   const registerMutation = useRegister();
+  const { token } = useParams();
+  const [TokenData, setTokenData] = useState<DecodedToken | null>(null);
 
-  const [form, setForm] = useState({
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        setTokenData(decoded);
+      } catch (error) {
+        toast.error("Token inválido");
+        setTokenData(null);
+      }
+    }
+  }, [token]);
+
+  const [form, setForm] = useState<RegisterRequest>({
     username: "",
-    email: "",
     password: "",
+    token: token || "",
   });
+
+
 
   useEffect(() => {
         if (isAuthenticated) {
@@ -21,13 +47,38 @@ export default function RegisterPage() {
         }
 }, [isAuthenticated, navigate])
 
+  if (!TokenData) {
+    return (
+      <StarSky>
+        <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
+          <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
+            <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
+            <p className="text-center text-vaccineBlack mb-6">Token de registro inválido ou ausente.</p>
+            <div className="text-center">
+              <Link to="/auth/login" className="font-semibold text-vaccinePurple hover:underline">
+                Voltar para Login
+              </Link>
+            </div>
+          </div>
+        </div>
+      </StarSky>
+    );
+  }
+
   if (isLoading) {
     return (<>
-        <h1>Loading...</h1>
+    <StarSky>
+      <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
+        <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
+          <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
+          <p className="text-center text-vaccineBlack mb-6">Verificando autenticação...</p>
+        </div>
+      </div>
+    </StarSky>
     </>)
   }
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
@@ -46,7 +97,7 @@ export default function RegisterPage() {
     <StarSky>
       <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
         <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
-          <h1 className="text-4xl text-center font-myFont text-vaccineRed mb-2">Insonia</h1>
+          <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
           <p className="text-center text-vaccineBlack mb-6">Criar nova conta</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -60,20 +111,6 @@ export default function RegisterPage() {
                 required
                 value={form.username}
                 onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
-                className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccinePurple"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="email">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={form.email}
-                onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
                 className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccinePurple"
               />
             </div>

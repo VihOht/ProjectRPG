@@ -1,9 +1,13 @@
-import type { AttributeItem, PericiaItem } from "../../types";
-import { useAttributes, usePericias, useDeleteAttribute, useDeletePericia } from "../../hooks";
-import { useAuthProvider } from "../../providers";
+import type { AttributeItem, PericiaItem, AttributePowerItem } from "../../../types";
+import { useAttributes, usePericias, useDeleteAttribute, useDeletePericia, useAttributePowers, useDeleteAttributePower } from "../../../hooks";
+import { useAuthProvider } from "../../../providers";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import AttributesModal from "../../components/documents/dialogs/AttributesModal";
+import AttributesModal from "../dialogs/AttributesModal";
+import { LucideDelete } from "lucide-react";
+import UpdateAttributeModal from "../dialogs/UpdateAttributeModal";
+import UpdatePericiaModal from "../dialogs/UpdatePericiaModal";
+import UpdateAttributePowerModal from "../dialogs/UpdateAttributePowerModal";
 
 
 export function AttributesTab() {
@@ -13,6 +17,18 @@ export function AttributesTab() {
 
     const { data: attributesData, isLoading } = useAttributes();
     const { data: periciasData } = usePericias();
+    const { data: attributePowerData } = useAttributePowers();
+
+    const powersByAttribute = attributePowerData?.attribute_powers.reduce((acc, power) => {
+        if (!acc[power.attribute_id]) {
+            acc[power.attribute_id] = [];
+        }
+        acc[power.attribute_id].push(power);
+        return acc;
+    }, {} as Record<string, AttributePowerItem[]>);
+
+        
+
     const periciasByAttribute = periciasData?.pericias.reduce((acc, pericia) => {
         if (!acc[pericia.attribute_id]) {
             acc[pericia.attribute_id] = [];
@@ -25,6 +41,7 @@ export function AttributesTab() {
     const [attributes, setAttributes] = useState<AttributeItem[]>([]);
     const {mutate: deleteAttribute} = useDeleteAttribute();
     const {mutate: deletePericia} = useDeletePericia();
+    const {mutate: deleteAttributePower} = useDeleteAttributePower();
 
     useEffect(() => {
         if (attributesData?.attributes) {
@@ -43,6 +60,17 @@ export function AttributesTab() {
             }
         } catch (error) {
             toast.error("Erro ao excluir atributo. Tente novamente.");
+        }
+    };
+
+    const onAttributePowerDelete = async (powerId: number) => {
+        try {
+            if (confirm("Tem certeza que deseja excluir este poder de atributo? Isso pode afetar as fichas dos personagens.")) {
+                await deleteAttributePower(powerId);
+                toast.success("Poder de atributo excluído com sucesso!");
+            }
+        } catch (error) {
+            toast.error("Erro ao excluir poder de atributo. Tente novamente.");
         }
     };
 
@@ -84,7 +112,7 @@ export function AttributesTab() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between" >
-                <div>
+                <div className="p-2">
                     <h2 className="text-2xl font-semibold text-vaccineGray-300">Atributos</h2>
                     <p className="text-vaccineGray-600">
                         Clique no nome de um atributo para ver sua descrição e as perícias ligadas a ele.
@@ -123,13 +151,16 @@ export function AttributesTab() {
                                         {attribute.name}
                                     </button>
                                     {isAdmin && (
-                                        <button
-                                            type="button"
-                                            onClick={() => onDeleteAttribute(attribute.id)}
-                                            className="rounded-md bg-vaccinePurple px-3 py-2 text-sm text-white hover:opacity-90"
-                                        >
-                                            Excluir
-                                        </button>
+                                        <div className="flex items-center gap-2"> 
+                                            <UpdateAttributeModal attributeData={attribute} />
+                                            <button
+                                                type="button"
+                                                onClick={() => onDeleteAttribute(attribute.id)}
+                                                className="rounded-md bg-vaccinePurple px-3 py-2 text-sm text-white hover:opacity-90"
+                                            >
+                                                <LucideDelete className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
 
@@ -140,8 +171,38 @@ export function AttributesTab() {
                                         </div>
 
                                         <div>
-                                            <h4 className="font-semibold text-vaccineBlack mb-2">
-                                                Perícias disponíveis
+                                            <h4 className="font-semibold text-vaccineGray-300 mb-2">
+                                                Poderes
+                                            </h4>
+                                            {powersByAttribute && powersByAttribute[attribute.id] && powersByAttribute[attribute.id].length > 0 ? (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {powersByAttribute[attribute.id].map((power) => (
+                                                        <div className="w-full flex items-center  justify-between">
+                                                            <div key={power.id} className="w-full p-3 rounded-md">
+                                                                <h5 className="font-medium text-vaccineGray-300">{power.name} (Nv {power.level_to_unlock})</h5>
+                                                                <p className="text-sm text-vaccineGray-600">{power.description}</p>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <UpdateAttributePowerModal attributePowerData={power} />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => onAttributePowerDelete(power.id)}
+                                                                    className="rounded-md bg-vaccinePurple px-3 py-2 text-sm text-white hover:opacity-90"
+                                                                >
+                                                                    <LucideDelete className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div> 
+                                            ) : (
+                                                <p className="text-gray-600">Nenhum poder associado a este atributo.</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <h4 className="font-semibold text-vaccineGray-300 mb-2">
+                                                Perícias
                                             </h4>
                                             {attributePericias.length > 0 ? (
                                                 <div className="flex flex-wrap gap-2">
@@ -164,13 +225,16 @@ export function AttributesTab() {
                                                                             {pericia.name}
                                                                         </button>
                                                                         {isAdmin && (
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() => onDeletePericia(pericia.id)}
-                                                                                className="rounded-md bg-vaccinePurple px-3 py-2 text-xs text-white hover:opacity-90"
-                                                                            >
-                                                                                Excluir
-                                                                            </button>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <UpdatePericiaModal periciaData={pericia} />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => onDeletePericia(pericia.id)}
+                                                                                    className="rounded-md bg-vaccinePurple px-3 py-2 text-xs text-white hover:opacity-90"
+                                                                                >
+                                                                                    <LucideDelete className="w-4 h-4" />
+                                                                                </button>
+                                                                            </div>
                                                                         )}
                                                                     </div>
                                                                     

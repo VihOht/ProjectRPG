@@ -199,6 +199,70 @@ export const gameService = {
   },
 
   // =====================================================
+  // ATTRIBUTE POWERS
+  // =====================================================
+
+  getAttributePowers: async (): Promise<T.ListAttributePowersResponse> => {
+    const response = await api.get<T.ListAttributePowersResponse>(
+      '/api/attribute-powers'
+    );
+
+    return response.data;
+  },
+
+  getAttributePowerById: async (
+    attributePowerId: number
+  ): Promise<T.GetAttributePowerResponse> => {
+    const response = await api.get<T.GetAttributePowerResponse>(
+      `/api/attribute-powers/${attributePowerId}`
+    );
+
+    return response.data;
+  },
+
+  createAttributePower: async (
+    data: T.CreateAttributePowerRequest
+  ): Promise<T.CreateAttributePowerResponse> => {
+    const response = await api.post<T.CreateAttributePowerResponse>(
+      '/api/attribute-powers',
+      data
+    );
+
+    return response.data;
+  },
+
+  updateAttributePower: async (
+    attributePowerId: number,
+    data: T.UpdateAttributePowerRequest
+  ): Promise<T.UpdateAttributePowerResponse> => {
+    const response = await api.put<T.UpdateAttributePowerResponse>(
+      `/api/attribute-powers/${attributePowerId}`,
+      data
+    );
+
+    return response.data;
+  },
+
+  deleteAttributePower: async (
+    attributePowerId: number
+  ): Promise<T.StandardResponse> => {
+    const response = await api.delete<T.StandardResponse>(
+      `/api/attribute-powers/${attributePowerId}`
+    );
+
+    return response.data;
+  },
+
+  toggleAttributePowerVisibility: async (
+    attributePowerId: number
+  ): Promise<T.UpdateAttributePowerResponse> => {
+    const response = await api.post<T.UpdateAttributePowerResponse>(
+      `/api/attribute-powers/${attributePowerId}/visibility`
+    );
+    return response.data;
+  },
+
+  // =====================================================
   // PERICIAS
   // =====================================================
 
@@ -354,6 +418,54 @@ export const gameService = {
     return (await api.post(`/api/abilities/${abilityId}/visibility`)).data;
   },
 
+  assignAbilityToCharacter: async (
+    abilityId: number,
+    characterId: number
+  ): Promise<T.StandardResponse> => {
+    return (await api.post(`/api/abilities/${abilityId}/assign/${characterId}`)).data;
+  },
+  
+  unassignAbilityFromCharacter: async (
+    abilityId: number,
+    characterId: number
+  ): Promise<T.StandardResponse> => {
+    return (await api.post(`/api/abilities/${abilityId}/unassign/${characterId}`)).data;
+  },
+
+
+  // =====================================================
+  // CHARACTER SPECIAL ABILITIES
+  // =====================================================  
+
+  getSpecialAbilities: async (): Promise<T.ListSpecialAbilitiesResponse> => {
+    return (await api.get('/api/special-abilities')).data;
+  },
+
+  getSpecialAbilityById: async (
+    specialAbilityId: number
+  ): Promise<T.GetSpecialAbilityResponse> => {
+    return (await api.get(`/api/special-abilities/${specialAbilityId}`)).data;
+  },
+
+  createSpecialAbility: async (
+    data: T.CreateSpecialAbilityRequest
+  ): Promise<T.CreateSpecialAbilityResponse> => {
+    return (await api.post('/api/special-abilities', data)).data;
+  },
+
+  updateSpecialAbility: async (
+    specialAbilityId: number,
+    data: T.UpdateSpecialAbilityRequest
+  ): Promise<T.StandardResponse> => {
+    return (await api.put(`/api/special-abilities/${specialAbilityId}`, data)).data;
+  },
+
+  deleteSpecialAbility: async (
+    specialAbilityId: number
+  ): Promise<{}> => {
+    return (await api.delete(`/api/special-abilities/${specialAbilityId}`)).data;
+  },
+
   // =====================================================
   // CLASS POWERS
   // =====================================================
@@ -366,6 +478,12 @@ export const gameService = {
     powerId: number
   ): Promise<T.GetClassPowerResponse> => {
     return (await api.get(`/api/class-powers/${powerId}`)).data;
+  },
+
+  getClassPowersByClassId: async (
+    classId: number
+  ): Promise<T.ListClassPowersResponse> => {
+    return (await api.get(`/api/classes/${classId}/class-powers`)).data;
   },
 
   createClassPower: async (

@@ -1,9 +1,9 @@
 import { StarSky } from "../components/StarSky";
 import { Header } from "../components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { ClassesTab } from "./documents/ClassesTab";
-import { AttributesTab } from "./documents/AttributesTab";
-import ConversionTab from "./documents/ConversionTab";
+import { ClassesTab } from "../components/documents/tabs/ClassesTab";
+import { AttributesTab } from "../components/documents/tabs/AttributesTab";
+import ConversionTab from "../components/documents/tabs/ConversionsTab";
 
 
 export default function DocumentsPage() {

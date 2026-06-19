@@ -1,7 +1,15 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
+const debug = import.meta.env.VITE_DEBUG === 'true' || false;
+
+console.log('Debug mode:', debug);
 // Base URL for the API
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+var API_BASE_URL: string;
+if (!debug) {
+  API_BASE_URL = import.meta.env.VITE_API_URL;
+} else {
+  API_BASE_URL = 'http://localhost:5000';
+}
 
 // Create axios instance
 export const api = axios.create({

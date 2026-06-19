@@ -4,12 +4,13 @@ export interface User {
   username: string;
   email: string;
   role: 'USER' | 'ADMIN';
+  active: boolean;
 }
 
 // Register DTOs
 export interface RegisterRequest {
+  token: string;
   username: string;
-  email: string;
   password: string;
 }
 
@@ -18,9 +19,18 @@ export interface RegisterResponse {
   user: User;
 }
 
+export interface InviteUserRequest {
+  email: string;
+  role: 'USER' | 'ADMIN';
+}
+
+export interface ChangeAccountPasswordRequest {
+  password: string;
+}
+
 // Login DTOs
 export interface LoginRequest {
-  username: string;
+  login_identifier: string; // Can be either username or email
   password: string;
 }
 
@@ -39,8 +49,4 @@ export interface VerifyResponse {
 // Current User DTO
 export interface CurrentUserResponse {
   user: User;
-}
-
-export interface GetUsersResponse {
-  users: User[];
 }

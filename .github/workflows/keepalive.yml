@@ -1,0 +1,14 @@
+name: Keep Render Alive
+
+on:
+schedule:
+- cron: '*/10 * * * *'
+
+jobs:
+ping:
+runs-on: ubuntu-latest
+
+steps:
+ - name: Health Check
+  run: |
+   curl -f https://api.vihoht.dev/health

@@ -60,7 +60,6 @@ export type CreatePericiaResponse = {
 export type UpdatePericiaRequest = {
     name?: string;
     description?: string;
-    attribute_id?: number;
 }
 
 export type UpdatePericiaResponse = {
@@ -140,14 +139,51 @@ export type GetAbilityResponse = {
 export type UpdateAbilityRequest = {
   name?: string;
   description?: string;
-  class_id?: number;
-  subclass_id?: number;
+  subclass_id?: number | null;
 }
 
 export type UpdateAbilityResponse = {
   ability: AbilityItem;
   message: string;
 }
+
+// CHARACTER SPECIAL ABILITIES
+
+export type SpecialAbilityItem = {
+  id: number;
+  name: string;
+  description: string;
+  character_id: number;
+}
+
+export type CreateSpecialAbilityRequest = {
+  name: string;
+  description: string;
+  character_id: number;
+}
+
+export type CreateSpecialAbilityResponse = {
+  special_ability: SpecialAbilityItem;
+  message: string;
+}
+
+export type ListSpecialAbilitiesResponse = {
+  special_abilities: SpecialAbilityItem[];
+}
+
+export type GetSpecialAbilityResponse = {
+  special_ability: SpecialAbilityItem;
+}
+
+export type UpdateSpecialAbilityRequest = {
+  name?: string;
+  description?: string;
+}
+
+export type DeleteSpecialAbilityRequest = {
+  special_ability_id: number;
+}
+
 
 // CLASS POWER
 
@@ -183,7 +219,6 @@ export type GetClassPowerResponse = {
 export type UpdateClassPowerRequest = {
   name?: string;
   description?: string;
-  class_id?: number;
   level_to_unlock?: number;
 }
 
@@ -331,6 +366,47 @@ export type ListCharacterAttributesResponse = {
 }
 
 
+// ATTRIBUTE POWERS
+
+export type AttributePowerItem = {
+  id: number;
+  name: string;
+  description: string;
+  attribute_id: number;
+  level_to_unlock: number;
+}
+
+export type CreateAttributePowerRequest = {
+  name: string;
+  description: string;
+  attribute_id: number;
+  level_to_unlock?: number;
+}
+
+export type CreateAttributePowerResponse = {
+  attribute_power: AttributePowerItem;
+  message: string;
+}
+
+export type ListAttributePowersResponse = {
+  attribute_powers: AttributePowerItem[];
+}
+
+export type GetAttributePowerResponse = {
+  attribute_power: AttributePowerItem;
+}
+
+export type UpdateAttributePowerRequest = {
+  name?: string;
+  description?: string;
+  level_to_unlock?: number;
+}
+
+export type UpdateAttributePowerResponse = {
+  attribute_power: AttributePowerItem;
+  message: string;
+}
+
 // CHARACTER
 
 export type CharacterItem = {
@@ -376,6 +452,7 @@ export type CharacterItem = {
 
   attributes: any[];
   abilities: AbilityItem[];
+  special_abilities: SpecialAbilityItem[];
 }
 
 export type CharacterStatLimits = {

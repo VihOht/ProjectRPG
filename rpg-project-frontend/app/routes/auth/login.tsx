@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useLogin } from "../../hooks";
 import { useAuthProvider } from "../../providers";
 import { StarSky } from "../../components/StarSky";
@@ -10,7 +10,7 @@ export default function LoginPage() {
 	const loginMutation = useLogin();
 
 	const [form, setForm] = useState({
-		username: "",
+		login_identifier: "",
 		password: "",
 	});
 
@@ -50,15 +50,15 @@ export default function LoginPage() {
 
 					<form onSubmit={handleSubmit} className="space-y-4">
 						<div>
-							<label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="username">
-								Username
+							<label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="login_identifier">
+								Username or Email
 							</label>
 							<input
-								id="username"
+								id="login_identifier"
 								type="text"
 								required
-								value={form.username}
-								onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
+								value={form.login_identifier}
+								onChange={(event) => setForm((prev) => ({ ...prev, login_identifier: event.target.value }))}
 								className="w-full rounded-md border border-vaccineGray-600 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-vaccinePurple"
 							/>
 						</div>
@@ -89,13 +89,6 @@ export default function LoginPage() {
 							{loginMutation.isPending ? "Entrando..." : "Entrar"}
 						</button>
 					</form>
-
-					<p className="text-center text-sm text-vaccineBlack mt-6">
-						Nao tem conta?{" "}
-						<Link to="/auth/register" className="font-semibold text-vaccinePurple hover:underline">
-							Registrar
-						</Link>
-					</p>
 				</div>
 			</div>
 		</StarSky>

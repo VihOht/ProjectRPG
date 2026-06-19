@@ -7,10 +7,11 @@ import { CharacterAttributes } from "../components/character/Atributes";
 import { CharacterLore } from "../components/character/Lore";
 import type { UpdateCharacterGeneralRequest } from "../types";
 import { useDeleteCharacter, useCharacter, useToggleCharacterActive, useTransferCharacterOwnership, useReturnCharacterToAdmin, useUpdateCharacterGeneral } from "../hooks/useCharacters";
-import { useGetUserById, useGetUsers } from "../hooks/useAuth";
+import { useGetUserById, useGetUsers } from "../hooks";
 import { Header } from "../components/Header";
 import { useAuthProvider } from "../providers";
 import { toast } from "react-hot-toast";
+import { CharacterAbilities } from "../components/character/Abilities";
 
 export default function RpgSheet() {
     const navigate = useNavigate();
@@ -180,13 +181,14 @@ export default function RpgSheet() {
                     </button> */}
                 </Header>
                 {/* Main Content */}
-                <main className="flex-1  p-8 text-sm text-vaccineBlack">
+                <main className="flex-1 break-all p-8 text-sm text-vaccineBlack">
                 {/* <div
                     ref={sheetRef}
                     className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50 rounded-lg shadow-lg p-8 print-area"
                 >
                 </div> */}
-                    <div className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50  rounded-lg shadow-lg p-8">
+                    /* if the device witdth is less than 768px, the padding should be 4 instead of 8 */
+                    <div className="max-w-5xl  mx-auto md:border-1 md:border-vaccineGray-300/50  md:rounded-lg shadow-lg md:p-8">
                         <h1 className="text-3xl font-walthari font-bold text-center mb-8 text-vaccineGray-300">
                             Ficha de Personagem
                         </h1>
@@ -329,6 +331,7 @@ export default function RpgSheet() {
                     <CharacterInformation characterId={characterId} />
                     <CharacterStats characterId={characterId} />
                     <CharacterAttributes characterId={characterId} />
+                    <CharacterAbilities characterId={characterId} />
                     <CharacterLore characterId={characterId} />
 
 

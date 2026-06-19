@@ -53,9 +53,9 @@ export function CharacterStats({
             },
 
             sanity: {
-                base: characterData.stat_limits.defense.base,
-                bonus: characterData.stat_limits.defense.bonus,
-                total: characterData.stat_limits.defense.total_max,
+                base: characterData.stat_limits.sanity.base,
+                bonus: characterData.stat_limits.sanity.bonus,
+                total: characterData.stat_limits.sanity.total_max,
             },
 
             defense: {
@@ -111,14 +111,14 @@ export function CharacterStats({
 
     if (!stats || !statLimits || isClassLoading) {
     return (
-        <div className="text-vaccineGray-200">
+        <div className="text-vaccineGray-200 text-center">
             Carregando estatísticas...
         </div>
     );}
 
     if (!classData) {
         return (
-            <div className="text-vaccineGray-200">
+            <div className="text-vaccineGray-200 text-center">
                 Classe do personagem não encontrada.
             </div>
         );
@@ -149,6 +149,20 @@ export function CharacterStats({
                             <p className="mt-1 text-sm text-gray-600">{stats.life}/{statLimits.life.total}</p>
                             <p className="text-xs text-gray-500">Base {statLimits.life.base} + Bonus {statLimits.life.bonus}</p>
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-vaccineGray-300 mb-1">
+                                Sanidade
+                            </label>
+                            <input
+                                type="string"
+                                value={stats.sanity}
+                                onChange={(e) => handleChange("sanity", parseInt(e.target.value) || 0)}
+                                readOnly={!isEditing}                            
+                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
+                            />
+                            <p className="mt-1 text-sm text-gray-600">{stats.sanity}/{statLimits.sanity.total}</p>
+                            <p className="text-xs text-gray-500">Base {statLimits.sanity.base} + Bonus {statLimits.sanity.bonus}</p>
+                        </div>
                         {classData.class.has_ocultism && (
                             <div>
                                 <label className="block text-sm font-medium text-vaccineGray-300 mb-1">
@@ -165,20 +179,6 @@ export function CharacterStats({
                                 <p className="text-xs text-gray-500">Base {statLimits.ocultism.base} + Bonus {statLimits.ocultism.bonus}</p>
                             </div>
                         )}
-                        <div>
-                            <label className="block text-sm font-medium text-vaccineGray-300 mb-1">
-                                Sanidade
-                            </label>
-                            <input
-                                type="string"
-                                value={stats.sanity}
-                                onChange={(e) => handleChange("sanity", parseInt(e.target.value) || 0)}
-                                readOnly={!isEditing}                            
-                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
-                            />
-                            <p className="mt-1 text-sm text-gray-600">{stats.sanity}/{statLimits.sanity.total}</p>
-                            <p className="text-xs text-gray-500">Base {statLimits.sanity.base} + Bonus {statLimits.sanity.bonus}</p>
-                        </div>
                         {classData.class.has_mana && (
                             <div>
                                 <label className="block text-sm font-medium text-vaccineGray-300 mb-1">

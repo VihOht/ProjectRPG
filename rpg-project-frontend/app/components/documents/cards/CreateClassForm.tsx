@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useCreateClass } from "../../../hooks";
 import type { CreateClassRequest} from '../../../types'
+import { toast } from "react-hot-toast";
 
 export interface CreateClassFormProps {
     onSucess: () => void;
@@ -23,6 +24,19 @@ export default function CreateClassForm({ onSucess }: CreateClassFormProps) {
     });
 
     const { mutate: createClass, isPending } = useCreateClass();
+
+
+    const handleCreateClass = () => {
+        createClass(formData, {
+            onSuccess: () => {
+                onSucess();
+                toast.success("Classe criada com sucesso!");
+            },
+            onError: (error) => {
+                toast.error("Erro ao criar classe: " + (error instanceof Error ? error.response?.data?.message || error.message : "Erro desconhecido"));
+            }
+        });
+    }
 
     const handleChange = (e: any) => {
         const { name, value, type, checked } = e.target;
@@ -157,7 +171,7 @@ export default function CreateClassForm({ onSucess }: CreateClassFormProps) {
                 </div>
                 <button
                     type="button"
-                    onClick={() => createClass(formData, { onSuccess: onSucess })}
+                    onClick={handleCreateClass}
                     disabled={isPending}
                     className="px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >

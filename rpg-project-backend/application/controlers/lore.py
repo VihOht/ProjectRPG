@@ -20,7 +20,7 @@ def get_lore_session(current_user, session_id):
     """Return one lore session with nested documents and images."""
     session = LoreService.get_session_by_id(session_id)
     if not session:
-        return jsonify({'message': 'Lore session not found'}), 404
+        return jsonify({'message': 'Sessão de lore não encontrada'}), 404
 
     return jsonify({'session': session}), 200
 
@@ -29,15 +29,15 @@ def get_lore_session(current_user, session_id):
 @token_required
 def create_lore_session(current_user):
     if getattr(current_user, 'role', 'USER') != 'ADMIN':
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     if not data.get('name') or not data.get('description'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
 
     session = LoreService.create_session(data.get('name'), data.get('description'))
     return jsonify({
-        'message': 'Lore session created successfully',
+        'message': 'Sessão de lore criada com sucesso',
         'session': {
             'id': session.id,
             'name': session.name,
@@ -52,31 +52,31 @@ def create_lore_session(current_user):
 @token_required
 def delete_lore_session(current_user, session_id):
     if getattr(current_user, 'role', 'USER') != 'ADMIN':
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = LoreService.delete_session(session_id)
     if not success:
         return jsonify({'message': error}), 404
 
-    return jsonify({'message': 'Lore session deleted successfully'}), 200
+    return jsonify({'message': 'Sessão de lore excluída com sucesso'}), 200
 
 
 @lore_bp.route('/lore/sessions/<int:session_id>/documents', methods=['POST'])
 @token_required
 def create_lore_document(current_user, session_id):
     if getattr(current_user, 'role', 'USER') != 'ADMIN':
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     if not data.get('title') or not data.get('content'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
 
     document, error = LoreService.create_document(session_id, data.get('title'), data.get('content'))
     if error:
         return jsonify({'message': error}), 404
 
     return jsonify({
-        'message': 'Document created successfully',
+        'message': 'Documento criado com sucesso',
         'document': {
             'id': document.id,
             'title': document.title,
@@ -92,31 +92,31 @@ def create_lore_document(current_user, session_id):
 @token_required
 def delete_lore_document(current_user, document_id):
     if getattr(current_user, 'role', 'USER') != 'ADMIN':
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = LoreService.delete_document(document_id)
     if not success:
         return jsonify({'message': error}), 404
 
-    return jsonify({'message': 'Document deleted successfully'}), 200
+    return jsonify({'message': 'Documento excluído com sucesso'}), 200
 
 
 @lore_bp.route('/lore/sessions/<int:session_id>/images', methods=['POST'])
 @token_required
 def create_lore_image(current_user, session_id):
     if getattr(current_user, 'role', 'USER') != 'ADMIN':
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     if not data.get('url'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
 
     image, error = LoreService.create_image(session_id, data.get('url'))
     if error:
         return jsonify({'message': error}), 404
 
     return jsonify({
-        'message': 'Image created successfully',
+        'message': 'Imagem criada com sucesso',
         'image': {
             'id': image.id,
             'url': image.url,
@@ -130,31 +130,31 @@ def create_lore_image(current_user, session_id):
 @token_required
 def delete_lore_image(current_user, image_id):
     if getattr(current_user, 'role', 'USER') != 'ADMIN':
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = LoreService.delete_image(image_id)
     if not success:
         return jsonify({'message': error}), 404
 
-    return jsonify({'message': 'Image deleted successfully'}), 200
+    return jsonify({'message': 'Imagem excluída com sucesso'}), 200
 
 
 @lore_bp.route('/lore/documents/<int:document_id>/subdocuments', methods=['POST'])
 @token_required
 def create_lore_subdocument(current_user, document_id):
     if getattr(current_user, 'role', 'USER') != 'ADMIN':
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     data = request.get_json(silent=True) or {}
     if not data.get('title') or not data.get('content'):
-        return jsonify({'message': 'Missing required fields'}), 400
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
 
     item, error = LoreService.create_subdocument(document_id, data.get('title'), data.get('content'))
     if error:
         return jsonify({'message': error}), 404
 
     return jsonify({
-        'message': 'Subdocument created successfully',
+        'message': 'Subdocumento criado com sucesso',
         'subdocument': {
             'id': item.id,
             'title': item.title,
@@ -169,10 +169,10 @@ def create_lore_subdocument(current_user, document_id):
 @token_required
 def delete_lore_subdocument(current_user, subdocument_id):
     if getattr(current_user, 'role', 'USER') != 'ADMIN':
-        return jsonify({'message': 'Admin only'}), 403
+        return jsonify({'message': 'Acesso Negado'}), 403
 
     success, error = LoreService.delete_subdocument(subdocument_id)
     if not success:
         return jsonify({'message': error}), 404
 
-    return jsonify({'message': 'Subdocument deleted successfully'}), 200
+    return jsonify({'message': 'Subdocumento excluído com sucesso'}), 200

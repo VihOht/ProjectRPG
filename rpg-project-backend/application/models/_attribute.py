@@ -53,4 +53,27 @@ class AttributeValue(db.Model):
             'pericias': [pericia.toDict() for pericia in self.pericias],
             "value": sum([pericia.value for pericia in self.pericias])
         }
-        
+
+class AttributePower(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    attribute_id = db.Column(db.Integer, db.ForeignKey('attribute.id'), nullable=False)
+    level_to_unlock = db.Column(db.Integer, nullable=False)
+    hidden = db.Column(db.Boolean, default=True)
+
+    def __init__(self, name, description, attribute_id, level_to_unlock):
+        self.name = name
+        self.description = description
+        self.attribute_id = attribute_id
+        self.level_to_unlock = level_to_unlock
+
+    def toDict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'attribute_id': self.attribute_id,
+            'level_to_unlock': self.level_to_unlock,
+            'hidden': self.hidden
+        }

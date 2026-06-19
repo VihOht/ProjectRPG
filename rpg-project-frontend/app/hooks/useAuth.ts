@@ -8,8 +8,7 @@ import type {
   RegisterResponse,
   VerifyResponse,
   CurrentUserResponse,
-  GetUsersResponse,
-  User,
+  InviteUserRequest,
 } from '../types/auth';
 import { AxiosError } from 'axios';
 
@@ -79,32 +78,6 @@ export const useCurrentUser = (): UseQueryResult<CurrentUserResponse, AxiosError
 };
 
 /**
- * Hook for listing all users (admin only)
- */
-export const useGetUsers = (enabled = true): UseQueryResult<GetUsersResponse, AxiosError> => {
-  return useQuery<GetUsersResponse, AxiosError>({
-    queryKey: ['users'],
-    queryFn: authService.getUsers,
-    enabled: authService.isAuthenticated() && enabled,
-    retry: false,
-    staleTime: 60 * 1000,
-  });
-};
-
-/**
- * Hook for getting a specific user (admin only)
- */
-export const useGetUserById = (id: number, enabled = true): UseQueryResult<User, AxiosError> => {
-  return useQuery<User, AxiosError>({
-    queryKey: ['user', id],
-    queryFn: () => authService.getUserById(id),
-    enabled: authService.isAuthenticated() && enabled,
-    retry: false,
-    staleTime: 60 * 1000,
-  });
-};
-
-/**
  * Hook for user logout
  */
 export const useLogout = () => {
@@ -125,6 +98,20 @@ export const useLogout = () => {
     },
   });
 };
+
+
+export const useChangePassword = () => {
+  return useMutation<void, AxiosError, { password: string }>({
+    mutationFn: (data) => authService.changePassword(data),
+  });
+}
+
+export const useInviteUser = () => {
+  return useMutation({
+    mutationFn: (data: InviteUserRequest) => authService.inviteUser(data),
+  });
+}
+
 
 /**
  * Hook to check authentication status

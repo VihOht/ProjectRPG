@@ -1,9 +1,9 @@
 from __future__ import annotations
 from application import db
 from application.models._characters import Character, ConversionRule, LevelUpRule, Race, ConversionRuleType
-from application.models._classes import Subclass, Class, ClassAbility, ClassPower
+from application.models._classes import CharacterSpecialAbility, Subclass, Class, ClassAbility, ClassPower
 from application.models._pericia import Pericia, PericiaValue
-from application.models._attribute import Attribute, AttributeValue
+from application.models._attribute import Attribute, AttributePower, AttributeValue
 from application.models._user import User
 
 class ClassAbilityService:
@@ -41,30 +41,25 @@ class ClassAbilityService:
         return ClassAbility.query.filter_by(subclass_id=subclass_id).all()
 
     @staticmethod
-    def update_ability(ability_id, name=None, description=None, class_id=None, subclass_id=None):
+    def update_ability(ability_id, name=None, description=None, subclass_id=None):
         """Update ability"""
         ability = ClassAbility.query.get(ability_id)
         if not ability:
-            return None, "Ability not found"
+            return None, "Abilidade não encontrada"
         
         if name:
             ability.name = name
         if description:
             ability.description = description
-        if class_id:
-            if (not Class.query.get(class_id)):  # Validate class exists
-                return None, "Class not found"
-            ability.class_id = class_id
         if subclass_id:
             if (subclass := Subclass.query.get(subclass_id)):  # Validate subclass exists
-                if class_id and subclass.class_id != class_id:
+                if ability.class_id and subclass.class_id != ability.class_id:
                     return None, "Subclass does not belong to the specified class"
-                elif not class_id and ability.class_id and subclass.class_id != ability.class_id:
-                    return None, "Subclass does not belong to the ability's class"
                 ability.subclass_id = subclass_id
+            elif int(subclass_id, 0) == -1:
+                ability.subclass_id = None
             else:
-                return None, "Subclass not found"
-            ability.subclass_id = subclass_id
+                return None, "Subclasse Não Encontrada"
         db.session.commit()
         return ability, None
 
@@ -94,7 +89,96 @@ class ClassAbilityService:
     def toggle_ability_visibility(ability_id):
         """Compatibility alias for toggling ability visibility"""
         return ClassAbilityService.toggle_ability_hidden_status(ability_id)
+
+    @staticmethod
+    def add_ability_to_character(character_id, ability_id):
+        """Add an ability to a character"""
+        character = Character.query.get(character_id)
+        ability = ClassAbility.query.get(ability_id)
+        if not character:
+            return None, "Character not found"
+        if not ability:
+            return None, "Ability not found"
+        
+        if ability in character.abilities:
+            return None, "Ability already assigned to character"
+        
+        character.abilities.append(ability)
+        db.session.commit()
+        return character, None
     
+    @staticmethod
+    def remove_ability_from_character(character_id, ability_id):
+        """Remove an ability from a character"""
+        character = Character.query.get(character_id)
+        ability = ClassAbility.query.get(ability_id)
+        if not character:
+            return None, "Character not found"
+        if not ability:
+            return None, "Ability not found"
+        
+        if ability not in character.abilities:
+            return None, "Ability not assigned to character"
+        
+        character.abilities.remove(ability)
+        db.session.commit()
+        return character, None
+    
+class SpecialAbilityService:
+    @staticmethod
+    def get_all_special_abilities():
+        """Get all special abilities"""
+        return CharacterSpecialAbility.query.all()
+    
+    @staticmethod
+    def get_special_ability_by_id(special_ability_id):
+        """Get special ability by ID"""
+        return CharacterSpecialAbility.query.get(special_ability_id)
+
+    @staticmethod
+    def create_special_ability(name, description, character_id):
+        """Create a new special ability for a character"""
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        special_ability = CharacterSpecialAbility(
+            name=name,
+            description=description,
+            character_id=character_id
+        )
+        db.session.add(special_ability)
+        db.session.commit()
+        return special_ability, None
+    
+    @staticmethod
+    def update_special_ability(special_ability_id, name=None, description=None):
+        """Update a special ability"""
+        special_ability = CharacterSpecialAbility.query.get(special_ability_id)
+        if not special_ability:
+            return None, "Special ability not found"
+        
+        if name:
+            special_ability.name = name
+        if description:
+            special_ability.description = description
+        
+        db.session.commit()
+        return special_ability, None
+    
+    @staticmethod
+    def delete_special_ability(special_ability_id):
+        """Delete a special ability"""
+        special_ability = CharacterSpecialAbility.query.get(special_ability_id)
+        if not special_ability:
+            return False, "Special ability not found"
+        
+        db.session.delete(special_ability)
+        db.session.commit()
+        return True, None
+    
+
+
 class ClassPowerService:
     @staticmethod
     def create_class_power(name, description, class_id, level_to_unlock=1):
@@ -328,6 +412,70 @@ class AttributeService:
         db.session.commit()
         return True, None
 
+
+class AttributePowerService:
+    @staticmethod
+    def create_attribute_power(name, description, level_to_unlock, attribute_id):
+        """Create a new attribute power"""
+        attribute_power = AttributePower(name=name, description=description, attribute_id=attribute_id, level_to_unlock=level_to_unlock)
+        db.session.add(attribute_power)
+        db.session.commit()
+        return attribute_power
+
+    @staticmethod
+    def get_all_attribute_powers():
+        """Get all attribute powers"""
+        return AttributePower.query.all()
+    
+    @staticmethod
+    def get_attribute_power_by_id(power_id):
+        """Get attribute power by ID"""
+        return AttributePower.query.get(power_id)
+    
+    @staticmethod
+    def get_attribute_powers_by_attribute(attribute_id):
+        """Get attribute powers by attribute ID"""
+        return AttributePower.query.filter_by(attribute_id=attribute_id).all()
+    
+    @staticmethod
+    def update_attribute_power(power_id, name=None, description=None, level_to_unlock=None):
+        """Update attribute power"""
+        attribute_power = AttributePower.query.get(power_id)
+        if not attribute_power:
+            return None, "Attribute power not found"
+        
+        if name:
+            attribute_power.name = name
+        if description:
+            attribute_power.description = description
+        if level_to_unlock is not None:
+            attribute_power.level_to_unlock = level_to_unlock
+        
+        db.session.commit()
+        return attribute_power, None
+
+    @staticmethod
+    def delete_attribute_power(power_id):
+        """Delete attribute power"""
+        attribute_power = AttributePower.query.get(power_id)
+        if not attribute_power:
+            return False, "Attribute power not found"
+
+        db.session.delete(attribute_power)
+        db.session.commit()
+        return True, None
+
+
+    @staticmethod
+    def toggle_attribute_power_visibility(power_id):
+        """Toggle attribute power visibility"""
+        attribute_power = AttributePower.query.get(power_id)
+        if not attribute_power:
+            return None, "Attribute power not found"
+        
+        attribute_power.hidden = not attribute_power.hidden
+        db.session.commit()
+        return attribute_power, None
 
 
 class ClassService:
@@ -591,7 +739,7 @@ class CharacterService:
             return None, "Character not found"
 
         character_class = Class.query.get(character.charClass) if character.charClass else None
-
+        
         stats = {
             "life": {
                 "base": getattr(character_class, "base_life", 0) + getattr(character, "offset_life", 0),
@@ -791,14 +939,14 @@ class CharacterService:
                 if not attr_value:
                     continue
                 total_pericia_bonus = sum(pericia.value for pericia in attr_value.pericias)
-                att_stat = total_pericia_bonus * rule.rate
+                att_stat = int(total_pericia_bonus * rule.rate)
             elif rule.conversion_type == "pericia":
                 # Get the pericia value for the character
                 pericias_values = PericiaValue.query.filter(PericiaValue.pericia_id == rule.pericia_id).all()
                 for pericia_value in pericias_values:
                     attr_value = AttributeValue.query.get(pericia_value.attribute_value_id)
                     if attr_value and attr_value.character_id == character_id:
-                        att_stat = pericia_value.value * rule.rate
+                        att_stat = int(pericia_value.value * rule.rate)
                         break
                 else:
                     att_stat = 0
@@ -1041,3 +1189,14 @@ class LevelUpRuleService:
             level_up_rule.description = description
         db.session.commit()
         return level_up_rule, None
+    
+    @staticmethod
+    def delete_level_up_rule(rule_id):
+        """Delete level up rule"""
+        level_up_rule = LevelUpRule.query.get(rule_id)
+        if not level_up_rule:
+            return False, "Level up rule not found"
+        
+        db.session.delete(level_up_rule)
+        db.session.commit()
+        return True, None

@@ -6,9 +6,10 @@ import type {
   RegisterResponse,
   VerifyResponse,
   CurrentUserResponse,
-  GetUsersResponse,
-  User,
+  ChangeAccountPasswordRequest,
+  InviteUserRequest
 } from '../types/auth';
+import type { StandardResponse } from '../types';
 
 /**
  * Authentication Service
@@ -21,6 +22,15 @@ export const authService = {
   register: async (data: RegisterRequest): Promise<RegisterResponse> => {
     const response = await api.post<RegisterResponse>('/auth/register', data);
     return response.data;
+  },
+
+  inviteUser: async (data: InviteUserRequest): Promise<StandardResponse> => {
+    const response = await api.post<StandardResponse>('/auth/invite', data);
+    return response.data;
+  },
+
+  changeAccountPassword: async (data: ChangeAccountPasswordRequest): Promise<void> => {
+    await api.post('/auth/change-password', data);
   },
 
   /**
@@ -57,11 +67,10 @@ export const authService = {
   },
 
   /**
-   * Get all users (admin only)
+   * Change current user's password
    */
-  getUsers: async (): Promise<GetUsersResponse> => {
-    const response = await api.get<GetUsersResponse>('/auth/users');
-    return response.data;
+  changePassword: async (data: ChangeAccountPasswordRequest): Promise<void> => {
+    await api.post('/auth/change-password', data);
   },
 
   /**
@@ -86,13 +95,7 @@ export const authService = {
     return usernameStorage.getUsername();
   },
 
-  /**
-   * Get user by id (admin only)
-   */
-  getUserById: async (id: number): Promise<User> => {
-    const response = await api.get<{ user: User }>(`/auth/users/${id}`);
-    return response.data.user;
-  }
+  
 };
 
 export default authService;

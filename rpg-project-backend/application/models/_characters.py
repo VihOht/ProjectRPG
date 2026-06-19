@@ -2,6 +2,23 @@ import enum
 
 from application import db
 
+character_abilities = db.Table(
+    'character_abilities',
+
+    db.Column(
+        'character_id',
+        db.Integer,
+        db.ForeignKey('character.id'),
+        primary_key=True
+    ),
+
+    db.Column(
+        'ability_id',
+        db.Integer,
+        db.ForeignKey('class_ability.id'),
+        primary_key=True
+    )
+)
 
 
 class Race(db.Model):
@@ -75,23 +92,7 @@ class LevelUpRule(db.Model):
         }
     
 
-character_abilities = db.Table(
-    'character_abilities',
 
-    db.Column(
-        'character_id',
-        db.Integer,
-        db.ForeignKey('character.id'),
-        primary_key=True
-    ),
-
-    db.Column(
-        'ability_id',
-        db.Integer,
-        db.ForeignKey('class_ability.id'),
-        primary_key=True
-    )
-)
 
 class Character(db.Model):
     # Ids information
@@ -99,7 +100,7 @@ class Character(db.Model):
     own: int = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     # Basic character information
-    name: str = db.Column(db.String(80), nullable=False, default='Unnamed Hero')
+    name: str = db.Column(db.String(80), nullable=False, default='Sudito de Orfeu')
     charClass: int = db.Column(db.Integer, db.ForeignKey('class.id'), nullable=True)
     subclass: int = db.Column(db.Integer, db.ForeignKey('subclass.id'), nullable=True)
     second_class: int = db.Column(db.Integer, db.ForeignKey('class.id'), nullable=True)
@@ -132,12 +133,15 @@ class Character(db.Model):
     attributes = db.relationship('AttributeValue', backref='character', lazy=True)
 
     # Char Abilities
-    abilities = abilities = db.relationship(
+    abilities = db.relationship(
         'ClassAbility',
         secondary=character_abilities,
         back_populates='characters',
         lazy=True
     )
+
+    # Specials Abilities from character
+    special_abilities = db.relationship('CharacterSpecialAbility', backref='character', lazy=True)
 
     # Denotes if the character is active or archived (soft delete)
     active: bool = db.Column(db.Boolean, default=True)
@@ -181,6 +185,7 @@ class Character(db.Model):
             'mana': self.mana,
             'attributes': [attribute.toDict() for attribute in self.attributes],
             'abilities': [ability.toDict() for ability in self.abilities],
+            'special_abilities': [ability.toDict() for ability in self.special_abilities],
             'active': self.active,
             'is_player': self.is_player,
             'physical_description': self.physical_description,

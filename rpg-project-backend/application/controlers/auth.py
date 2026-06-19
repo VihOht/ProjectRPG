@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from application.services.users import UserService
 from application.services.auth import AuthService
 from functools import wraps
 
@@ -17,10 +18,10 @@ def token_required(f):
             try:
                 token = auth_header.split(" ")[1]  # Bearer <token>
             except IndexError:
-                return jsonify({'message': 'Invalid token format'}), 401
+                return jsonify({'message': 'Formado do token inválido'}), 401
         
         if not token:
-            return jsonify({'message': 'Token is missing'}), 401
+            return jsonify({'message': 'Token não fornecido'}), 401
         
         # Verify token
         token_data, error = AuthService.verify_token(token)
@@ -29,43 +30,76 @@ def token_required(f):
             return jsonify({'message': error}), 401
         
         # Get user
-        current_user = AuthService.get_user_by_id(token_data['id'])
+        current_user = UserService.get_user_by_id(token_data['id'])
         
         if not current_user:
-            return jsonify({'message': 'User not found'}), 401
+            return jsonify({'message': 'Usuário não encontrado'}), 401
         
+        if current_user.role != token_data['role']:
+            return jsonify({'message': 'Função do usuário não corresponde ao token'}), 401
+        
+        if not current_user.active and current_user.role != 'ADMIN':
+            return jsonify({'message': 'Usuário inativo'}), 403
+
+
         return f(current_user, *args, **kwargs)
     
     return decorated
 
 
-@auth_bp.route('/register', methods=['POST'])
-def register():
-    """Register a new user"""
+
+@auth_bp.route('/invite', methods=['POST'])
+@token_required
+def invite_user(current_user):
+    """Invite a new user (admin only)"""
+    if current_user.role != 'ADMIN':
+        return jsonify({'message': 'Acesso negado'}), 403
+    
     data = request.get_json()
     
     # Validate input
-    if not data or not data.get('username') or not data.get('email') or not data.get('password'):
-        return jsonify({'message': 'Missing required fields'}), 400
+    if not data or not data.get('email') or not data.get('role'):
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
     
-    username = data.get('username')
     email = data.get('email')
-    password = data.get('password')
+    role = data.get('role')
     
-    # Register user
-    user, error = AuthService.register_user(username, email, password, role='USER')
+    # Invite user
+    user, error = AuthService.invite_user(email=email, role=role)
     
     if error:
         return jsonify({'message': error}), 400
     
     return jsonify({
-        'message': 'User registered successfully',
-        'user': {
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'role': user.role
-        }
+        'message': 'Convite enviado com sucesso',
+        'user': user['user'],
+        'token': user['token']
+    }), 201
+
+@auth_bp.route('/register', methods=['POST'])
+def register(current_user):
+    """Register a new user"""
+    if current_user.role != 'ADMIN':
+        return jsonify({'message': 'Acesso negado'}), 403
+    data = request.get_json()
+    
+    # Validate input
+    if not data or not data.get('username') or not data.get('password'):
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
+    
+    token = data.get('token')
+    username = data.get('username')
+    password = data.get('password')
+    
+    # Register user
+    user, error = AuthService.accept_invitation(token, username, password)
+    
+    if error:
+        return jsonify({'message': error}), 400
+    
+    return jsonify({
+        'message': 'Usuário registrado com sucesso',
+        'user': user.toDict()
     }), 201
 
 
@@ -75,20 +109,20 @@ def login():
     data = request.get_json()
     
     # Validate input
-    if not data or not data.get('username') or not data.get('password'):
-        return jsonify({'message': 'Missing username or password'}), 400
+    if not data or not data.get('login_identifier') or not data.get('password'):
+        return jsonify({'message': 'Campos obrigatórios ausentes'}), 400
     
-    username = data.get('username')
+    login_identifier = data.get('login_identifier')
     password = data.get('password')
     
     # Login user
-    result, error = AuthService.login_user(username, password)
+    result, error = AuthService.login_user(login_identifier=login_identifier, password=password)
     
     if error:
         return jsonify({'message': error}), 401
     
     return jsonify({
-        'message': 'Login successful',
+        'message': 'Login bem-sucedido',
         'token': result['token'],
         'user': result['user']
     }), 200
@@ -99,7 +133,7 @@ def login():
 def verify(current_user):
     """Verify token and get current user"""
     return jsonify({
-        'message': 'Token is valid',
+        'message': 'Token válido',
         'user': {
             'id': current_user.id,
             'username': current_user.username,
@@ -114,41 +148,28 @@ def verify(current_user):
 def get_current_user(current_user):
     """Get current user info"""
     return jsonify({
-        'user': {
-            'id': current_user.id,
-            'username': current_user.username,
-            'email': current_user.email,
-            'role': current_user.role
-        }
+        'user': current_user.toDict()
     }), 200
 
 
-@auth_bp.route('/users', methods=['GET'])
+@auth_bp.route('/change-password', methods=['POST'])
 @token_required
-def get_users(current_user):
-    """Get all users (admin only)"""
-    if (getattr(current_user, 'role', 'USER') or 'USER').upper() != 'ADMIN':
-        return jsonify({'message': 'Unauthorized'}), 403
-
-    users = AuthService.get_all_users()
-
+def change_password(current_user):
+    """Change current user's password"""
+    data = request.get_json()
+    
+    # Validate input
+    if not data or not data.get('password'):
+        return jsonify({'message': 'Campo de senha ausente'}), 400
+    
+    new_password = data.get('password')
+    
+    # Change password
+    user, error = UserService.change_user_password(user_id=current_user.id, new_password=new_password)
+    
+    if error:
+        return jsonify({'message': error}), 400
+    
     return jsonify({
-        'users': [
-            {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'role': user.role,
-            }
-            for user in users
-        ]
+        'message': 'Senha alterada com sucesso',
     }), 200
-
-
-
-@auth_bp.route('/users/<int:user_id>', methods=['GET'])
-@token_required
-def get_user_by_id(current_user, user_id):
-    """Helper function to get user by ID"""
-
-    return jsonify({"user": AuthService.get_user_by_id(user_id).toDict()}) if AuthService.get_user_by_id(user_id) else None

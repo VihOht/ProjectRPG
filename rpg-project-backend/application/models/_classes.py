@@ -132,3 +132,23 @@ class ClassPower(db.Model):
             'level_to_unlock': self.level_to_unlock,
             'hidden': self.hidden
         }
+    
+
+class CharacterSpecialAbility(db.Model):
+    id: int = db.Column(db.Integer, primary_key=True)
+    character_id: int = db.Column(db.Integer, db.ForeignKey('character.id'), nullable=False)
+    name: str = db.Column(db.String(80), nullable=False)
+    description: str = db.Column(db.Text, nullable=False)
+
+    def __init__(self, character_id, name, description):
+        self.character_id = character_id
+        self.name = name
+        self.description = description
+
+    def toDict(self):
+        return {
+            'id': self.id,
+            'character_id': self.character_id,
+            'name': self.name,
+            'description': self.description
+        }

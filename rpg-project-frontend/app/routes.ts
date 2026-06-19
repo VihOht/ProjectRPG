@@ -5,5 +5,6 @@ export default [
    route("documents", "routes/documents.tsx"),
    route("ficha/:id", "routes/rpgSheet.tsx"),
    route("auth/login", "routes/auth/login.tsx"),
-   route("auth/register", "routes/auth/register.tsx")
+   route("auth/register/:token", "routes/auth/register.tsx"),
+   route("accounts", "routes/accounts.tsx"),
 ]  satisfies RouteConfig;

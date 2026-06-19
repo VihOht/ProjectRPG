@@ -1,8 +1,8 @@
-import { useConversionRules, useLevelUpRules, useDeleteConversionRule, useDeleteLevelUpRule, useAttributes, usePericias } from "../../hooks"
+import { useConversionRules, useLevelUpRules, useDeleteConversionRule, useDeleteLevelUpRule, useAttributes, usePericias } from "../../../hooks"
 import { useEffect, useState } from "react";
-import type { ConversionRuleItem, LevelUpRuleItem, AttributeItem, PericiaItem } from "../../types";
-import { useAuthProvider } from "../../providers"
-import ConversionRulesModal from "../../components/documents/dialogs/ConversionRulesModal";
+import type { ConversionRuleItem, LevelUpRuleItem, AttributeItem, PericiaItem } from "../../../types";
+import { useAuthProvider } from "../../../providers"
+import ConversionRulesModal from "../dialogs/ConversionRulesModal";
 
 
 
@@ -77,9 +77,9 @@ export default function ConversionTab() {
     }
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold mb-4 text-vaccineGray-200">Regras de Conversão</h2>
+        <div className="w-full space-y-6 px-2">
+            <div className="flex items-center justify-between mb-6 p-2">
+                <h2 className="text-xl font-bold mb-4 text-vaccineGray-200 pr-2">Regras de Conversão</h2>
                 {isAdmin && (
                     <ConversionRulesModal />
                 )}

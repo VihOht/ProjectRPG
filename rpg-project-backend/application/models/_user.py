@@ -6,6 +6,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='player')
+    active = db.Column(db.Boolean, default=False)
 
     @property
     def is_admin(self):
@@ -16,7 +17,8 @@ class User(db.Model):
             'id': self.id,
             'username': self.username,
             'email': self.email,
-            'role': self.role
+            'role': self.role,
+            'active': self.active
         }
 
     def __repr__(self):

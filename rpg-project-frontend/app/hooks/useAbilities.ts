@@ -6,6 +6,8 @@ import {
   createUpdateHook,
   createDeleteHook,
 } from './common';
+import { useMutation, useQueryClient  } from '@tanstack/react-query';
+
 
 export const useAbilities =
   createGetAllHook(
@@ -36,3 +38,51 @@ export const useDeleteAbility =
     'ability',
     gameService.deleteAbility
   );
+
+export const useToggleAbilityVisibility = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (abilityId: number) => {
+      return gameService.toggleAbilityVisibility(abilityId);
+    },
+    onSuccess: () => {
+      // Invalidate the abilities query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ['abilities'],
+      });
+    }
+  });
+};
+
+export const useAssignAbilityToCharacter = (characterId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (abilityId: number) => {
+      return gameService.assignAbilityToCharacter(abilityId, characterId);
+    },
+    onSuccess: () => {
+      // Invalidate the characters query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ['character', characterId],
+      });
+    }
+  });
+};
+
+export const useUnassignAbilityFromCharacter = (characterId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (abilityId: number) => {
+      return gameService.unassignAbilityFromCharacter(abilityId, characterId);
+    },
+    onSuccess: () => {
+      // Invalidate the characters query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ['character', characterId],
+      });
+    }
+  });
+};

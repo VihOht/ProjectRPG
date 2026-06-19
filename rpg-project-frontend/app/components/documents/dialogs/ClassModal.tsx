@@ -5,6 +5,7 @@ import CreateSubclassForm from "../cards/CreateSubclassForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 import CreateClassAbilityForm from "../cards/CreateClassAbilityForm";
 import CreateClassPowerForm from "../cards/CreateClassPowerForm";
+import { LucidePlus } from "lucide-react";
 
 
 
@@ -18,7 +19,7 @@ export default function ClassModal() {
                 onClick={() => setOpenCreateClass(true)}
                 className="px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
             >
-                Novo Documento
+                <LucidePlus className="w-4 h-4" />
             </button>
             <AppModal
                 open={openCreateClass}

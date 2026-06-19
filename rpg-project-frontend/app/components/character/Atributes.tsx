@@ -4,7 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import {
     useCharacterAttributes,
     useUpdateCharacterPericias,
-} from "../../hooks/useCharacters";
+} from "../../hooks";
 
 import type {
     CharacterAttributeItem

@@ -3,6 +3,8 @@ import { AppModal } from "../../ui/AppModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 import CreateAttributeForm from "../cards/CreateAttributeForm";
 import CreatePericiaForm from "../cards/CreatePericiaForm";
+import { LucidePlus } from "lucide-react";
+import CreateAttributePowerForm from "../cards/CreateAttributePowerForm";
 
 
 export default function AttributesModal() {
@@ -15,7 +17,7 @@ export default function AttributesModal() {
                 onClick={() => setOpenCreateAttribute(true)}
                 className="px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
             >
-                Novo Documento
+                <LucidePlus className="w-4 h-4" />
             </button>
             <AppModal
                 open={openCreateAttribute}
@@ -31,12 +33,18 @@ export default function AttributesModal() {
                             <TabsTrigger value="pericia" className="data-[state=active]:bg-vaccinePurple data-[state=active]:text-white text-vaccineGray-300 hover:text-vaccinePurple">
                                 Pericia
                             </TabsTrigger>
+                            <TabsTrigger value="power" className="data-[state=active]:bg-vaccinePurple data-[state=active]:text-white text-vaccineGray-300 hover:text-vaccinePurple">
+                                Poder de Atributo
+                            </TabsTrigger>
                         </TabsList>
                         <TabsContent value="attribute">
                             <CreateAttributeForm onSucess={() => setOpenCreateAttribute(false)} />
                         </TabsContent>
                         <TabsContent value="pericia">
                             <CreatePericiaForm onSucess={() => setOpenCreateAttribute(false)} />
+                        </TabsContent>
+                        <TabsContent value="power">
+                            <CreateAttributePowerForm onSucess={() => setOpenCreateAttribute(false)} />
                         </TabsContent>
                     </Tabs>
                     

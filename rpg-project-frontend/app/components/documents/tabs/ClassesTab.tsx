@@ -1,19 +1,25 @@
 import { useEffect, useState } from "react";
-import { useClasses, useDeleteClass, useDeleteAbility, useDeleteClassPower, useDeleteSubclass } from "../../hooks";
-import { useAuthProvider } from "../../providers";
-import type { ClassItem } from "../../types";
+import { useClasses, useDeleteClass, useDeleteAbility, useDeleteClassPower, useDeleteSubclass, useToggleAbilityVisibility, useToggleClassPowerVisibility } from "../../../hooks";
+import { useAuthProvider } from "../../../providers";
+import type { ClassItem } from "../../../types";
 import toast from "react-hot-toast";
-import ClassModal from "../../components/documents/dialogs/ClassModal";
-
+import ClassModal from "../dialogs/ClassModal";
+import UpdateClassModal from "../dialogs/UpdateClassModal";
+import UpdateClassAbilityModal from "../dialogs/UpdateClassAbilityModal";
+import { LucideDelete, LucideEye, LucideEyeOff } from "lucide-react";
+import UpdateClassPowerModal from "../dialogs/UpdateClassPowerModal";
+import UpdateSubclassModal from "../dialogs/UpdateSubclassModal";
 
 export function ClassesTab() {
 
     const { user } = useAuthProvider();
-    const { data: classesData, isLoading } = useClasses();
+    const { data: classesData, isLoading, refetch: refetchClasses } = useClasses();
     const { mutate: deleteClassService } = useDeleteClass();
     const { mutate: deleteAbilityService } = useDeleteAbility();
     const { mutate: deleteSubclassService } = useDeleteSubclass();
     const { mutate: deleteClassPowerService } = useDeleteClassPower();
+    const { mutate: toggleAbilityVisibility } = useToggleAbilityVisibility();
+    const { mutate: toggleClassPowerVisibility } = useToggleClassPowerVisibility();
     const [isAdmin, setIsAdmin] = useState(false);
     const [classes, setClasses] = useState<ClassItem[]>([]);
 
@@ -94,14 +100,36 @@ export function ClassesTab() {
         }
     }
 
+    const onToggleAbilityVisibility = async (abilityId: number) => {
+        toggleAbilityVisibility(abilityId, {
+            onSuccess: () => {
+                toast.success("Visibilidade da habilidade atualizada com sucesso.");
+                refetchClasses();
+            },
+            onError: (error) => {
+                toast.error("Erro ao atualizar visibilidade da habilidade: " + (error as any)?.response?.data?.message || "Ocorreu um erro inesperado.");
+            }
+        });
+    };
 
+    const onToggleClassPowerVisibility = async (powerId: number) => {
+        toggleClassPowerVisibility(powerId, {
+            onSuccess: () => {
+                toast.success("Visibilidade do poder de classe atualizada com sucesso.");
+                refetchClasses();
+            },
+            onError: (error) => {
+                toast.error("Erro ao atualizar visibilidade do poder de classe: " + (error as any)?.response?.data?.message || "Ocorreu um erro inesperado.");
+            }
+        });
+    };
 
-
+ 
     return (
         <div className="w-full space-y-6">
 
             <div className="flex items-center justify-between">
-                <div>
+                <div className="p-2">
                     <h2 className="text-2xl font-semibold text-vaccineGray-300">Classes</h2>
                     <p className="text-vaccineGray-600">
                         Visualização hierárquica de classes, habilidades e subclasses.
@@ -117,28 +145,33 @@ export function ClassesTab() {
             ) : classes.length === 0 ? (
                 <p className="text-gray-600">Nenhuma classe cadastrada.</p>
             ) : (
-                <div className="space-y-5 w-full">
+                <div className="space-y-5 w-full break-all">
                     {classes.map((charClass) => (
                         <article key={charClass.id} className="bg-vaccineBlueTones-1000/20 rounded-md p-4 border border-vaccineGray-200/20 border-1">
+                            {/** CLASS */}
                             <div className="flex items-start justify-between gap-3">
                                 <h3 className="text-2xl font-semibold text-vaccinePurple">{charClass.name}</h3>
                                 {isAdmin && (
-                                    <button
-                                        type="button"
-                                        onClick={() => onDeleteClass(charClass.id)}
-                                        className="rounded-md bg-vaccinePurple px-3 py-1 text-sm text-white hover:opacity-90"
-                                    >
-                                        X
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <UpdateClassModal classData={charClass} />
+                                        <button
+                                            type="button"
+                                            onClick={() => onDeleteClass(charClass.id)}
+                                            className="rounded-md bg-vaccinePurple px-3 py-1 text-sm text-white hover:opacity-90"
+                                        >
+                                            <LucideDelete className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                             <p className="text-vaccineGray-400">{charClass.description}</p>
+                            {/** BASE STATS */}
                             <div className="flex gap-4 mt-4 flex-wrap">
                                 <div className="flex gap-2">
                                     <label className="flex items-center gap-1 text-sm text-gray-300">
                                         Vida Base:
                                     </label>
-                                    <span className="w-10 text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
+                                    <span className="w-auto h-auto text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
                                         {charClass.base_life}
                                     </span>
                                 </div>
@@ -146,7 +179,7 @@ export function ClassesTab() {
                                     <label className="flex items-center gap-1 text-sm text-gray-300">
                                         Defesa Base:
                                     </label>
-                                    <span className="w-10 text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
+                                    <span className="w-auto h-auto text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
                                         {charClass.base_defense}
                                     </span>
                                 </div>
@@ -154,7 +187,7 @@ export function ClassesTab() {
                                     <label className="flex items-center gap-1 text-sm text-gray-300">
                                         Sanidade Base:
                                     </label>
-                                    <span className="w-10 text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
+                                    <span className="w-auto h-auto text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
                                         {charClass.base_sanity}
                                     </span>
                                 </div>
@@ -163,7 +196,7 @@ export function ClassesTab() {
                                         <label className="flex items-center gap-1 text-sm text-gray-300">
                                             Mana Base:
                                         </label>
-                                        <span className="w-10 text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
+                                        <span className="w-auto h-auto text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
                                             {charClass.base_mana}
                                         </span>
                                     </div>
@@ -180,24 +213,36 @@ export function ClassesTab() {
                                 )}
                             </div>
 
-
-                            <div className="mb-3 mt-4">
+                            {/** ABILITIES */}
+                            <div className="mb-3 mt-4 break-all">
                                 <h4 className="font-semibold text-vaccineGray-300 mt-2">Habilidades da Classe</h4>
                                 {charClass.abilities && charClass.abilities.length > 0 ? (
                                     <ul className="space-y-2 pl-2 text-vaccineGray-800">
                                         {charClass.abilities.map((ability) => ( ability.class_id && !ability.subclass_id) && (
                                             <li key={ability.id} className="flex text-vaccineGray-400 items-start justify-between gap-3 rounded-md border border-vaccineGray-200/20 px-3 py-2">
-                                                <div>
-                                                    <span className="font-semibold">{ability.name}:</span> {ability.description}
+                                                <div className="flex-1">
+                                                    <h5 className="font-semibold">{ability.name}: <span className="text-sm text-vaccineGray-600">{ability.description}</span></h5>
                                                 </div>
                                                 {isAdmin && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => onDeleteAbility(ability.id)}
-                                                        className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
-                                                    >
-                                                        X
-                                                    </button>
+                                                    <div className="flex gap-2">
+                                                        {ability.hidden !== null && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => onToggleAbilityVisibility(ability.id)}
+                                                                className="rounded-md px-2 py-1 text-xs text-white hover:opacity-90"
+                                                            >   
+                                                                {ability.hidden ? <LucideEyeOff /> : <LucideEye />}
+                                                            </button>
+                                                        )}
+                                                        <UpdateClassAbilityModal abilityData={ability} />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => onDeleteAbility(ability.id)}
+                                                            className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
+                                                        >
+                                                            <LucideDelete className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </li>
                                         ))}
@@ -207,6 +252,7 @@ export function ClassesTab() {
                                 )}
                             </div>
 
+                            {/** CLASS POWERS */}
                             <div className="mb-3">
                                 <h4 className="font-semibold text-vaccineGray-300">Poderes de Classe</h4>
                                 {charClass.classPowers && charClass.classPowers.length > 0 ? (
@@ -214,17 +260,29 @@ export function ClassesTab() {
                                         {charClass.classPowers.map((power) => (
                                             <li key={power.id} className="flex items-start text-vaccineGray-400 justify-between gap-3 rounded-md border border-vaccineGray-200/20 px-3 py-2">
                                                 <div>
-                                                    <span className="font-semibold">{power.name}:</span> {power.description}
+                                                    <span className="font-semibold">{power.name} - Nv: {power.level_to_unlock}:</span> {power.description}
 
                                                 </div>
                                                 {isAdmin && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => onDeleteClassPower(power.id)}
-                                                        className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
-                                                    >
-                                                        X
-                                                    </button>
+                                                    <div className="flex gap-2">
+                                                        {power.hidden !== null && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => onToggleClassPowerVisibility(power.id)}
+                                                                className="rounded-md px-2 py-1 text-xs text-white hover:opacity-90"
+                                                            >   
+                                                                {power.hidden ? <LucideEyeOff /> : <LucideEye />}
+                                                            </button>
+                                                        )}
+                                                        <UpdateClassPowerModal classPowerData={power} />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => onDeleteClassPower(power.id)}
+                                                            className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
+                                                        >
+                                                            <LucideDelete className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </li>
                                         ))}
@@ -234,6 +292,7 @@ export function ClassesTab() {
                                 )}
                             </div>
 
+                            {/** SUBCLASSES */}
                             <div>
                                 <h4 className="font-semibold text-vaccineGray-300">Subclasses</h4>
                                 {charClass.subclasses && charClass.subclasses.length > 0 ? (
@@ -243,17 +302,21 @@ export function ClassesTab() {
                                                 <div className="flex items-start justify-between gap-3">
                                                     <h5 className="font-semibold">{subclass.name}</h5>
                                                     {isAdmin && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => onDeleteSubclass(subclass.id)}
-                                                            className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
-                                                        >
-                                                            X
-                                                        </button>
+                                                        <div className="flex gap-2">
+                                                            <UpdateSubclassModal subclassData={subclass} />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => onDeleteSubclass(subclass.id)}
+                                                                className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
+                                                            >
+                                                                <LucideDelete className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                     )}
                                                 </div>
                                                 <p className="text-vaccineGray-600">{subclass.description}</p>
 
+                                                    {/** SUBCLASS ABILITIES */}
                                                 <p className="font-medium mt-2">Habilidades da Subclasse</p>
                                                 {subclass.abilities && subclass.abilities.length > 0 ? (
                                                     <ul className="space-y-2 pl-2 text-vaccineGray-800">
@@ -263,13 +326,26 @@ export function ClassesTab() {
                                                                     <span className="font-semibold">{ability.name}:</span> {ability.description}
                                                                 </div>
                                                                 {isAdmin && (
-                                                                    <button
+                                                                    <div className="flex gap-2">
+                                                                        {ability.hidden !== null && (
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => onToggleAbilityVisibility(ability.id)}
+                                                                                className="rounded-md px-2 py-1 text-xs text-white hover:opacity-90"
+                                                                            >
+                                                                                {ability.hidden ? <LucideEyeOff /> : <LucideEye />}
+                                                                            </button>
+                                                                        )}
+                                                                        <UpdateClassAbilityModal abilityData={ability} />
+                                                                        <button
                                                                         type="button"
                                                                         onClick={() => onDeleteAbility(ability.id)}
                                                                         className="rounded-md bg-vaccinePurple px-3 py-1 text-xs text-white hover:opacity-90"
                                                                     >
-                                                                        X
+                                                                        <LucideDelete className="w-4 h-4" />
                                                                     </button>
+                                                                    </div>
+                                                                    
                                                                 )}
                                                             </li>
                                                         ))}

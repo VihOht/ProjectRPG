@@ -4,6 +4,7 @@ import {QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AuthProvider } from "./providers";
 import "./app.css";
 import { Toaster } from "react-hot-toast";
+import { StarSky } from "./components/StarSky";
 
 // links
 export const links: LinksFunction = () => [
@@ -63,15 +64,20 @@ export function ErrorBoundary({error}: {error: unknown}) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflox-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <StarSky>
+      <main className="pt-16 p-4 container mx-auto text-white">
+        <h1>{message}</h1>
+        <p>{details}</p>
+        {stack && (
+          <pre className="w-full text-white p-4 overflox-x-auto">
+            <code>{stack}</code>
+          </pre>
+        )}
+        <a href="/" className="text-blue-500 hover:underline">
+          Return to Home
+        </a>
+      </main>
+    </StarSky>
   );
 }
 
