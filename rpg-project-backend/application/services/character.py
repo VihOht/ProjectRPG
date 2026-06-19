@@ -177,6 +177,14 @@ class SpecialAbilityService:
         db.session.commit()
         return True, None
     
+    @staticmethod
+    def delete_all_character_special_abilities(character_id):
+        """Delete all special abilities of a character (used when deleting a character)"""
+        special_abilities = CharacterSpecialAbility.query.filter_by(character_id=character_id).all()
+        for ability in special_abilities:
+            db.session.delete(ability)
+        db.session.commit() 
+    
 
 
 class ClassPowerService:
@@ -669,6 +677,8 @@ class AttributeValueService:
         """Delete attribute values when a character is deleted"""
         char_attr_values = AttributeValue.query.filter_by(character_id=character_id).all()
         for attr_value in char_attr_values:
+            for pericia_value in attr_value.pericias:
+                db.session.delete(pericia_value)
             db.session.delete(attr_value)
         db.session.commit()
     
@@ -886,6 +896,8 @@ class CharacterService:
         
         # Delete associated attributes
         AttributeValueService.delete_character_attributes(character_id)
+        SpecialAbilityService.delete_all_character_special_abilities(character_id)
+
         
         db.session.delete(character)
         db.session.commit()

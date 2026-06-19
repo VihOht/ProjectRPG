@@ -1,23 +1,25 @@
 import { StarSky } from "../components/StarSky";
 import { useEffect, useMemo, useState  } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, Link } from "react-router";
 import { CharacterInformation } from "../components/character/Informations";
 import { CharacterStats } from "../components/character/Stats";
 import { CharacterAttributes } from "../components/character/Atributes";
 import { CharacterLore } from "../components/character/Lore";
 import type { UpdateCharacterGeneralRequest } from "../types";
 import { useDeleteCharacter, useCharacter, useToggleCharacterActive, useTransferCharacterOwnership, useReturnCharacterToAdmin, useUpdateCharacterGeneral } from "../hooks/useCharacters";
-import { useGetUserById, useGetUsers } from "../hooks";
+import { useGetUserById, useGetUsers, useCharacters } from "../hooks";
 import { Header } from "../components/Header";
 import { useAuthProvider } from "../providers";
 import { toast } from "react-hot-toast";
 import { CharacterAbilities } from "../components/character/Abilities";
+
 
 export default function RpgSheet() {
     const navigate = useNavigate();
     const { user } = useAuthProvider();
     const [isEditingHeader, setIsEditingHeader] = useState(false);
     const [transferTargetId, setTransferTargetId] = useState<string>("");
+    const { refetch: refetchCharacters } = useCharacters();
     const { id } = useParams();
     const characterId = useMemo(() => {
         if (!id) return null;
@@ -33,7 +35,7 @@ export default function RpgSheet() {
         );
     }
 
-    const { data: characterData, refetch: refetchCharacter, isLoading: isCharacterLoading } = useCharacter(characterId!);
+    const { data: characterData, refetch: refetchCharacter, isLoading: isCharacterLoading, error: characterError } = useCharacter(characterId!);
 
    
     const { mutate: deleteCharacter } = useDeleteCharacter();
@@ -104,6 +106,17 @@ export default function RpgSheet() {
     if (!characterId) {
         return <div>Character id is invalid.</div>;
     }
+    if (characterError) {
+        if (characterError.response?.status === 404) {
+            return (
+                <div className="min-h-screen flex items-center justify-center">
+                    <p className="text-xl text-gray-500">Ficha não encontrada.</p>
+                    <br />
+                    <Link to="/" className="text-vaccinePurple ml-2">Voltar para a página inicial</Link>
+                </div>
+            );
+        }
+    }
 
     if (isCharacterLoading) {
         return (
@@ -164,6 +177,8 @@ export default function RpgSheet() {
                             if (window.confirm('Tem certeza que deseja deletar esta ficha? Esta ação não pode ser desfeita.')) {
                                 deleteCharacter(characterId!, {
                                     onSuccess: () => {
+                                        refetchCharacters();
+                                        toast.success('Ficha deletada com sucesso!');
                                         navigate('/');
                                     },
                                 });
@@ -173,12 +188,6 @@ export default function RpgSheet() {
                     >
                         Deletar Ficha
                     </button>
-                    {/* <button
-                        onClick={handlePrintPdf}
-                        className="px-4 py-2 bg-vaccinePurple text-white rounded-md"
-                        >
-                        Exportar PDF
-                    </button> */}
                 </Header>
                 {/* Main Content */}
                 <main className="flex-1 break-all p-8 text-sm text-vaccineBlack">
