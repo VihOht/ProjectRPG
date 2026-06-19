@@ -31,6 +31,8 @@ export function CharacterStats({
     const [statLimits, setStatLimits] =
         useState<Record<keyof UpdateCharacterStatsRequest, StatLimitView> | null>(null);
 
+    const [open, setOpen] = useState(false);
+
     const [isEditing, setIsEditing] = useState(false);
 
     const {mutate: updateStatsMutate, error: updateStatsError } = updateStats;
@@ -127,14 +129,14 @@ export function CharacterStats({
     return (
         <section className="mb-8">
                     <div className="itens-center flex justify-between mb-4">
-                        <h2 className="text-3xl font-walthari font-semibold mb-4 text-vaccineGray-300">
+                        <h2 onClick={() => {setOpen(!open)}} className="text-3xl cursor-pointer min-w-[80%] font-walthari font-semibold mb-4 text-vaccineGray-300">
                             Estatísticas
                         </h2>
-                        <button onClick={() => {isEditing ? handleSave() : setIsEditing(true)}} className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100">
+                        <button disabled={!open && !isEditing} onClick={() => {isEditing ? handleSave() : setIsEditing(true)}} className="mb-4 cursor-pointer px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100">
                             {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                         </button>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 transition-all duration-500 ${open ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
                         <div>
                             <label className="block text-sm font-medium text-vaccineGray-300 mb-1">
                                 Vida

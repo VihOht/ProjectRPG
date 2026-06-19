@@ -77,10 +77,8 @@ def invite_user(current_user):
     }), 201
 
 @auth_bp.route('/register', methods=['POST'])
-def register(current_user):
+def register():
     """Register a new user"""
-    if current_user.role != 'ADMIN':
-        return jsonify({'message': 'Acesso negado'}), 403
     data = request.get_json()
     
     # Validate input

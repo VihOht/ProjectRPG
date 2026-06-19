@@ -87,6 +87,8 @@ export default function AssignAbilitiesModal({ characterId }: AssignAbilitiesMod
                         <div className="space-y-4">
                             {abilitiesData?.abilities.map((ability) => {
                                 const isAssigned = characterData?.character.abilities.some((charAbility) => charAbility.id === ability.id);
+                                if (ability.class_id !== characterData?.character.charClass && !isAssigned) return null;
+                                if (ability.subclass_id && ability.subclass_id !== characterData?.character.subclass && !isAssigned) return null;
 
                                 return (
                                     <div key={ability.id} className="flex items-center justify-between p-4 border rounded-md">

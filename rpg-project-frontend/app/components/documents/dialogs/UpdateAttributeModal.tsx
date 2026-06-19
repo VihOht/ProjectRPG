@@ -14,8 +14,8 @@ export interface UpdateAttributeModalProps {
 export default function UpdateAttributeModal({ attributeData }: UpdateAttributeModalProps) {
 
     const [formData, setFormData] = useState<UpdateAttributeRequest>({
-        name: "",
-        description: "",
+        name: attributeData.name,
+        description: attributeData.description,
     });
 
     const [open, setOpen] = useState(false);

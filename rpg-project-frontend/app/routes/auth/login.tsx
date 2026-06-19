@@ -51,7 +51,7 @@ export default function LoginPage() {
 					<form onSubmit={handleSubmit} className="space-y-4">
 						<div>
 							<label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="login_identifier">
-								Username or Email
+								Username ou Email
 							</label>
 							<input
 								id="login_identifier"
@@ -65,7 +65,7 @@ export default function LoginPage() {
 
 						<div>
 							<label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="password">
-								Password
+								Senha
 							</label>
 							<input
 								id="password"

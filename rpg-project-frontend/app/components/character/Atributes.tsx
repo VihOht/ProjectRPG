@@ -25,6 +25,8 @@ export function CharacterAttributes({
 
     const [attributes, setAttributes] = useState<CharacterAttributeItem[]>([]);
 
+    const [open, setOpen] = useState(false);
+
     useEffect(() => {
         if (data?.attributes) {
             setAttributes(data.attributes);
@@ -84,23 +86,24 @@ export function CharacterAttributes({
 
     return (
         <section className="mb-8">
-            <div className="items-center flex justify-between mb-4">
-                <h2 className="text-3xl font-walthari font-semibold mb-4 text-vaccineGray-300">
+            <div  className="items-center flex justify-between mb-4">
+                <h2 onClick={() => {setOpen(!open)}} className="text-3xl cursor-pointer min-w-[80%] font-walthari font-semibold mb-4 text-vaccineGray-300">
                     Atributos e Perícias
                 </h2>
                 <button
+                    disabled={!open && !isEditing}
                     onClick={() => {
                         setIsEditing(!isEditing);
                         if (isEditing) {
                             handleSave();
                         }
                     }}
-                    className="mb-4 px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100"
+                    className="mb-4 px-4 py-2 bg-vaccineBlueTones-400  cursor-pointer rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100"
                 >
                     {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                 </button>
             </div>
-            <div className="overflow-x-auto">
+            <div className={`overflow-x-auto transition-all duration-500 ${open ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
                 <table className="w-full border-collapse border border-gray-300">
                     <thead>
                         <tr className="bg-vaccineGray text-vaccineGray-200">
@@ -123,30 +126,30 @@ export function CharacterAttributes({
                             const pericias = attribute.pericias || [];
                             return (
                                 <tr key={attribute.attribute_id}>
-                                    <td className="border font-trajanPBold bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 font-medium text-vaccineGray-200">
+                                    <td className="border font-trajanPBold min-w-[160px] bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 font-medium text-vaccineGray-200">
                                         {attribute.name}
                                     </td>
 
                                     <td className="border bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-2 py-2 ">
-                                        <div className={`w-full px-2 py-1 text-white text-center ${isEditing ? "border-gray-400 border" : ""} rounded focus:outline-none focus:ring-1 focus:ring-vaccinePurple`}>
+                                        <div className={`w-full min-w-[75px] px-2 py-1 text-white text-center ${isEditing ? "border-gray-400 border" : ""} rounded focus:outline-none focus:ring-1 focus:ring-vaccinePurple`}>
                                             {attribute.value}
                                         </div>
                                     </td>
                                     {/* Pericia header cell */}
                                     {pericias.length === 0 ? (
-                                        <td className="border bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-center text-vaccineGray-400" colSpan={2}>
+                                        <td className="border min-w-[75px] bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-center text-vaccineGray-400" colSpan={2}>
                                             Sem perícias
                                         </td>
                                     ) : (
                                         <>
-                                        <td className="border font-trajanPRegular text-white bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-left text-vaccineGray-400">
+                                        <td className="border min-w-[140px] font-trajanPRegular text-white bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-left text-vaccineGray-400">
                                             {pericias.map((pericia) => (
                                                 <div key={pericia.pericia_id} className="mb-2">
                                                     {pericia.name}
                                                 </div>
                                             ))}
                                         </td>
-                                        <td className="border font-trajanPRegular text-white bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-left text-vaccineGray-400">
+                                        <td className="border font-trajanPRegular min-w-[120px] flex flex-col text-white bg-vaccineBlueTones-1000/70 border-vaccineGray-300 px-4 py-2 text-left text-vaccineGray-400">
                                             {pericias.map((pericia) => (
                                                 <input
                                                     key={pericia.pericia_id}
@@ -159,7 +162,7 @@ export function CharacterAttributes({
                                                         )
                                                     }
                                                     readOnly={!isEditing}
-                                                    className={`w-full px-2 py-1 text-center ${
+                                                    className={` px-2 py-1 text-center ${
                                                         isEditing ? "border-gray-400 border" : ""
                                                     } rounded focus:outline-none focus:ring-1 focus:ring-vaccinePurple`}
                                                 />

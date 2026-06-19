@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useCharacter, useSubclasses, useClassPowers, useAttributePowers, useAttributes } from "../../hooks";
 import type { AbilityItem, ClassPowerItem, SpecialAbilityItem, AttributePowerItem } from "../../types";
 import AssignAbilitiesModal from "./dialogs/AssignAbilitiesModal";
+import { LucideArrowBigDown, LucideArrowBigUp } from "lucide-react";
 
 interface CharacterAbilitiesProps {
   characterId: number;
@@ -18,11 +19,27 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
     return characterData?.character.special_abilities ?? [];
   }, [characterData]);
 
+  const [openTabs, setOpenTabs] = useState({
+    classPowers: false,
+    attributePowers: false,
+    abilities: false,
+    specialAbilities: false,
+  });
+
+  const toggleTab = (tabName: keyof typeof openTabs) => {
+    setOpenTabs((prev) => ({
+      ...prev,
+      [tabName]: !prev[tabName],
+    }));
+  }
+
   const { data: classPowersData } = useClassPowers();
 
   const { data: attributePowersData } = useAttributePowers();
 
   const { data: attributesData } = useAttributes();
+
+  const [open, setOpen] = useState(false);
 
   const attributePowers = useMemo<AttributePowerItem[]>(() => {
     if (!attributePowersData || !characterData) return [];
@@ -57,81 +74,119 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
   return (
     <section className="mb-8">
       <div className="items-center flex justify-between mb-4">
-        <h2 className="text-3xl font-walthari font-semibold text-vaccineGray-300">
+        <h2 onClick={() => {setOpen(!open)}} className="text-3xl cursor-pointer min-w-[80%] font-walthari font-semibold text-vaccineGray-300">
           Habilidades
         </h2>
         <AssignAbilitiesModal characterId={characterId} />
       </div>
-
-      <div className="space-y-6 mb-6">
-        <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
-          Poderes de Classe
-        </h3>
-        {classPowers.length === 0 ? (
-          <p className="text-vaccineGray-400">
-            Nenhum poder de classe disponível.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-            {classPowers.map((power) => (
-              <ClassPowerCard key={power.id} power={power} />
-            ))}
+      <div className={`transition-all duration-500 ${open ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
+        <div className={`space-y-6 mb-6`}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
+              Poderes de Classe
+            </h3>
+            <button
+              onClick={() => toggleTab('classPowers')}
+              className="px-3 py-1 cursor-pointer bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+            >
+              {openTabs.classPowers ? <LucideArrowBigUp /> : <LucideArrowBigDown />}
+            </button>
           </div>
-        )}
-      </div>
-      
-      <div className="space-y-6 mb-6">
-        <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
-          Poderes de Atributo
-        </h3>
-        {attributePowers.length === 0 ? (
-          <p className="text-vaccineGray-400">
-            Nenhum poder de atributo disponível.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-            {attributePowers.map((power) => (
-              <AttributePowerCard key={power.id} power={power} attribute_name={getAttributeNameFromPower(power)} />
-            ))}
+          <div className={`${openTabs.classPowers ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
+            {classPowers.length === 0 ? (
+              <p className="text-vaccineGray-400">
+                Nenhum poder de classe disponível.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                {classPowers.map((power) => (
+                  <ClassPowerCard key={power.id} power={power} />
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      <div className="mb-6">
-        <div>
-          <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
-            Habilidades de Classe
-          </h3>
-
-          {abilities.length === 0 ? (
-            <p className="text-vaccineGray-400">
-              Nenhuma habilidade de classe disponível.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {abilities.map((ability) => (
-                <AbilityCard key={ability.id} ability={ability} subclassName={ability.subclass_id ? getSubclassName(ability.subclass_id) : undefined} />
-              ))}
-            </div>
-          )}
+        </div>
+        
+        <div className={`space-y-6 mb-6 transition-all duration-500`}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
+              Poderes de Atributo
+            </h3>
+            <button
+              onClick={() => toggleTab('attributePowers')}
+              className="px-3 py-1 cursor-pointer bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+            >
+              {openTabs.attributePowers ? <LucideArrowBigUp /> : <LucideArrowBigDown />}
+            </button>
+          </div>
+          <div className={`${openTabs.attributePowers ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
+            {attributePowers.length === 0 ? (
+              <p className="text-vaccineGray-400">
+                Nenhum poder de atributo disponível.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                {attributePowers.map((power) => (
+                  <AttributePowerCard key={power.id} power={power} attribute_name={getAttributeNameFromPower(power)} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="mb-6 mt-6">
-          <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
-            Habilidades Especiais
-          </h3>
+        <div className={` transition-all duration-500`}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
+              Habilidades de Classe
+            </h3>
+            <button
+              onClick={() => toggleTab('abilities')}
+              className="px-3 py-1 cursor-pointer bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+            >
+              {openTabs.abilities ? <LucideArrowBigUp /> : <LucideArrowBigDown />}
+            </button>
+          </div>
+          <div className={`${openTabs.abilities ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
+            {abilities.length === 0 ? (
+              <p className="text-vaccineGray-400">
+                Nenhuma habilidade de classe disponível.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {abilities.map((ability) => (
+                  <AbilityCard key={ability.id} ability={ability} subclassName={ability.subclass_id ? getSubclassName(ability.subclass_id) : undefined} />
+                ))}
+              </div>
+            )}
+          </div>
 
-          {specialAbilities.length === 0 ? (
-            <p className="text-vaccineGray-400">
-              Nenhuma habilidade especial disponível.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-              {specialAbilities.map((ability) => (
-                <SpecialAbilityCard key={ability.id} ability={ability} />
-              ))}
-            </div>
-          )}
+        </div>
+
+        <div className={`mb-6 mt-6 transition-all duration-300`}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
+              Habilidades Especiais
+            </h3>
+            <button
+              onClick={() => toggleTab('specialAbilities')}
+              className="px-3 py-1 cursor-pointer bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+            >
+              {openTabs.specialAbilities ? <LucideArrowBigUp /> : <LucideArrowBigDown />}
+            </button>
+          </div>
+          <div className={`${openTabs.specialAbilities ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
+            {specialAbilities.length === 0 ? (
+              <p className="text-vaccineGray-400">
+                Nenhuma habilidade especial disponível.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                {specialAbilities.map((ability) => (
+                  <SpecialAbilityCard key={ability.id} ability={ability} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </section>

@@ -7,6 +7,7 @@ from application import db
 import jwt
 import datetime
 from flask import current_app
+from application.utils import send_email
 
 
 class AuthService:
@@ -54,6 +55,10 @@ class AuthService:
         if user.active:
             return None, "Convite já aceito"
         
+        if User.query.filter_by(username=username).first():
+            return None, "Username já existe"
+        
+
         # Update user with username and password
         user.username = username
         user.password = generate_password_hash(password)
@@ -152,12 +157,21 @@ class AuthService:
             active=False
         )
         
+        token = AuthService.generate_invitation_token(email, role)
+        invitation_link = f"{os.getenv('FRONTEND_URL')}/auth/register/{token}"
+
+        # Send invitation email
+        result = send_email(
+            recipient_email=email,
+            subject="Convite para o RPG",
+            template_name="invitation.html",
+            template_data={"invitation_link": invitation_link}
+        )
+        if result:
+            return None, f"Erro ao enviar convite: {result}"
+        
         db.session.add(new_user)
         db.session.commit()
-        
-        # Here you would send an invitation email with a link to set their password
-        # For simplicity, we will skip the email sending part
-        token = AuthService.generate_invitation_token(email, role)
 
         return {"token": token, "user": new_user.toDict()}, None
     

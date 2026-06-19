@@ -196,7 +196,6 @@ export default function RpgSheet() {
                     className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50 rounded-lg shadow-lg p-8 print-area"
                 >
                 </div> */}
-                    /* if the device witdth is less than 768px, the padding should be 4 instead of 8 */
                     <div className="max-w-5xl  mx-auto md:border-1 md:border-vaccineGray-300/50  md:rounded-lg shadow-lg md:p-8">
                         <h1 className="text-3xl font-walthari font-bold text-center mb-8 text-vaccineGray-300">
                             Ficha de Personagem
@@ -260,25 +259,24 @@ export default function RpgSheet() {
 
                     {/* Character Name and Level Header */}
                     <div className="text-center font-trajanPBold mb-8 pb-6 border-b-2 border-vaccineGray-300 relative">
-                        {isEditingHeader && (
-                            <button 
-                                onClick={() => {
-                                    setIsEditingHeader(false);
-                                    handleSafeInfo();
-                                }} 
-                                className="absolute top-0 right-0 px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-purple-700 transition-colors"
-                            >
-                                Salvar
-                            </button>
-                        )}
-                        
+                            {isEditingHeader && (
+                                    <button 
+                                        onClick={() => {
+                                            setIsEditingHeader(false);
+                                            handleSafeInfo();
+                                        }} 
+                                        className="px-4 my-2 justify-end py-2 bg-vaccinePurple text-white rounded-md hover:bg-purple-700 transition-colors"
+                                    >
+                                        Salvar
+                                    </button>
+                                )}
                         {isEditingHeader ? (
                             <div className="flex flex-col items-center gap-4">
                                 <input
                                     type="text"
                                     value={character?.name ?? ""}
                                     onChange={(e) => handleInfoChange("nome", e.target.value)}
-                                    className="text-4xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-4 py-2 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple"
+                                    className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-4 py-2 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple"
                                     placeholder="Nome do Personagem"
                                     autoFocus
                                 />
@@ -289,7 +287,7 @@ export default function RpgSheet() {
                                         min="1"
                                         value={character?.level ?? ""}
                                         onChange={(e) => handleInfoChange("nivel", e.target.value)}
-                                        className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple w-20"
+                                        className="text-xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple w-20"
                                     />
                                 </div>
                                 <div className="flex items-center justify-center gap-2">
@@ -299,7 +297,7 @@ export default function RpgSheet() {
                                         min="0"
                                         value={character?.experience ?? ""}
                                         onChange={(e) => handleInfoChange("experiencia", e.target.value)}
-                                        className="text-2xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple w-32"
+                                        className="text-xl font-bold text-vaccineGray-900 text-center bg-vaccineGray-300 px-3 py-1 rounded-md border border-gray-400 focus:outline-none focus:ring-2 focus:ring-vaccinePurple w-32"
                                     />
                                 </div>
                             </div>

@@ -98,9 +98,22 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
         <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
           <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
-          <p className="text-center text-vaccineBlack mb-6">Criar nova conta</p>
+          <p className="text-center text-vaccineBlack mb-6">Criar nova conta para {TokenData?.email}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+               <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="email">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={TokenData.email}
+                disabled
+                className="w-full rounded-md border border-vaccineGray-600 bg-gray-200 px-3 py-2 outline-none focus:ring-2 focus:ring-vaccinePurple cursor-not-allowed"
+              />
+            </div>
             <div>
               <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="username">
                 Username
@@ -117,7 +130,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-sm font-semibold text-vaccineBlack mb-1" htmlFor="password">
-                Password
+                Senha
               </label>
               <input
                 id="password"
