@@ -13,7 +13,7 @@ import ChangePasswordForm from "../components/accounts/ChangePasswordForm";
 
 export default function AccountsRoute() {
   const { user } = useAuthProvider();
-  const { data, isLoading } = useGetUsers();
+  const { data, isLoading, refetch } = useGetUsers();
   const { mutate: deleteUser } = useDeleteUser();
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -149,7 +149,7 @@ export default function AccountsRoute() {
           onClose={() => setCreateOpen(false)}
         >
           <CreateAccountForm
-            onSucess={() => setCreateOpen(false)}
+            onSucess={() => {setCreateOpen(false); refetch();}}
           />
         </AppModal>
 
@@ -159,7 +159,7 @@ export default function AccountsRoute() {
           onClose={() => setInviteOpen(false)}
         >
           <InviteAccountForm
-            onSucess={() => setInviteOpen(false)}
+            onSucess={() => {setInviteOpen(false); refetch();}}
           />
         </AppModal>
 
