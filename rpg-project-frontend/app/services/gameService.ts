@@ -642,6 +642,113 @@ export const gameService = {
   ): Promise<T.StandardResponse> => {
     return (await api.delete(`/api/level-up-rules/${ruleId}`)).data;
   },
+
+  // =====================================================
+  // RITUALS
+  // =====================================================
+
+  getRituals: async (): Promise<T.ListRitualsResponse> => {
+    return (await api.get('/api/rituals')).data;
+  },
+
+  getRitualById: async (
+    ritualId: number
+  ): Promise<T.GetRitualResponse> => {
+    return (await api.get(`/api/rituals/${ritualId}`)).data;
+  },
+
+  createRitual: async (
+    data: T.CreateRitualRequest
+  ): Promise<T.CreateRitualResponse> => {
+    return (await api.post('/api/rituals', data)).data;
+  },
+
+  updateRitual: async (
+    ritualId: number,
+    data: T.UpdateRitualRequest
+  ): Promise<T.CreateRitualResponse> => {
+    return (await api.put(`/api/rituals/${ritualId}`, data)).data;
+  },
+
+  deleteRitual: async (
+    ritualId: number
+  ): Promise<T.StandardResponse> => {
+    return (await api.delete(`/api/rituals/${ritualId}`)).data;
+  },
+
+  toggleRitualVisibility: async (
+    ritualId: number
+  ): Promise<T.CreateRitualResponse> => {
+    return (await api.post(`/api/rituals/${ritualId}/toggle-hidden`)).data;
+  },
+
+  assignRitualToCharacter: async (
+    ritualId: number,
+    characterId: number
+  ): Promise<T.StandardResponse> => {
+    return (await api.post(`/api/rituals/${ritualId}/assign/${characterId}`)).data;
+  },
+
+  unassignRitualFromCharacter: async (
+    ritualId: number,
+    characterId: number
+  ): Promise<T.StandardResponse> => {
+    return (await api.post(`/api/rituals/${ritualId}/unassign/${characterId}`)).data;
+  },
+
+  // =====================================================
+  // WIZARDCRAFTS
+  // =====================================================
+
+  getWizardcrafts: async (): Promise<T.ListWizardcraftsResponse> => {
+    return (await api.get('/api/wizardcrafts')).data;
+  },
+
+  getWizardcraftById: async (
+    wizardcraftId: number
+  ): Promise<T.GetWizardcraftResponse> => {
+    return (await api.get(`/api/wizardcrafts/${wizardcraftId}`)).data;
+  },
+
+  createWizardcraft: async (
+    data: T.CreateWizardcraftRequest
+  ): Promise<T.CreateWizardcraftResponse> => {
+    return (await api.post('/api/wizardcrafts', data)).data;
+  },
+
+  updateWizardcraft: async (
+    wizardcraftId: number,
+    data: T.UpdateWizardcraftRequest
+  ): Promise<T.CreateWizardcraftResponse> => {
+    return (await api.put(`/api/wizardcrafts/${wizardcraftId}`, data)).data;
+  },
+
+  deleteWizardcraft: async (
+    wizardcraftId: number
+  ): Promise<T.StandardResponse> => {
+    return (await api.delete(`/api/wizardcrafts/${wizardcraftId}`)).data;
+  },
+
+  toggleWizardcraftVisibility: async (
+    wizardcraftId: number
+  ): Promise<T.CreateWizardcraftResponse> => {
+    return (await api.post(`/api/wizardcrafts/${wizardcraftId}/toggle-hidden`)).data;
+  },
+
+  assignWizardcraftToCharacter: async (
+    wizardcraftId: number,
+    characterId: number
+  ): Promise<T.StandardResponse> => {
+    return (await api.post(`/api/wizardcrafts/${wizardcraftId}/assign/${characterId}`)).data;
+  },
+
+  unassignWizardcraftFromCharacter: async (
+    wizardcraftId: number,
+    characterId: number
+  ): Promise<T.StandardResponse> => {
+    return (await api.post(`/api/wizardcrafts/${wizardcraftId}/unassign/${characterId}`)).data;
+  }
+
 };
 
 export default gameService;

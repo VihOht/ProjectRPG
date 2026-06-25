@@ -152,3 +152,68 @@ class CharacterSpecialAbility(db.Model):
             'name': self.name,
             'description': self.description
         }
+    
+
+class Ritual(db.Model):
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(80), nullable=False)
+    description: str = db.Column(db.Text, nullable=False)
+    ocultism_cost: int = db.Column(db.Integer, nullable=False, default=1)
+    power_level: int = db.Column(db.Integer, nullable=False, default=1)
+    subclass_id: int = db.Column(db.Integer, db.ForeignKey('subclass.id'), nullable=True)
+    hidden: bool = db.Column(db.Boolean, default=True)
+
+    characters = db.relationship(
+        'Character',
+        secondary='character_rituals',
+        back_populates='rituals',
+        lazy=True
+    )
+
+    def __init__(self, name, description, ocultism_cost=1, power_level=1, subclass_id=None):
+        self.name = name
+        self.description = description
+        self.ocultism_cost = ocultism_cost
+        self.power_level = power_level
+        self.subclass_id = subclass_id
+
+    def toDict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'ocultism_cost': self.ocultism_cost,
+            'power_level': self.power_level,
+            'subclass_id': self.subclass_id,
+            'hidden': self.hidden
+        }
+    
+class Wizardcraft(db.Model):
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(80), nullable=False)
+    description: str = db.Column(db.Text, nullable=False)
+    mana_cost: int = db.Column(db.Integer, nullable=False, default=1)
+    hidden: bool = db.Column(db.Boolean, default=True)
+
+    characters = db.relationship(
+        'Character',
+        secondary='character_wizardcrafts',
+        back_populates='wizardcrafts',
+        lazy=True
+    )
+
+    def __init__(self, name, description, mana_cost=1):
+        self.name = name
+        self.description = description
+        self.mana_cost = mana_cost
+
+    def toDict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'mana_cost': self.mana_cost,
+            'hidden': self.hidden
+        }
+
+    

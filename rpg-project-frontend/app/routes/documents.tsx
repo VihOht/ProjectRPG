@@ -4,12 +4,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { ClassesTab } from "../components/documents/tabs/ClassesTab";
 import { AttributesTab } from "../components/documents/tabs/AttributesTab";
 import ConversionTab from "../components/documents/tabs/ConversionsTab";
+import RuleBookModal from "../components/documents/dialogs/RuleBookModal";
 
 
 export default function DocumentsPage() {
     return (
         <StarSky>
-            <Header />
+            <Header> 
+                <RuleBookModal />
+            </Header>
 
             <div className="container mx-auto py-8 w-wide">
                 <Tabs defaultValue="classes" className="w-full">

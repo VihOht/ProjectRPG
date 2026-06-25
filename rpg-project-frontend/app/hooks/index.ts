@@ -13,3 +13,5 @@ export * from './useRaces';
 export * from './useUsers';
 export * from './useSpecialAbilities';
 export * from './useAttributePowers';
+export * from './useRituals';
+export * from './useWizardcrafts';

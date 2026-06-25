@@ -190,7 +190,7 @@ export default function RpgSheet() {
                     </button>
                 </Header>
                 {/* Main Content */}
-                <main className="flex-1 break-all p-8 text-sm text-vaccineBlack">
+                <main className="flex-1 break-all h-full p-8 text-sm text-vaccineBlack">
                 {/* <div
                     ref={sheetRef}
                     className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50 rounded-lg shadow-lg p-8 print-area"

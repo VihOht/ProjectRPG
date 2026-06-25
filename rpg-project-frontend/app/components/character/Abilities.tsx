@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
-import { useCharacter, useSubclasses, useClassPowers, useAttributePowers, useAttributes } from "../../hooks";
+import { useCharacter, useSubclasses, useClassPowers, useAttributePowers, useAttributes, useClass } from "../../hooks";
 import type { AbilityItem, ClassPowerItem, SpecialAbilityItem, AttributePowerItem } from "../../types";
 import AssignAbilitiesModal from "./dialogs/AssignAbilitiesModal";
 import { LucideArrowBigDown, LucideArrowBigUp } from "lucide-react";
+import WizardcraftSection from "./WizardcraftSection";
+import RitualSection from "./RitualSection";
 
 interface CharacterAbilitiesProps {
   characterId: number;
@@ -32,6 +34,16 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
       [tabName]: !prev[tabName],
     }));
   }
+
+  if (!characterData) {
+    return (
+      <section className="mb-8">
+        <p className="text-vaccineGray-300">Carregando habilidades...</p>
+      </section>
+    );
+  }
+
+  const { data: characterClass } = useClass(characterData.character.charClass);
 
   const { data: classPowersData } = useClassPowers();
 
@@ -63,13 +75,15 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
     return attribute ? attribute.name : "Desconecido";
   }
 
-  if (isLoading) {
+  if (isLoading || !characterData || !classPowersData || !attributePowersData || !attributesData ) {
     return (
       <section className="mb-8">
         <p className="text-vaccineGray-300">Carregando habilidades...</p>
       </section>
     );
   }
+
+
 
   return (
     <section className="mb-8">
@@ -79,7 +93,7 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
         </h2>
         <AssignAbilitiesModal characterId={characterId} />
       </div>
-      <div className={`transition-all duration-500 ${open ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
+      <div className={`transition-all duration-500 ${open ? 'max-h-screen h-full' : 'max-h-0 overflow-hidden opacity-0'}`}>
         <div className={`space-y-6 mb-6`}>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
@@ -161,6 +175,14 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
           </div>
 
         </div>
+
+        {characterClass?.class.has_mana && (
+          <WizardcraftSection character_id={characterId} />
+        )}
+
+        {characterClass?.class.has_ocultism && (
+          <RitualSection character_id={characterId} />
+        )}
 
         <div className={`mb-6 mt-6 transition-all duration-300`}>
           <div className="flex justify-between items-center mb-4">

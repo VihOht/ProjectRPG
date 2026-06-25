@@ -7,6 +7,7 @@ interface AppModalProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  resize?: boolean;
 }
 
 export function AppModal({
@@ -14,13 +15,14 @@ export function AppModal({
   title,
   onClose,
   children,
+  resize = false,
 }: AppModalProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 overflow-y-auto">
+    <div className={`fixed inset-0 z-50 bg-black/60 overflow-y-auto`}>
       <div className="flex items-center justify-center min-h-full p-4">
-        <div className="w-full max-w-2xl rounded-lg bg-vaccineBlueTones-1000 border border-vaccinePurple md:p-6 p-4">
+        <div className={`w-full max-w-2xl rounded-lg bg-vaccineBlueTones-1000 border border-vaccinePurple md:p-6 p-4 ${resize ? "resize overflow-auto" : ""}`}>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-white">
               {title}
@@ -33,7 +35,7 @@ export function AppModal({
               ✕
             </button>
           </div>
-
+          
           {children}
         </div>
       </div>

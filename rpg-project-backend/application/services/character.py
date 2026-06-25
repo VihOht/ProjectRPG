@@ -1,7 +1,7 @@
 from __future__ import annotations
 from application import db
 from application.models._characters import Character, ConversionRule, LevelUpRule, Race, ConversionRuleType
-from application.models._classes import CharacterSpecialAbility, Subclass, Class, ClassAbility, ClassPower
+from application.models._classes import CharacterSpecialAbility, Ritual, Wizardcraft, Subclass, Class, ClassAbility, ClassPower
 from application.models._pericia import Pericia, PericiaValue
 from application.models._attribute import Attribute, AttributePower, AttributeValue
 from application.models._user import User
@@ -1212,3 +1212,189 @@ class LevelUpRuleService:
         db.session.delete(level_up_rule)
         db.session.commit()
         return True, None
+    
+# RITUALS SERVICE
+class RitualService:
+    def get_all_rituals():
+        """Get all rituals"""
+        return Ritual.query.all()
+
+    def get_ritual_by_id(ritual_id):
+        """Get ritual by ID"""
+        return Ritual.query.get(ritual_id)
+    
+    def create_ritual(name, description, ocultism_cost, power_level, subclass_id=None):
+        """Create a new ritual"""
+        ritual = Ritual(name=name, description=description, ocultism_cost=ocultism_cost, power_level=power_level, subclass_id=subclass_id)
+        db.session.add(ritual)
+        db.session.commit()
+        return ritual
+    
+    def update_ritual(ritual_id, name=None, description=None, ocultism_cost=None, power_level=None, subclass_id=None):
+        """Update ritual"""
+        ritual = Ritual.query.get(ritual_id)
+        if not ritual:
+            return None, "Ritual not found"
+        
+        if name:
+            ritual.name = name
+        if description:
+            ritual.description = description
+        if ocultism_cost is not None:
+            ritual.ocultism_cost = ocultism_cost
+        if power_level is not None:
+            ritual.power_level = power_level
+        if subclass_id is not None:
+            subclass = Subclass.query.get(subclass_id)
+            if not subclass:
+                return None, "Subclass not found"
+            cl = Class.query.get(subclass.class_id)
+            if not cl:
+                return None, "Class not found for the given subclass"
+            if not cl.has_ocultism:
+                return None, "The class associated with the subclass does not have ocultism"
+            ritual.subclass_id = subclass_id
+        
+        db.session.commit()
+        return ritual, None
+    
+    def delete_ritual(ritual_id):
+        """Delete ritual"""
+        ritual = Ritual.query.get(ritual_id)
+        if not ritual:
+            return False, "Ritual not found"
+        
+        db.session.delete(ritual)
+        db.session.commit()
+        return True, None
+    
+    def toggle_ritual_hidden_status(ritual_id):
+        """Toggle ritual hidden status"""
+        ritual = Ritual.query.get(ritual_id)
+        if not ritual:
+            return None, "Ritual not found"
+        
+        ritual.hidden = not ritual.hidden
+        db.session.commit()
+        return ritual, None
+    
+    def assign_ritual_to_character(ritual_id, character_id):
+        """Assign ritual to character"""
+        ritual = Ritual.query.get(ritual_id)
+        if not ritual:
+            return None, "Ritual not found"
+        
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        if ritual in character.rituals:
+            return None, "Ritual already assigned to character"
+        
+        character.rituals.append(ritual)
+        db.session.commit()
+        return character, None
+    
+    def unassign_ritual_from_character(ritual_id, character_id):
+        """Unassign ritual from character"""
+        ritual = Ritual.query.get(ritual_id)
+        if not ritual:
+            return None, "Ritual not found"
+        
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        if ritual not in character.rituals:
+            return None, "Ritual is not assigned to character"
+        
+        character.rituals.remove(ritual)
+        db.session.commit()
+        return character, None
+
+# WIZARDCRAFT SERVICE
+class WizardcraftService:
+    def get_all_wizardcrafts():
+        """Get all wizardcrafts"""
+        return Wizardcraft.query.all()
+
+    def get_wizardcraft_by_id(wizardcraft_id):
+        """Get wizardcraft by ID"""
+        return Wizardcraft.query.get(wizardcraft_id)
+    
+    def create_wizardcraft(name, description, mana_cost):
+        """Create a new wizardcraft"""
+        wizardcraft = Wizardcraft(name=name, description=description, mana_cost=mana_cost)
+        db.session.add(wizardcraft)
+        db.session.commit()
+        return wizardcraft
+    
+    def update_wizardcraft(wizardcraft_id, name=None, description=None, mana_cost=None):
+        """Update wizardcraft"""
+        wizardcraft = Wizardcraft.query.get(wizardcraft_id)
+        if not wizardcraft:
+            return None, "Wizardcraft not found"
+        
+        if name:
+            wizardcraft.name = name
+        if description:
+            wizardcraft.description = description
+        if mana_cost is not None:
+            wizardcraft.mana_cost = mana_cost
+        
+        db.session.commit()
+        return wizardcraft, None
+    
+    def delete_wizardcraft(wizardcraft_id):
+        """Delete wizardcraft"""
+        wizardcraft = Wizardcraft.query.get(wizardcraft_id)
+        if not wizardcraft:
+            return False, "Wizardcraft not found"
+        
+        db.session.delete(wizardcraft)
+        db.session.commit()
+        return True, None
+    
+    def toggle_wizardcraft_hidden_status(wizardcraft_id):
+        """Toggle wizardcraft hidden status"""
+        wizardcraft = Wizardcraft.query.get(wizardcraft_id)
+        if not wizardcraft:
+            return None, "Wizardcraft not found"
+        
+        wizardcraft.hidden = not wizardcraft.hidden
+        db.session.commit()
+        return wizardcraft, None
+    
+    def assign_wizardcraft_to_character(wizardcraft_id, character_id):
+        """Assign wizardcraft to character"""
+        wizardcraft = Wizardcraft.query.get(wizardcraft_id)
+        if not wizardcraft:
+            return None, "Wizardcraft not found"
+        
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        if wizardcraft in character.wizardcrafts:
+            return None, "Wizardcraft already assigned to character"
+        
+        character.wizardcrafts.append(wizardcraft)
+        db.session.commit()
+        return character, None
+    
+    def unassign_wizardcraft_from_character(wizardcraft_id, character_id):
+        """Unassign wizardcraft from character"""
+        wizardcraft = Wizardcraft.query.get(wizardcraft_id)
+        if not wizardcraft:
+            return None, "Wizardcraft not found"
+        
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Character not found"
+        
+        if wizardcraft not in character.wizardcrafts:
+            return None, "Wizardcraft is not assigned to character"
+        
+        character.wizardcrafts.remove(wizardcraft)
+        db.session.commit()
+        return character, None

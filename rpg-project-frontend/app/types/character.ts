@@ -453,6 +453,8 @@ export type CharacterItem = {
   attributes: any[];
   abilities: AbilityItem[];
   special_abilities: SpecialAbilityItem[];
+  wizardcrafts: WizardcraftItem[];
+  rituals: RitualItem[];
 }
 
 export type CharacterStatLimits = {
@@ -621,9 +623,93 @@ export type UpdateLevelUpRuleRequest = {
 }
 
 
+// RITUALS
+
+export type RitualItem = {
+  id: number;
+  name: string;
+  description: string;
+  ocultism_cost: number;
+  power_level: number;
+  subclass_id: number | null;
+  hidden?: boolean;
+}
+
+export type CreateRitualRequest = {
+  name: string;
+  description: string;
+  ocultism_cost: number;
+  power_level: number;
+  subclass_id?: number | null;
+}
+
+export type CreateRitualResponse = {
+  ritual: RitualItem;
+  message: string;
+}
+
+export type ListRitualsResponse = {
+  rituals: RitualItem[];
+}
+
+export type GetRitualResponse = {
+  ritual: RitualItem;
+}
 
 
+export type UpdateRitualRequest = {
+  name?: string;
+  description?: string;
+  ocultism_cost?: number;
+  power_level?: number;
+  subclass_id?: number | null;
+}
 
+export type UpdateRitualResponse = {
+  ritual: RitualItem;
+  message: string;
+}
+
+// WIZARDCRAFT
+
+export type WizardcraftItem = {
+  id: number;
+  name: string;
+  description: string;
+  mana_cost: number;
+  hidden?: boolean;
+}
+
+export type CreateWizardcraftRequest = {
+  name: string;
+  description: string;
+  mana_cost: number;
+}
+
+export type CreateWizardcraftResponse = {
+  wizardcraft: WizardcraftItem;
+  message: string;
+}
+
+export type ListWizardcraftsResponse = {
+  wizardcrafts: WizardcraftItem[];
+}
+
+
+export type GetWizardcraftResponse = {
+  wizardcraft: WizardcraftItem;
+}
+
+export type UpdateWizardcraftRequest = {
+  name?: string;
+  description?: string;
+  mana_cost?: number;
+}
+
+export type UpdateWizardcraftResponse = {
+  wizardcraft: WizardcraftItem;
+  message: string;
+}
 
 
 

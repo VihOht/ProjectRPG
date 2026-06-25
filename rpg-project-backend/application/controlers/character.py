@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from application.services.character import (
     AttributePowerService, AttributeValueService, ClassAbilityService, RaceService, AttributeService, PericiasService,
-    ClassService, SpecialAbilityService, SubclassService, CharacterAttributesService,
-    CharacterService, ConversionRuleService, LevelUpRuleService, ClassPowerService
+    ClassService, RitualService, SpecialAbilityService, SubclassService, CharacterAttributesService,
+    CharacterService, ConversionRuleService, LevelUpRuleService, ClassPowerService, WizardcraftService
 )
 from application.controlers.auth import token_required
 from application.constants import *
@@ -1636,3 +1636,321 @@ def delete_level_up_rule(current_user, rule_id):
         return jsonify({'message': error}), 404
     
     return jsonify({'message': 'Regra de subida de nível excluída com sucesso'}), 200
+
+
+# ==================== RITUALS ====================
+@character_bp.route('/rituals', methods=['GET'])
+@token_required
+def get_rituals(current_user):
+    """Get all rituals"""
+    rituals = RitualService.get_all_rituals()
+    l = []
+    for r in rituals:
+        ritual_dict = r.toDict()
+        if ritual_dict.get('hidden', False) and not _is_admin(current_user):
+            continue
+        elif not _is_admin(current_user):
+            ritual_dict.pop('hidden', None)
+        l.append(ritual_dict)
+    return jsonify({
+        'rituals': l
+    }), 200
+
+
+@character_bp.route('/rituals/<int:ritual_id>', methods=['GET'])
+@token_required
+def get_ritual(current_user, ritual_id):
+    """Get ritual by ID"""
+    ritual = RitualService.get_ritual_by_id(ritual_id)
+    
+    if not ritual:
+        return jsonify({'message': 'Ritual não encontrado'}), 404
+    
+    ritual_dict = ritual.toDict()
+    if ritual_dict.get('hidden', False) and not _is_admin(current_user):
+        return jsonify({'message': 'Ritual não encontrado'}), 404
+    elif not _is_admin(current_user):
+        ritual_dict.pop('hidden', None)
+    
+    return jsonify({
+        'ritual': ritual_dict
+    }), 200
+
+@character_bp.route('/rituals', methods=['POST'])
+@token_required
+def create_ritual(current_user):
+    """Create a new ritual"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    data = request.get_json(silent=True) or {}
+    
+    if not data or not data.get('name') or not data.get('description'):
+        return jsonify({'message': 'Campos obrigatórios ausentes (name, description)'}), 400
+    
+    if not data.get('ocultism_cost') or not isinstance(data.get('ocultism_cost'), int) or data.get('ocultism_cost') < 0:
+        return jsonify({'message': 'Campo obrigatório ausente ou inválido: ocultism_cost (deve ser um inteiro não negativo)'}), 400
+
+    if not data.get('power_level') or not isinstance(data.get('power_level'), int) or data.get('power_level') < 0:
+        return jsonify({'message': 'Campo obrigatório ausente ou inválido: power_level (deve ser um inteiro não negativo)'}), 400
+
+    ritual = RitualService.create_ritual(
+        name=data.get('name'),
+        description=data.get('description'),
+        ocultism_cost=data.get('ocultism_cost'),
+        power_level=data.get('power_level'),
+        subclass_id=data.get('subclass_id', None),
+    )
+    
+    return jsonify({
+        'message': 'Ritual criado com sucesso',
+        'ritual': ritual.toDict()
+    }), 201
+
+@character_bp.route('/rituals/<int:ritual_id>', methods=['PUT'])
+@token_required
+def update_ritual(current_user, ritual_id):
+    """Update ritual"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    data = request.get_json(silent=True) or {}
+    
+    ritual, error = RitualService.update_ritual(
+        ritual_id,
+        name=data.get('name'),
+        description=data.get('description'),
+        ocultism_cost=data.get('ocultism_cost'),
+        power_level=data.get('power_level'),
+        subclass_id=data.get('subclass_id', None),
+    )
+
+    if error:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({
+        'message': 'Ritual atualizado com sucesso',
+        'ritual': ritual.toDict()
+    }), 200
+
+@character_bp.route('/rituals/<int:ritual_id>', methods=['DELETE'])
+@token_required
+def delete_ritual(current_user, ritual_id):
+    """Delete ritual"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    success, error = RitualService.delete_ritual(ritual_id)
+    
+    if not success:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({'message': 'Ritual excluído com sucesso'}), 200
+
+@character_bp.route('/rituals/<int:ritual_id>/toggle-hidden', methods=['POST'])
+@token_required
+def toggle_ritual_hidden_status(current_user, ritual_id):
+    """Toggle ritual hidden status (only for admin)"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    ritual, error = RitualService.toggle_ritual_hidden_status(ritual_id)
+    
+    if error:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({
+        'message': 'Status de oculto do ritual alterado com sucesso',
+        'ritual': ritual.toDict()
+    }), 200
+
+
+@character_bp.route('/rituals/<int:ritual_id>/assign/<int:character_id>', methods=['POST'])
+@token_required
+def assign_ritual_to_character(current_user, ritual_id, character_id):
+    """Assign ritual to character"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    character, error = RitualService.assign_ritual_to_character(ritual_id, character_id)
+
+    if error:
+        return jsonify({'message': error}), 404
+
+    return jsonify({
+        'message': 'Ritual atribuído ao personagem com sucesso',
+        'character': character.toDict()
+    }), 200
+
+@character_bp.route('/rituals/<int:ritual_id>/unassign/<int:character_id>', methods=['POST'])
+@token_required
+def unassign_ritual_from_character(current_user, ritual_id, character_id):
+    """Unassign ritual from character"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    character, error = RitualService.unassign_ritual_from_character(ritual_id, character_id)
+
+    if error:
+        return jsonify({'message': error}), 404
+
+    return jsonify({
+        'message': 'Ritual desatribuído do personagem com sucesso',
+        'character': character.toDict()
+    }), 200
+
+# ===================== WIZARDCRAFT ====================
+@character_bp.route('/wizardcrafts', methods=['GET'])
+@token_required
+def get_wizardcrafts(current_user):
+    """Get all wizardcrafts"""
+    wizardcrafts = WizardcraftService.get_all_wizardcrafts()
+    l = []
+    for w in wizardcrafts:
+        wizardcraft_dict = w.toDict()
+        if wizardcraft_dict.get('hidden', False) and not _is_admin(current_user):
+            continue
+        elif not _is_admin(current_user):
+            wizardcraft_dict.pop('hidden', None)
+        l.append(wizardcraft_dict)
+    return jsonify({
+        'wizardcrafts': l
+    }), 200
+    
+@character_bp.route('/wizardcrafts/<int:wizardcraft_id>', methods=['GET'])
+@token_required
+def get_wizardcraft(current_user, wizardcraft_id):
+    """Get wizardcraft by ID"""
+    wizardcraft = WizardcraftService.get_wizardcraft_by_id(wizardcraft_id)
+    
+    if not wizardcraft:
+        return jsonify({'message': 'Wizardcraft não encontrado'}), 404
+    
+    wizardcraft_dict = wizardcraft.toDict()
+    if wizardcraft_dict.get('hidden', False) and not _is_admin(current_user):
+        return jsonify({'message': 'Wizardcraft não encontrado'}), 404
+    elif not _is_admin(current_user):
+        wizardcraft_dict.pop('hidden', None)
+    
+    return jsonify({
+        'wizardcraft': wizardcraft_dict
+    }), 200
+
+@character_bp.route('/wizardcrafts', methods=['POST'])
+@token_required
+def create_wizardcraft(current_user):
+    """Create a new wizardcraft"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    data = request.get_json(silent=True) or {}
+    
+    if not data or not data.get('name') or not data.get('description'):
+        return jsonify({'message': 'Campos obrigatórios ausentes (name, description)'}), 400
+    
+    if not data.get('mana_cost') or not isinstance(data.get('mana_cost'), int) or data.get('mana_cost') < 0:
+        return jsonify({'message': 'Campo obrigatório ausente ou inválido: mana_cost (deve ser um inteiro não negativo)'}), 400
+    
+    wizardcraft = WizardcraftService.create_wizardcraft(
+        name=data.get('name'),
+        description=data.get('description'),
+        mana_cost=data.get('mana_cost'),
+    )
+    
+    return jsonify({
+        'message': 'Wizardcraft criado com sucesso',
+        'wizardcraft': wizardcraft.toDict()
+    }), 201
+
+@character_bp.route('/wizardcrafts/<int:wizardcraft_id>', methods=['PUT'])
+@token_required
+def update_wizardcraft(current_user, wizardcraft_id):
+    """Update wizardcraft"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    data = request.get_json(silent=True) or {}
+    
+    wizardcraft, error = WizardcraftService.update_wizardcraft(
+        wizardcraft_id,
+        name=data.get('name'),
+        description=data.get('description'),
+        mana_cost=data.get('mana_cost'),
+    )
+
+    if error:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({
+        'message': 'Wizardcraft atualizado com sucesso',
+        'wizardcraft': wizardcraft.toDict()
+    }), 200
+
+@character_bp.route('/wizardcrafts/<int:wizardcraft_id>', methods=['DELETE'])
+@token_required
+def delete_wizardcraft(current_user, wizardcraft_id):
+    """Delete wizardcraft"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    success, error = WizardcraftService.delete_wizardcraft(wizardcraft_id)
+    
+    if not success:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({'message': 'Wizardcraft excluído com sucesso'}), 200
+
+
+@character_bp.route('/wizardcrafts/<int:wizardcraft_id>/toggle-hidden', methods=['POST'])
+@token_required
+def toggle_wizardcraft_hidden_status(current_user, wizardcraft_id):
+    """Toggle wizardcraft hidden status (only for admin)"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    wizardcraft, error = WizardcraftService.toggle_wizardcraft_hidden_status(wizardcraft_id)
+    
+    if error:
+        return jsonify({'message': error}), 404
+    
+    return jsonify({
+        'message': 'Status de oculto do wizardcraft alterado com sucesso',
+        'wizardcraft': wizardcraft.toDict()
+    }), 200
+
+
+@character_bp.route('/wizardcrafts/<int:wizardcraft_id>/assign/<int:character_id>', methods=['POST'])
+@token_required
+def assign_wizardcraft_to_character(current_user, wizardcraft_id, character_id):
+    """Assign wizardcraft to character"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    character, error = WizardcraftService.assign_wizardcraft_to_character(wizardcraft_id, character_id)
+
+    if error:
+        return jsonify({'message': error}), 404
+
+    return jsonify({
+        'message': 'Wizardcraft atribuído ao personagem com sucesso',
+        'character': character.toDict()
+    }), 200
+
+@character_bp.route('/wizardcrafts/<int:wizardcraft_id>/unassign/<int:character_id>', methods=['POST'])
+@token_required
+def unassign_wizardcraft_from_character(current_user, wizardcraft_id, character_id):
+    """Unassign wizardcraft from character"""
+    if not _is_admin(current_user):
+        return jsonify({'message': 'Acesso Negado'}), 403
+
+    character, error = WizardcraftService.unassign_wizardcraft_from_character(wizardcraft_id, character_id)
+
+    if error:
+        return jsonify({'message': error}), 404
+
+    return jsonify({
+        'message': 'Wizardcraft desatribuído do personagem com sucesso',
+        'character': character.toDict()
+    }), 200
+
+

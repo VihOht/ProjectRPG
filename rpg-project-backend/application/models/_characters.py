@@ -20,6 +20,42 @@ character_abilities = db.Table(
     )
 )
 
+character_rituals = db.Table(
+    'character_rituals',
+
+    db.Column(
+        'character_id',
+        db.Integer,
+        db.ForeignKey('character.id'),
+        primary_key=True
+    ),
+
+    db.Column(
+        'ritual_id',
+        db.Integer,
+        db.ForeignKey('ritual.id'),
+        primary_key=True
+    )
+)
+
+character_wizardcrafts = db.Table(
+    'character_wizardcrafts',
+
+    db.Column(
+        'character_id',
+        db.Integer,
+        db.ForeignKey('character.id'),
+        primary_key=True
+    ),
+
+    db.Column(
+        'wizardcraft_id',
+        db.Integer,
+        db.ForeignKey('wizardcraft.id'),
+        primary_key=True
+    )
+)
+
 
 class Race(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -140,6 +176,20 @@ class Character(db.Model):
         lazy=True
     )
 
+    rituals = db.relationship(
+        'Ritual',
+        secondary=character_rituals,
+        back_populates='characters',
+        lazy=True
+    )
+
+    wizardcrafts = db.relationship(
+        'Wizardcraft',
+        secondary=character_wizardcrafts,
+        back_populates='characters',
+        lazy=True
+    )
+
     # Specials Abilities from character
     special_abilities = db.relationship('CharacterSpecialAbility', backref='character', lazy=True)
 
@@ -185,6 +235,8 @@ class Character(db.Model):
             'mana': self.mana,
             'attributes': [attribute.toDict() for attribute in self.attributes],
             'abilities': [ability.toDict() for ability in self.abilities],
+            'rituals': [ritual.toDict() for ritual in self.rituals],
+            'wizardcrafts': [wizardcraft.toDict() for wizardcraft in self.wizardcrafts],
             'special_abilities': [ability.toDict() for ability in self.special_abilities],
             'active': self.active,
             'is_player': self.is_player,
