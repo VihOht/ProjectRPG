@@ -35,10 +35,11 @@ def send_email(
 
     msg.attach(MIMEText(html_body, "html"))
 
-    with smtplib.SMTP(os.getenv("SMTP_SERVER"), int(os.getenv("SMTP_PORT"))) as server:
-        try:
+    try:
+        with smtplib.SMTP(os.getenv("SMTP_SERVER"), int(os.getenv("SMTP_PORT")), timeout=10) as server:
+            server.ehlo()
             server.starttls()
             server.login(os.getenv("SENDER_EMAIL"), os.getenv("SENDER_PASSWORD"))
             server.send_message(msg)
-        except Exception as e:
-            return str(e)
+    except Exception as e:
+        return str(e)
