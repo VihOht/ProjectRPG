@@ -1,15 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<title>Convite - Insônia</title>
+
+<style>
+#invite {
+    display: inline-block;
+    padding: 12px 24px;
+    
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    transition: border 0.3s ease;
+}
+
+#invite:hover {
+    border: 2px solid #357ab8;
+}
+</style>
 </head>
-<body>
-    <h1>A Resitência Presisa de Você 🫵 </h1>
-    <p>A Ordem espalha o caos em Gondbaran</p>
-    <p>Só bravos heróis como Você podem enfrentar esse desafio!</p>
-    <p>Eai, pronto para a aventura?</p>
-    <a href="{{ invitation_link }}">Aceitar Convite</a>
+<body style="margin:0;padding:40px 0;background:#010011;font-family:Arial,sans-serif;">
+
+<div style="
+    width:1024px;
+    margin:0 auto;
+    background:#010011;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 0 30px rgba(255,255,255,.08),0 0 80px rgba(100,100,255,.12);
+">
+
+    <!-- Decorative layer -->
+    <div style="height:0;overflow:visible;">
+
+        <div style="margin-left:120px;margin-top:30px;">
+            <span style="display:inline-block;width:3px;height:3px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff,0 0 12px #88aaff;"></span>
+        </div>
+
+        <div style="margin-left:820px;margin-top:40px;">
+            <span style="display:inline-block;width:3px;height:3px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff,0 0 12px #88aaff;"></span>
+        </div>
+
+        <div style="margin-left:560px;margin-top:60px;">
+            <span style="display:inline-block;width:3px;height:3px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff,0 0 12px #88aaff;"></span>
+        </div>
+
+        <div style="margin-left:180px;margin-top:90px;height:40px;">
+            <span style="display:inline-block;width:3px;height:3px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff,0 0 12px #88aaff;"></span>
+        </div>
+
+        <div style="margin-left:700px;margin-top:40px;">
+            <span style="display:inline-block;width:3px;height:3px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff,0 0 12px #88aaff;"></span>
+        </div>
+
+    </div>
+
+    <!-- Content -->
+    <div style="padding:70px 60px;position:relative;z-index:10;">
+
+        <h1 style="margin-top:0;font-size:34px;letter-spacing:2px;color:white;">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                role="img"
+                aria-label="Eight-pointed star"
+                style="vertical-align:middle;"
+                >
+                <g
+                    stroke="#FFFFFF"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    fill="none"
+                >
+                    <line x1="12" y1="3" x2="12" y2="21"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="5.64" y1="5.64" x2="18.36" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="5.64" y2="18.36"/>
+                </g>
+            </svg>
+            Sonhar é importante...
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                role="img"
+                aria-label="Eight-pointed star"
+                style="vertical-align:middle;"
+                >
+                <g
+                    stroke="#FFFFFF"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    fill="none"
+                >
+                    <line x1="12" y1="3" x2="12" y2="21"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="5.64" y1="5.64" x2="18.36" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="5.64" y2="18.36"/>
+                </g>
+                </svg>
+        </h1>
+
+        <p style="color:#d0d4ff;line-height:1.8;">
+            A Ressurreição se aproxima, e com ela o próprio Tudo se agita. A Rebelião precisa de mais do que soldados, ela precisa daqueles capazes de Sonhar além desse Mundo.
+        </p>
+
+        <p style="color:#d0d4ff;line-height:1.8;">
+            Se entregue aos Sonhos, pois só neles reside o que resta de esperança.
+        </p>
+
+        <a href="{{ invitation_link }}"
+            id="invite"   
+        >
+            Sonhar
+        </a>
+
+    </div>
+
+</div>
+
 </body>
 </html>
