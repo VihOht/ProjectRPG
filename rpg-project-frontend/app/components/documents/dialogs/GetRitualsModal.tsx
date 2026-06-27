@@ -60,6 +60,9 @@ export default function GetRitualsModal(
                     </div>
                 ) : (
                     <div className="flex items-center justify-center h-auto mb-4">
+                        {isAdmin && (
+                                <CreateRitualModal />
+                            )}
                         {isLoading ? (
                             <p className="text-vaccineGray-400">Carregando rituais...</p>
                         ) : (
