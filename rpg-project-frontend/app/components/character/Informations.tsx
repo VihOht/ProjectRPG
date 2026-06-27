@@ -113,8 +113,8 @@ export function CharacterInformation({
     
 
     return (
-        <section className="mb-8">
-                <div className="itens-center flex justify-between mb-4">
+        <section className="mb-8 bg-vaccineBlueTones-900/10 p-4 rounded-md">
+                <div className={`itens-center flex justify-between`}>
                     <h2 onClick={() => setOpen(!open)} className="text-3xl cursor-pointer min-w-[80%] font-walthari font-semibold mb-4 text-vaccineGray-300">
                         Informações Básicas
                     </h2>
@@ -122,7 +122,7 @@ export function CharacterInformation({
                         {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                     </button>
                 </div>
-                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 transition-all duration-500 ${open ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 transition-all duration-700 ${open ? 'max-h-screen mt-4' : 'opacity-0 max-h-0 overflow-hidden'}`}>
                     <div>
                         <label className="block font-trajanPBold text-sm font-medium text-vaccineGray-300 mb-1">
                             Classe

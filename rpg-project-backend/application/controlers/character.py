@@ -934,6 +934,7 @@ def create_class(current_user):
         base_sanity=data.get('base_sanity', 10),
         base_mana=data.get('base_mana', 10),
         base_ocultism=data.get('base_ocultism', 10),
+        base_power=data.get('base_power', 10),
         has_mana=data.get('has_mana', False),
         has_ocultism=data.get('has_ocultism', False)
     )
@@ -989,6 +990,7 @@ def update_class(current_user, class_id):
         base_sanity=data.get('base_sanity'),
         base_mana=data.get('base_mana'),
         base_ocultism=data.get('base_ocultism'),
+        base_power=data.get('base_power'),
         has_mana=data.get('has_mana'),
         has_ocultism=data.get('has_ocultism')
     )
@@ -1348,7 +1350,7 @@ def update_character_stats_offset(current_user, character_id):
 
     data = request.get_json(silent=True) or {}
 
-    allowed_fields = ['offset_life', 'offset_defense', 'offset_sanity', 'offset_ocultism', 'offset_mana']
+    allowed_fields = ['offset_life', 'offset_defense', 'offset_sanity', 'offset_ocultism', 'offset_mana', 'offset_power']
     for key in data.keys():
         if key not in allowed_fields:
             return jsonify({'message': f'Campo inesperado: {key}'}), 400

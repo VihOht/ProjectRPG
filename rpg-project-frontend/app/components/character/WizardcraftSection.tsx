@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCharacter } from "../../hooks";
-import { LucideArrowBigDown, LucideArrowBigUp } from "lucide-react";
+import { LucideArrowBigDown } from "lucide-react";
 import AssignWizardcraftModal from "./dialogs/AssignWizardcraftModal";
 
 export interface WizardcraftItemProps {
@@ -26,9 +26,9 @@ export default function WizardcraftSection(
               <AssignWizardcraftModal character_id={character_id} />
               <button
                 onClick={() => setOpen(!open)}
-                className="px-3 py-1 cursor-pointer bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+                className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
               >
-                {open ? <LucideArrowBigUp /> : <LucideArrowBigDown />}
+                <LucideArrowBigDown className={`transition-transform ${open ? 'rotate-180' : ''}`} />
               </button>
             </div>
           </div>

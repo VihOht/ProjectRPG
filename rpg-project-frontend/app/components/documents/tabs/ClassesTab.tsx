@@ -54,7 +54,7 @@ export function ClassesTab() {
 
  
     return (
-        <div className="w-full space-y-6">
+        <div className="w-full space-y-6 px-4 py-6">
 
             <div className="flex items-center justify-between">
                 <div className="p-2">
@@ -178,24 +178,26 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                 <h3 onClick={() => setOpen(!open)} className="text-2xl font-semibold text-vaccinePurple hover:underline w-[70%] cursor-pointer">
                     {charClass.name}
                 </h3>
-                {charClass.has_ocultism && (
-                    <GetRitualsModal />
-                )}
-                {charClass.has_mana && (
-                    <GetWizardcraftModal />
-                )}
-                {isAdmin && (
-                    <div className="flex gap-2">
-                        <UpdateClassModal classData={charClass} />
-                        <button
-                            type="button"
-                            onClick={() => onDeleteClass(charClass.id)}
-                            className="rounded-md bg-vaccinePurple px-3 py-1 text-sm text-white hover:opacity-90"
-                        >
-                            <LucideDelete className="w-4 h-4" />
-                        </button>
-                    </div>
-                )}
+                <div className="flex gap-2">
+                    {charClass.has_ocultism && (
+                        <GetRitualsModal />
+                    )}
+                    {charClass.has_mana && (
+                        <GetWizardcraftModal />
+                    )}
+                    {isAdmin && (
+                        <>
+                            <UpdateClassModal classData={charClass} />
+                            <button
+                                type="button"
+                                onClick={() => onDeleteClass(charClass.id)}
+                                className="rounded-md bg-vaccinePurple px-3 py-1 text-sm text-white hover:opacity-90"
+                            >
+                                <LucideDelete className="w-4 h-4" />
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
             <div className={`overflow-x-auto transition-all duration-500 ${open ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
                 <p className="text-vaccineGray-400">{charClass.description}</p>
@@ -236,14 +238,24 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                         </div>
                     )}
                     {charClass.has_ocultism && (
-                        <div className="flex gap-2">
-                            <label className="flex items-center gap-1 text-sm text-gray-300">
-                                Ocultismo Base:
-                            </label>
-                            <span className="w-10 text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
-                                {charClass.base_ocultism}
-                            </span>
-                        </div>
+                        <>
+                            <div className="flex gap-2">
+                                <label className="flex items-center gap-1 text-sm text-gray-300">
+                                    Ocultismo Base:
+                                </label>
+                                <span className="w-10 text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
+                                    {charClass.base_ocultism}
+                                </span>
+                            </div>
+                            <div className="flex gap-2">
+                                <label className="flex items-center gap-1 text-sm text-gray-300">
+                                    Poder Base:
+                                </label>
+                                <span className="w-10 text-center px-2 py-1 bg-vaccineGray-800/20 border border-gray-300/20 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white">
+                                    {charClass.base_power}
+                                </span>
+                            </div>
+                        </>
                     )}
                 </div>
 

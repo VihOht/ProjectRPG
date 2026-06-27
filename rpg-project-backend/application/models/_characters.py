@@ -152,12 +152,14 @@ class Character(db.Model):
     att_sanity: int = db.Column(db.Integer, nullable=False, default=0)
     att_ocultism: int = db.Column(db.Integer, nullable=False, default=0)
     att_mana: int = db.Column(db.Integer, nullable=False, default=0)
+    att_power: int = db.Column(db.Integer, nullable=False, default=0)
 
     offset_life: int = db.Column(db.Integer, nullable=False, default=0)
     offset_defense: int = db.Column(db.Integer, nullable=False, default=0)
     offset_sanity: int = db.Column(db.Integer, nullable=False, default=0)
     offset_ocultism: int = db.Column(db.Integer, nullable=False, default=0)
     offset_mana: int = db.Column(db.Integer, nullable=False, default=0)
+    offset_power: int = db.Column(db.Integer, nullable=False, default=0)
 
     life: int = db.Column(db.Integer, nullable=False, default=10)
     sanity: int = db.Column(db.Integer, nullable=False, default=10)
@@ -224,11 +226,13 @@ class Character(db.Model):
             'att_sanity': self.att_sanity,
             'att_ocultism': self.att_ocultism,
             'att_mana': self.att_mana,
+            'att_power': self.att_power,
             'offset_life': self.offset_life,
             'offset_defense': self.offset_defense,
             'offset_sanity': self.offset_sanity,
             'offset_ocultism': self.offset_ocultism,
             'offset_mana': self.offset_mana,
+            'offset_power': self.offset_power,
             'life': self.life,
             'sanity': self.sanity,
             'ocultism': self.ocultism,

@@ -141,7 +141,7 @@ export default function Index() {
                                 onClick={() =>
                                   navigate(`/ficha/${character.id}`)
                                 }
-                                className="px-3 py-1.5 rounded-md bg-vaccinePurple text-white hover:bg-purple-700 transition-colors"
+                                className="px-3 py-1.5 rounded-md bg-vaccinePurple text-white hover:bg-purple-700 transition-colors cursor-pointer"
                               >
                                 Abrir
                               </button>

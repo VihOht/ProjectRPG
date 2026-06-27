@@ -19,6 +19,7 @@ export default function CreateClassForm({ onSucess }: CreateClassFormProps) {
         base_sanity: 0,
         base_defense: 0,
         base_ocultism: 0,
+        base_power: 0,
         has_mana: false,
         has_ocultism: false,
     });
@@ -155,18 +156,33 @@ export default function CreateClassForm({ onSucess }: CreateClassFormProps) {
                         </div>
                     )}
                     {formData.has_ocultism && (
-                        <div className="mb-4 flex gap-2">
+                        <>
+                            <div className="mb-4 flex gap-2">
+                                <label className="flex items-center gap-1 text-sm text-gray-300">
+                                    Base Ocultismo
+                                </label>
+                                <input
+                                    type="number"
+                                    name="base_ocultism"
+                                    value={formData.base_ocultism}
+                                    onChange={handleChange}
+                                    className="w-20 px-2 py-1 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
+                                />
+                            </div>
+                            <div className="mb-4 flex gap-2">
                             <label className="flex items-center gap-1 text-sm text-gray-300">
-                                Base Ocultismo
+                                Base Poder
                             </label>
                             <input
                                 type="number"
-                                name="base_ocultism"
-                                value={formData.base_ocultism}
+                                name="base_power"
+                                value={formData.base_power}
                                 onChange={handleChange}
                                 className="w-20 px-2 py-1 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
                             />
                         </div>
+                        </>
+                        
                     )}
                 </div>
                 <button

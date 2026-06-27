@@ -5,7 +5,7 @@ import {
     useCharacter,
     useUpdateCharacterDescription,
 } from "../../hooks";
-import { LucideArrowBigDown, LucideArrowBigUp } from "lucide-react";
+import { LucideArrowBigDown } from "lucide-react";
 
 interface CharacterLoreProps {
     characterId: number;
@@ -74,8 +74,8 @@ export function CharacterLore({
     };
 
     return (
-        <section className="mb-8">
-            <div className="items-center flex justify-between mb-1">
+        <section className="mb-8 bg-vaccineBlueTones-900/10 p-4 rounded-md">
+            <div className="items-center flex justify-between">
                 <h2 onClick={() => setOpen(!open)} className="text-3xl cursor-pointer min-w-[80%] font-walthari font-semibold mb-4 text-vaccineGray-300">
                     Lore
                 </h2>
@@ -91,7 +91,7 @@ export function CharacterLore({
                     {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                 </button>
             </div>
-            <div className={`overflow-x-auto transition-all duration-500 ${open ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
+            <div className={`overflow-x-auto transition-all duration-700 ${open ? 'max-h-screen mt-4' : 'max-h-0 overflow-hidden opacity-0'}`}>
                 <div className="items-center flex justify-between mb-2">
                     <h2 className="text-2xl font-walthari font-semibold mb-2 text-vaccineGray-300">
                         Descrição Física
@@ -100,7 +100,7 @@ export function CharacterLore({
                         onClick={() => setOpenTabs((current) => ({ ...current, physical: !current.physical }))}
                         className="mb-2 px-3 py-1 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100"
                     >
-                        {openTabs.physical ? <LucideArrowBigDown /> : <LucideArrowBigUp />}
+                        <LucideArrowBigDown className={`transition-transform ${openTabs.physical ? 'rotate-180' : ''}`} />
                     </button>
                 </div>
                 <div className={`mb-4 transition-all duration-300 ${openTabs.physical ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
@@ -126,9 +126,9 @@ export function CharacterLore({
                     </h2>
                     <button
                         onClick={() => setOpenTabs((current) => ({ ...current, psychological: !current.psychological }))}
-                        className="mb-2 px-3 py-1 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100"
+                        className="mb-2 px-3 py-1 bg-vaccineBlueTones-400 hover:bg-blue-700 rounded-md transition-colors text-vaccineBlueTones-100"
                     >
-                        {openTabs.psychological ? <LucideArrowBigDown /> : <LucideArrowBigUp />}
+                        <LucideArrowBigDown className={`transition-transform ${openTabs.psychological ? 'rotate-180' : ''}`} />
                     </button>
                 </div>
                 <div className={`mb-4 transition-all duration-300 ${openTabs.psychological ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
@@ -154,9 +154,9 @@ export function CharacterLore({
                     </h2>
                     <button
                         onClick={() => setOpenTabs((current) => ({ ...current, backstory: !current.backstory }))}
-                        className="mb-2 px-3 py-1 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100"
+                        className="mb-2 px-3 py-1 bg-vaccineBlueTones-400 hover:bg-blue-700 rounded-md transition-colors text-vaccineBlueTones-100"
                     >
-                        {openTabs.backstory ? <LucideArrowBigDown /> : <LucideArrowBigUp />}
+                        <LucideArrowBigDown className={`transition-transform ${openTabs.backstory ? 'rotate-180' : ''}`} />
                     </button>
                 </div>
                 <div className={`mb-4 transition-all duration-300 ${openTabs.backstory ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>

@@ -35,7 +35,7 @@ export default function GetRitualsModal(
         <>  
             <button
                 onClick={() => setOpen(true)}
-                className="px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+                className="px-4 py-2 min-w-[100px] bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
             >
                 Rituais
             </button>
@@ -46,7 +46,7 @@ export default function GetRitualsModal(
 
             >
                 { rituals && rituals.rituals.length > 0 ? (
-                    <div className="overflow-y-auto w-full h-[80vh]">
+                    <div className="overflow-y-auto w-full h-auto">
                         <div className="flex justify-end mb-4 w-full">
                             {isAdmin && (
                                 <CreateRitualModal />
@@ -59,7 +59,7 @@ export default function GetRitualsModal(
                         </ul>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-center h-[80vh]">
+                    <div className="flex items-center justify-center h-auto mb-4">
                         {isLoading ? (
                             <p className="text-vaccineGray-400">Carregando rituais...</p>
                         ) : (

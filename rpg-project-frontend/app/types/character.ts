@@ -280,6 +280,7 @@ export type ClassItem = {
   base_sanity: number;
   base_mana: number;
   base_ocultism: number;
+  base_power: number;
 
   has_mana: boolean;
   has_ocultism: boolean;
@@ -298,6 +299,7 @@ export type CreateClassRequest = {
   base_sanity?: number;
   base_mana?: number;
   base_ocultism?: number;
+  base_power?: number;
 
   has_mana?: boolean;
   has_ocultism?: boolean;
@@ -325,6 +327,7 @@ export type UpdateClassRequest = {
   base_sanity?: number;
   base_mana?: number;
   base_ocultism?: number;
+  base_power?: number;
 
   has_mana?: boolean;
   has_ocultism?: boolean;
@@ -431,12 +434,14 @@ export type CharacterItem = {
   att_sanity: number;
   att_ocultism: number;
   att_mana: number;
+  att_power: number;
 
   offset_life: number;
   offset_defense: number;
   offset_sanity: number;
   offset_ocultism: number;
   offset_mana: number;
+  offset_power: number;
 
   life: number;
   sanity: number;
@@ -483,6 +488,11 @@ export type CharacterStatLimits = {
     bonus: number;
     total_max: number;
   };
+  power: {
+    base: number;
+    bonus: number;
+    total_max: number;
+  };
 };
 
 export type CreateCharacterResponse = {
@@ -519,6 +529,7 @@ export type UpdateCharacterStatsRequest = {
   sanity?: number;
   ocultism?: number;
   defense?: number;
+  power?: number;
 }
 
 export type UpdateCharacterDescriptionRequest = {
@@ -533,6 +544,7 @@ export type UpdateCharacterOffsetsRequest = {
   offset_sanity?: number;
   offset_ocultism?: number;
   offset_mana?: number;
+  offset_power?: number;
 }
 
 

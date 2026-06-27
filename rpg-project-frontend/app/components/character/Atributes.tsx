@@ -74,7 +74,7 @@ export function CharacterAttributes({
 
     if (isLoading) {
         return (
-            <div className="text-vaccineGray-200">
+            <div className="text-vaccineGray-200 mb-8 text-center">
                 Carregando atributos...
             </div>
         );
@@ -85,8 +85,8 @@ export function CharacterAttributes({
 
 
     return (
-        <section className="mb-8">
-            <div  className="items-center flex justify-between mb-4">
+        <section className="mb-8 bg-vaccineBlueTones-900/10 p-4 rounded-md">
+            <div  className="items-center flex justify-between">
                 <h2 onClick={() => {setOpen(!open)}} className="text-3xl cursor-pointer min-w-[80%] font-walthari font-semibold mb-4 text-vaccineGray-300">
                     Atributos e Perícias
                 </h2>
@@ -103,7 +103,7 @@ export function CharacterAttributes({
                     {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
                 </button>
             </div>
-            <div className={`overflow-x-auto transition-all duration-500 ${open ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'}`}>
+            <div className={`overflow-x-auto transition-all duration-700 ${open ? 'max-h-screen mt-4' : 'max-h-0 overflow-hidden opacity-0'}`}>
                 <table className="w-full border-collapse border border-gray-300">
                     <thead>
                         <tr className="bg-vaccineGray text-vaccineGray-200">

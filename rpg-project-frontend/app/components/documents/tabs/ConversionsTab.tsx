@@ -67,6 +67,8 @@ export default function ConversionTab() {
                 return "Mana";
             case "ocultism":
                 return "Ocultismo";
+            case "power":
+                return "Poder";
             default:
                 return stat;
         }

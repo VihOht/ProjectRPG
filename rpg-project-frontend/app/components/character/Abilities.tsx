@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useCharacter, useSubclasses, useClassPowers, useAttributePowers, useAttributes, useClass } from "../../hooks";
 import type { AbilityItem, ClassPowerItem, SpecialAbilityItem, AttributePowerItem } from "../../types";
 import AssignAbilitiesModal from "./dialogs/AssignAbilitiesModal";
-import { LucideArrowBigDown, LucideArrowBigUp } from "lucide-react";
+import { LucideArrowBigDown } from "lucide-react";
 import WizardcraftSection from "./WizardcraftSection";
 import RitualSection from "./RitualSection";
 
@@ -37,7 +37,7 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
 
   if (!characterData) {
     return (
-      <section className="mb-8">
+      <section className="text-vaccineGray-200 mb-8 text-center">
         <p className="text-vaccineGray-300">Carregando habilidades...</p>
       </section>
     );
@@ -86,14 +86,14 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
 
 
   return (
-    <section className="mb-8">
+    <section className="mb-8 bg-vaccineBlueTones-900/10 rounded-md p-4">
       <div className="items-center flex justify-between mb-4">
         <h2 onClick={() => {setOpen(!open)}} className="text-3xl cursor-pointer min-w-[80%] font-walthari font-semibold text-vaccineGray-300">
           Habilidades
         </h2>
         <AssignAbilitiesModal characterId={characterId} />
       </div>
-      <div className={`transition-all duration-500 ${open ? 'max-h-screen h-full' : 'max-h-0 overflow-hidden opacity-0'}`}>
+      <div className={`transition-all duration-700 ${open ? 'max-h-screen h-full mt-4' : 'max-h-0 overflow-hidden opacity-0'}`}>
         <div className={`space-y-6 mb-6`}>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
@@ -101,9 +101,9 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
             </h3>
             <button
               onClick={() => toggleTab('classPowers')}
-              className="px-3 py-1 cursor-pointer bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+              className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
             >
-              {openTabs.classPowers ? <LucideArrowBigUp /> : <LucideArrowBigDown />}
+              <LucideArrowBigDown className={`transition-transform ${openTabs.classPowers ? 'rotate-180' : ''}`} />
             </button>
           </div>
           <div className={`${openTabs.classPowers ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
@@ -128,9 +128,9 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
             </h3>
             <button
               onClick={() => toggleTab('attributePowers')}
-              className="px-3 py-1 cursor-pointer bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+              className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
             >
-              {openTabs.attributePowers ? <LucideArrowBigUp /> : <LucideArrowBigDown />}
+              <LucideArrowBigDown className={`transition-transform ${openTabs.attributePowers ? 'rotate-180' : ''}`} />
             </button>
           </div>
           <div className={`${openTabs.attributePowers ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
@@ -155,9 +155,9 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
             </h3>
             <button
               onClick={() => toggleTab('abilities')}
-              className="px-3 py-1 cursor-pointer bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+              className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
             >
-              {openTabs.abilities ? <LucideArrowBigUp /> : <LucideArrowBigDown />}
+              <LucideArrowBigDown className={`transition-transform ${openTabs.abilities ? 'rotate-180' : ''}`} />
             </button>
           </div>
           <div className={`${openTabs.abilities ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
@@ -184,16 +184,16 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
           <RitualSection character_id={characterId} />
         )}
 
-        <div className={`mb-6 mt-6 transition-all duration-300`}>
+        <div className={`mt-6 transition-all duration-500`}>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
               Habilidades Especiais
             </h3>
             <button
               onClick={() => toggleTab('specialAbilities')}
-              className="px-3 py-1 cursor-pointer bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+              className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
             >
-              {openTabs.specialAbilities ? <LucideArrowBigUp /> : <LucideArrowBigDown />}
+              <LucideArrowBigDown className={`transition-transform ${openTabs.specialAbilities ? 'rotate-180' : ''}`} />
             </button>
           </div>
           <div className={`${openTabs.specialAbilities ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>

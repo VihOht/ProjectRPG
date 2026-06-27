@@ -35,7 +35,7 @@ export default function GetWizardcraftModal() {
         <>  
             <button
                 onClick={() => setOpen(true)}
-                className="px-4 py-2 bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
+                className="px-4 py-2 min-w-[100px] bg-vaccinePurple text-white rounded-md hover:bg-vaccinePurple/80 transition"
             >
                 Feitiços
             </button>
@@ -45,7 +45,7 @@ export default function GetWizardcraftModal() {
                 onClose={() => setOpen(false)}
             >   
                 { wizardcrafts && wizardcrafts.wizardcrafts.length > 0 ? (
-                    <div className="overflow-y-auto w-full h-[80vh]">
+                    <div className="overflow-y-auto w-full h-auto">
                         {isAdmin && (
                             <div className="flex justify-end mb-4 w-full">
                                 <CreateWizardcraftModal />
@@ -58,13 +58,13 @@ export default function GetWizardcraftModal() {
                         </ul>
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center h-[80vh]">
+                    <div className="flex flex-col items-center justify-center h-auto">
                         {isAdmin && (
                             <div className="flex justify-end mb-4 w-full">
                                 <CreateWizardcraftModal />
                             </div>
                         )}
-                        <div className="flex flex-col items-center justify-center gap-4">
+                        <div className="flex flex-col items-center justify-center mb-4 gap-4">
                             {isLoading ? (
                                 <p className="text-vaccineGray-400">Carregando Feitiços...</p>
                             ) : (

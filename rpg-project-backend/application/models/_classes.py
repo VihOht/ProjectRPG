@@ -43,11 +43,12 @@ class Class (db.Model):
     base_sanity: int = db.Column(db.Integer, nullable=False, default=10)
     base_mana: int = db.Column(db.Integer, nullable=False, default=10)
     base_ocultism: int = db.Column(db.Integer, nullable=False, default=10)
+    base_power: int = db.Column(db.Integer, nullable=False, default=10)
     has_mana: bool = db.Column(db.Boolean, default=False)
     has_ocultism: bool = db.Column(db.Boolean, default=False)
 
 
-    def __init__(self, name, description, base_life=10, base_defense=10, base_sanity=10, base_mana=10, base_ocultism=10, has_mana=False, has_ocultism=False):
+    def __init__(self, name, description, base_life=10, base_defense=10, base_sanity=10, base_mana=10, base_ocultism=10, base_power=10, has_mana=False, has_ocultism=False):
         self.name = name
         self.description = description
         self.base_life = base_life
@@ -55,6 +56,7 @@ class Class (db.Model):
         self.base_sanity = base_sanity
         self.base_mana = base_mana
         self.base_ocultism = base_ocultism
+        self.base_power = base_power
         self.has_mana = has_mana
         self.has_ocultism = has_ocultism
 
@@ -68,6 +70,7 @@ class Class (db.Model):
             'base_sanity': self.base_sanity,
             'base_mana': self.base_mana,
             'base_ocultism': self.base_ocultism,
+            'base_power': self.base_power,
             'has_mana': self.has_mana,
             'has_ocultism': self.has_ocultism,
             "abilities": [ability.toDict() for ability in self.abilities],

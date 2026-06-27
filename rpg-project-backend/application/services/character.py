@@ -488,9 +488,9 @@ class AttributePowerService:
 
 class ClassService:
     @staticmethod
-    def create_class(name, description, base_life=10, base_defense=10, base_sanity=10, base_mana=10, base_ocultism=10, has_mana=False, has_ocultism=False):
+    def create_class(name, description, base_life=10, base_defense=10, base_sanity=10, base_mana=10, base_ocultism=10, base_power=10, has_mana=False, has_ocultism=False):
         """Create a new class"""
-        char_class = Class(name=name, description=description, base_life=base_life, base_defense=base_defense, base_sanity=base_sanity, base_mana=base_mana, base_ocultism=base_ocultism, has_mana=has_mana, has_ocultism=has_ocultism)
+        char_class = Class(name=name, description=description, base_life=base_life, base_defense=base_defense, base_sanity=base_sanity, base_mana=base_mana, base_ocultism=base_ocultism, base_power=base_power, has_mana=has_mana, has_ocultism=has_ocultism)
         db.session.add(char_class)
         db.session.commit()
         return char_class
@@ -506,9 +506,9 @@ class ClassService:
         return Class.query.get(class_id)
 
     @staticmethod
-    def update_class(class_id, name=None, description=None, base_life=None, base_defense=None, base_sanity=None, base_mana=None, base_ocultism=None, has_mana=None, has_ocultism=None):
+    def update_class(class_id, name=None, description=None, base_life=None, base_defense=None, base_sanity=None, base_mana=None, base_ocultism=None, base_power=None, has_mana=None, has_ocultism=None):
         """Update class"""
-        char_class = Class.query.get(class_id)
+        char_class: Class = Class.query.get(class_id)
         if not char_class:
             return None, "Class not found"
         
@@ -526,6 +526,8 @@ class ClassService:
             char_class.base_mana = base_mana
         if base_ocultism is not None:
             char_class.base_ocultism = base_ocultism
+        if base_power is not None:
+            char_class.base_power = base_power
         if has_mana is not None:
             char_class.has_mana = has_mana
         if has_ocultism is not None:
@@ -722,6 +724,14 @@ class CharacterService:
         
         # Create default attributes and pericias for the character
         AttributeValueService.create_character_attributes(character.id)
+
+        stats_limits, error = CharacterService.calculate_stat_limits(character.id)
+        if error:
+            db.session.rollback()
+            return None, error
+        
+        for stat, values in stats_limits.items():
+            setattr(character, stat, values["total_max"])
         
         db.session.commit()
         return character, None
@@ -753,23 +763,27 @@ class CharacterService:
         stats = {
             "life": {
                 "base": getattr(character_class, "base_life", 0) + getattr(character, "offset_life", 0),
-                "bonus": getattr(character, "att_life", 0)
+                "bonus": getattr(character, "att_life", 0) + getattr(character, "offset_life", 0)
             },
             "sanity": {
                 "base": getattr(character_class, "base_sanity", 0) + getattr(character, "offset_sanity", 0),
-                "bonus": getattr(character, "att_sanity", 0)
+                "bonus": getattr(character, "att_sanity", 0) + getattr(character, "offset_sanity", 0)
             },
             "ocultism": {
                 "base": getattr(character_class, "base_ocultism", 0) + getattr(character, "offset_ocultism", 0),
-                "bonus": getattr(character, "att_ocultism", 0)
+                "bonus": getattr(character, "att_ocultism", 0) + getattr(character, "offset_ocultism", 0)
             },
             "mana": {
                 "base": getattr(character_class, "base_mana", 0) + getattr(character, "offset_mana", 0),
-                "bonus": getattr(character, "att_mana", 0)
+                "bonus": getattr(character, "att_mana", 0) + getattr(character, "offset_mana", 0)
             },
             "defense": {
                 "base": getattr(character_class, "base_defense", 0) + getattr(character, "offset_defense", 0),
-                "bonus": getattr(character, "att_defense", 0)
+                "bonus": getattr(character, "att_defense", 0) + getattr(character, "offset_defense", 0)
+            },
+            "power": {
+                "base": getattr(character_class, "base_power", 0) + getattr(character, "offset_power", 0),
+                "bonus": getattr(character, "att_power", 0) + getattr(character, "offset_power", 0)
             }
         }
 
@@ -850,7 +864,7 @@ class CharacterService:
         return character, None
     
     @staticmethod
-    def update_stats_off_sets(character_id, offset_life=None, offset_defense=None, offset_sanity=None, offset_ocultism=None, offset_mana=None):
+    def update_stats_off_sets(character_id, offset_life=None, offset_defense=None, offset_sanity=None, offset_ocultism=None, offset_mana=None, offset_power=None):
         """Admin update character stat offsets"""
         character = Character.query.get(character_id)
         if not character:
@@ -866,6 +880,8 @@ class CharacterService:
             character.offset_ocultism = offset_ocultism
         if offset_mana is not None:
             character.offset_mana = offset_mana
+        if offset_power is not None:
+            character.offset_power = offset_power
 
         db.session.commit()
         return character, None
@@ -942,6 +958,7 @@ class CharacterService:
         character.att_sanity = 0
         character.att_ocultism = 0
         character.att_mana = 0
+        character.att_power = 0
         pericias_ids = [pericia_value.pericia_id for attr_value in character.attributes for pericia_value in attr_value.pericias]
 
         for rule in conversion_rules:
@@ -976,7 +993,8 @@ class CharacterService:
                 character.att_ocultism += att_stat  # attribute bonus to ocultism
             elif rule.stat == "mana":
                 character.att_mana += att_stat  # attribute bonus to mana
-
+            elif rule.stat == "power":
+                character.att_power += att_stat  # attribute bonus to power
         
         db.session.commit()
         return character, None
@@ -1398,3 +1416,11 @@ class WizardcraftService:
         character.wizardcrafts.remove(wizardcraft)
         db.session.commit()
         return character, None
+    
+
+class InventoryService:
+    @staticmethod
+    def get_character_inventories(character_id):
+        """Get all inventories for a character"""
+        
+        
