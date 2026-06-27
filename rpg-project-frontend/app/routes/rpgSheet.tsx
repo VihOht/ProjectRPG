@@ -126,14 +126,6 @@ export default function RpgSheet() {
         }
     }, [characterError]);
 
-    if (isCharacterLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-xl text-gray-500">Carregando ficha...</p>
-            </div>
-        );
-    }
-
      useEffect(() => {
         if (levelUpRule && character?.experience && character.experience >= levelUpRule.experience_required && !isEditingHeader) {
                 toast.success("Você alcançou um novo nível!");
@@ -153,6 +145,14 @@ export default function RpgSheet() {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <p className="text-xl text-gray-500">ID do personagem é inválido.</p>
+            </div>
+        );
+    }
+
+    if (isCharacterLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-xl text-gray-500">Carregando ficha...</p>
             </div>
         );
     }
