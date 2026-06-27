@@ -34,7 +34,7 @@ export default function ConversionTab() {
 
     useEffect(() => {
         if (levelUpRulesData) {
-            setLevelUpRules(levelUpRulesData.level_up_rules);
+            setLevelUpRules(levelUpRulesData.level_up_rules.sort((a, b) => a.level - b.level));
         }
     }, [levelUpRulesData, refetchLevelUpRules]);
 

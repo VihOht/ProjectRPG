@@ -28,14 +28,6 @@ export default function RpgSheet() {
         return parsed
     }, [id]);
 
-    if (characterId === null) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-xl text-gray-500">ID do personagem é inválido.</p>
-            </div>
-        );
-    }
-
     const { data: characterData, refetch: refetchCharacter, isLoading: isCharacterLoading, error: characterError } = useCharacter(characterId!);
     const { data: levelUpRulesData } = useLevelUpRules();
    
@@ -157,6 +149,13 @@ export default function RpgSheet() {
             }
     }, [character?.experience, levelUpRule, isEditingHeader]);
 
+    if (characterId === null) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-xl text-gray-500">ID do personagem é inválido.</p>
+            </div>
+        );
+    }
 
     if (!characterId) {
         return <div>Character id is invalid.</div>;
