@@ -22,7 +22,7 @@ export default function CreateRitualModal() {
         description: "",
         power_level: 0,
         ocultism_cost: 0,
-        subclass_id: 0,
+        subclass_id: null,
     } as CreateRitualRequest);
     
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -43,7 +43,7 @@ export default function CreateRitualModal() {
                     description: "",
                     power_level: 0,
                     ocultism_cost: 0,
-                    subclass_id: 0,
+                    subclass_id: null,
                 });
             },
             onError: (error) => {
@@ -85,7 +85,7 @@ export default function CreateRitualModal() {
                     </div>
                     <div className="flex flex-col gap-2">
                         <label htmlFor="ritualSubclass">Subclasse</label>
-                        <select value={Number(formData.subclass_id)} onChange={handleInputChange} id="ritualSubclass" name="subclass_id" className="p-2 border rounded-md bg-vaccineGray-50 text-vaccineGray-500">
+                        <select value={undefined} onChange={handleInputChange} id="ritualSubclass" name="subclass_id" className="p-2 border rounded-md bg-vaccineGray-50 text-vaccineGray-500">
                             <option value={0}>Selecione uma subclasse</option>
                             {filteredSubclasses?.map((subclass) => (
                                 <option key={subclass.id} value={subclass.id}>{subclass.name}</option>

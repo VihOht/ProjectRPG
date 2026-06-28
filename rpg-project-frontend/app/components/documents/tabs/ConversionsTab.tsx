@@ -69,6 +69,8 @@ export default function ConversionTab() {
                 return "Ocultismo";
             case "power":
                 return "Poder";
+            case "inventory_capacity":
+                return "Capacidade de Inventário";
             default:
                 return stat;
         }

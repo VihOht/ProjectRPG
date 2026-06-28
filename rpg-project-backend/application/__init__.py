@@ -36,11 +36,13 @@ from application.controlers.auth import auth_bp
 from application.controlers.character import character_bp
 from application.controlers.lore import lore_bp
 from application.controlers.users import users_bp
+from application.controlers.inventory import inventory_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(character_bp)
 app.register_blueprint(lore_bp)
 app.register_blueprint(users_bp)
+app.register_blueprint(inventory_bp)
 
 @app.route('/health')
 def health_check():

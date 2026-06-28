@@ -59,7 +59,7 @@ const RitualCard = ({ ritual, subclass }: { ritual: any; subclass: any }) => {
         <div className="border rounded-md p-4 bg-vaccineGray-50">
             <h4 className="text-lg font-semibold text-vaccinePurple">{ritual.name} <span className="text-sm font-normal text-vaccineGray-400">({subclass ? subclass.name : 'Neutro'})</span></h4>
             <p className="text-vaccineGray-400">{ritual.description}</p>
-            <p className="text-vaccineGray-400">Custo de Ocultismo: {ritual.mana_cost}</p>
+            <p className="text-vaccineGray-400">Custo de Ocultismo: {ritual.ocultism_cost}</p>
         </div>
     );
 }

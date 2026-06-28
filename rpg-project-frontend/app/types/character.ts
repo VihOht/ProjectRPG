@@ -281,6 +281,7 @@ export type ClassItem = {
   base_mana: number;
   base_ocultism: number;
   base_power: number;
+  base_inventory_capacity: number;
 
   has_mana: boolean;
   has_ocultism: boolean;
@@ -300,6 +301,7 @@ export type CreateClassRequest = {
   base_mana?: number;
   base_ocultism?: number;
   base_power?: number;
+  base_inventory_capacity?: number;
 
   has_mana?: boolean;
   has_ocultism?: boolean;
@@ -328,7 +330,7 @@ export type UpdateClassRequest = {
   base_mana?: number;
   base_ocultism?: number;
   base_power?: number;
-
+  base_inventory_capacity?: number;
   has_mana?: boolean;
   has_ocultism?: boolean;
 }
@@ -493,6 +495,11 @@ export type CharacterStatLimits = {
     bonus: number;
     total_max: number;
   };
+  inventory_capacity: {
+    base: number;
+    bonus: number;
+    total_max: number;
+  };
 };
 
 export type CreateCharacterResponse = {
@@ -530,6 +537,7 @@ export type UpdateCharacterStatsRequest = {
   ocultism?: number;
   defense?: number;
   power?: number;
+  inventory_capacity?: number;
 }
 
 export type UpdateCharacterDescriptionRequest = {
@@ -545,6 +553,7 @@ export type UpdateCharacterOffsetsRequest = {
   offset_ocultism?: number;
   offset_mana?: number;
   offset_power?: number;
+  offset_inventory_capacity?: number;
 }
 
 

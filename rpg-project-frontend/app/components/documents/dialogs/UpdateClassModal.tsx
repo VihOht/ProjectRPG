@@ -24,6 +24,8 @@ export default function UpdateClassModal({ classData }: UpdateClassModalProps) {
         base_sanity: classData?.base_sanity || 0,
         base_defense: classData?.base_defense || 0,
         base_ocultism: classData?.base_ocultism || 0,
+        base_power: classData?.base_power || 0,
+        base_inventory_capacity: classData?.base_inventory_capacity || 0,
         has_mana: classData?.has_mana || false,
         has_ocultism: classData?.has_ocultism || false,
     });
@@ -132,6 +134,18 @@ export default function UpdateClassModal({ classData }: UpdateClassModalProps) {
                                 className="w-20 px-2 py-1 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
                             />
                         </div>
+                        <div className="flex gap-2 mt-2">
+                            <label className="flex items-center gap-1 text-sm text-gray-300">
+                                Capacidade de Inventário Base
+                            </label>
+                            <input
+                                type="number"
+                                name="base_inventory_capacity"
+                                value={formData.base_inventory_capacity}
+                                onChange={handleChange}
+                                className="w-20 px-2 py-1 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
+                            />
+                        </div>
                     </div>
                     <div className="mb-4 flex items-center gap-4 mt-8">
                         <label className="flex items-center gap-1 text-sm text-gray-300">
@@ -172,18 +186,32 @@ export default function UpdateClassModal({ classData }: UpdateClassModalProps) {
                             </div>
                         )}
                         {formData.has_ocultism && (
-                            <div className="mb-4 flex gap-2">
-                                <label className="flex items-center gap-1 text-sm text-gray-300">
-                                    Base Ocultismo
-                                </label>
-                                <input
-                                    type="number"
-                                    name="base_ocultism"
-                                    value={formData.base_ocultism}
-                                    onChange={handleChange}
-                                    className="w-20 px-2 py-1 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
-                                />
-                            </div>
+                            <>
+                                <div className="mb-4 flex gap-2">
+                                    <label className="flex items-center gap-1 text-sm text-gray-300">
+                                        Base Ocultismo
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="base_ocultism"
+                                        value={formData.base_ocultism}
+                                        onChange={handleChange}
+                                        className="w-20 px-2 py-1 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
+                                    />
+                                </div>
+                                <div className="mb-4 flex gap-2">
+                                    <label className="flex items-center gap-1 text-sm text-gray-300">
+                                        Base Poder
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="base_power"
+                                        value={formData.base_power}
+                                        onChange={handleChange}
+                                        className="w-20 px-2 py-1 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
+                                    />
+                                </div>
+                            </>
                         )}
                     </div>
                     <button

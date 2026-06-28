@@ -12,6 +12,7 @@ import { Header } from "../components/Header";
 import { useAuthProvider } from "../providers";
 import { toast } from "react-hot-toast";
 import { CharacterAbilities } from "../components/character/Abilities";
+import { CharacterInventory } from "../components/character/Inventory";
 
 
 export default function RpgSheet() {
@@ -128,18 +129,24 @@ export default function RpgSheet() {
 
      useEffect(() => {
         if (levelUpRule && character?.experience && character.experience >= levelUpRule.experience_required && !isEditingHeader) {
-                toast.success("Você alcançou um novo nível!");
-                handleSaveInfo({
-                    ...character,
-                    level: character.level ? character.level + 1 : 1,
-                    experience: character.experience - levelUpRule.experience_required,
-                });
-                setHasLeveledUp(true);
-                setTimeout(() => {
-                    setHasLeveledUp(false);
-                }, 60000);
+            var newLevel = character.level? character.level + 1 : 1;
+            var experience = character.experience - levelUpRule.experience_required;
+            while (levelUpRulesData && experience >= (levelUpRulesData.level_up_rules.find(r => r.level === newLevel)?.experience_required ?? Infinity)) {
+                newLevel++;
+                experience -= levelUpRulesData.level_up_rules.find(r => r.level === newLevel)?.experience_required ?? 0;
             }
-    }, [character?.experience, levelUpRule, isEditingHeader]);
+            handleSaveInfo({
+                ...character,
+                level: newLevel,
+                experience: experience
+            });
+            toast.success("Você alcançou um novo nível!");
+            setHasLeveledUp(true);
+            setTimeout(() => {
+                setHasLeveledUp(false);
+            }, 60000);
+        }
+    }, [character?.level, character?.experience, levelUpRule, isEditingHeader]);
 
     if (characterId === null) {
         return (
@@ -151,23 +158,33 @@ export default function RpgSheet() {
 
     if (isCharacterLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-xl text-gray-500">Carregando ficha...</p>
-            </div>
+            <StarSky>
+                <div className="min-h-screen flex items-center justify-center">
+                    <p className="text-xl text-gray-500">Carregando ficha...</p>
+                </div>
+            </StarSky>
         );
     }
 
     if (!characterId) {
-        return <div>Character id is invalid.</div>;
+        return (
+            <StarSky>
+                <div className="min-h-screen flex items-center justify-center">
+                    <p className="text-xl text-gray-500">ID do personagem é inválido.</p>
+                </div>
+            </StarSky>
+        );
     }
     if (characterError) {
         if (characterError.response?.status === 404) {
             return (
-                <div className="min-h-screen flex items-center justify-center">
-                    <p className="text-xl text-gray-500">Ficha não encontrada.</p>
-                    <br />
-                    <Link to="/" className="text-vaccinePurple ml-2">Voltar para a página inicial</Link>
-                </div>
+                <StarSky>
+                    <div className="min-h-screen flex items-center justify-center">
+                        <p className="text-xl text-gray-500">Ficha não encontrada.</p>
+                        <br />
+                        <Link to="/" className="text-vaccinePurple ml-2">Voltar para a página inicial</Link>
+                    </div>
+                </StarSky>
             );
         }
     }
@@ -421,6 +438,7 @@ export default function RpgSheet() {
                     <CharacterAttributes characterId={characterId} />
                     <CharacterAbilities characterId={characterId} />
                     <CharacterLore characterId={characterId} />
+                    <CharacterInventory characterId={characterId} />
 
 
                     {/* <CharacterEquipament

@@ -3,6 +3,7 @@ import { FiEdit } from "react-icons/fi";
 
 import {
     useCharacterAttributes,
+    useCharacterInventories,
     useUpdateCharacterPericias,
 } from "../../hooks";
 
@@ -24,6 +25,8 @@ export function CharacterAttributes({
     const updatePericias = useUpdateCharacterPericias(characterId); 
 
     const [attributes, setAttributes] = useState<CharacterAttributeItem[]>([]);
+
+    const { refetch: refetchInvetories } = useCharacterInventories(characterId);
 
     const [open, setOpen] = useState(false);
 
@@ -68,7 +71,7 @@ export function CharacterAttributes({
                 value: pericia.value,
             })),
         });
-
+        refetchInvetories();
         setIsEditing(false);
     }
 

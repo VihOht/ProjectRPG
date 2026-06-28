@@ -5,6 +5,7 @@ from application.models._classes import CharacterSpecialAbility, Ritual, Wizardc
 from application.models._pericia import Pericia, PericiaValue
 from application.models._attribute import Attribute, AttributePower, AttributeValue
 from application.models._user import User
+from application.models._inventory import Artefact, Inventory, InventoryItem, InventoryType, Item, Utility, Weapon, Armor
 
 class ClassAbilityService:
     @staticmethod
@@ -724,6 +725,7 @@ class CharacterService:
         
         # Create default attributes and pericias for the character
         AttributeValueService.create_character_attributes(character.id)
+        
 
         stats_limits, error = CharacterService.calculate_stat_limits(character.id)
         if error:
@@ -784,6 +786,10 @@ class CharacterService:
             "power": {
                 "base": getattr(character_class, "base_power", 0) + getattr(character, "offset_power", 0),
                 "bonus": getattr(character, "att_power", 0) + getattr(character, "offset_power", 0)
+            },
+            "inventory_capacity": {
+                "base": getattr(character_class, "base_inventory_capacity", 10) + getattr(character, "offset_inventory_capacity", 0),
+                "bonus": getattr(character, "att_inventory_capacity", 0) + getattr(character, "offset_inventory_capacity", 0)
             }
         }
 
@@ -913,8 +919,8 @@ class CharacterService:
         # Delete associated attributes
         AttributeValueService.delete_character_attributes(character_id)
         SpecialAbilityService.delete_all_character_special_abilities(character_id)
+        InventoryService.delete_character_inventories(character_id)
 
-        
         db.session.delete(character)
         db.session.commit()
         return True, None
@@ -959,6 +965,7 @@ class CharacterService:
         character.att_ocultism = 0
         character.att_mana = 0
         character.att_power = 0
+        character.att_inventory_capacity = 0
         pericias_ids = [pericia_value.pericia_id for attr_value in character.attributes for pericia_value in attr_value.pericias]
 
         for rule in conversion_rules:
@@ -995,7 +1002,12 @@ class CharacterService:
                 character.att_mana += att_stat  # attribute bonus to mana
             elif rule.stat == "power":
                 character.att_power += att_stat  # attribute bonus to power
+            elif rule.stat == "inventory_capacity":
+                character.att_inventory_capacity += att_stat  # attribute bonus to inventory capacity
+
         
+        InventoryService.sync_carried_capacity(character_id)
+
         db.session.commit()
         return character, None
 
@@ -1252,7 +1264,7 @@ class RitualService:
         """Update ritual"""
         ritual = Ritual.query.get(ritual_id)
         if not ritual:
-            return None, "Ritual not found"
+            return None, "Ritual não encontrado"
         
         if name:
             ritual.name = name
@@ -1265,12 +1277,12 @@ class RitualService:
         if subclass_id is not None:
             subclass = Subclass.query.get(subclass_id)
             if not subclass:
-                return None, "Subclass not found"
+                return None, "Subclass não encontrada"
             cl = Class.query.get(subclass.class_id)
             if not cl:
-                return None, "Class not found for the given subclass"
+                return None, "Class não encontrada"
             if not cl.has_ocultism:
-                return None, "The class associated with the subclass does not have ocultism"
+                return None, "A classe associada à subclasse não possui ocultismo"
             ritual.subclass_id = subclass_id
         
         db.session.commit()
@@ -1280,7 +1292,7 @@ class RitualService:
         """Delete ritual"""
         ritual = Ritual.query.get(ritual_id)
         if not ritual:
-            return False, "Ritual not found"
+            return False, "Ritual não encontrado"
         
         db.session.delete(ritual)
         db.session.commit()
@@ -1290,7 +1302,7 @@ class RitualService:
         """Toggle ritual hidden status"""
         ritual = Ritual.query.get(ritual_id)
         if not ritual:
-            return None, "Ritual not found"
+            return None, "Ritual não encontrado"
         
         ritual.hidden = not ritual.hidden
         db.session.commit()
@@ -1300,14 +1312,14 @@ class RitualService:
         """Assign ritual to character"""
         ritual = Ritual.query.get(ritual_id)
         if not ritual:
-            return None, "Ritual not found"
+            return None, "Ritual não encontrado"
         
         character = Character.query.get(character_id)
         if not character:
-            return None, "Character not found"
+            return None, "Personagem não encontrado"
         
         if ritual in character.rituals:
-            return None, "Ritual already assigned to character"
+            return None, "Ritual já atribuído ao personagem"
         
         character.rituals.append(ritual)
         db.session.commit()
@@ -1317,15 +1329,14 @@ class RitualService:
         """Unassign ritual from character"""
         ritual = Ritual.query.get(ritual_id)
         if not ritual:
-            return None, "Ritual not found"
+            return None, "Ritual não encontrado"
         
         character = Character.query.get(character_id)
         if not character:
-            return None, "Character not found"
+            return None, "Personagem não encontrado"
         
         if ritual not in character.rituals:
-            return None, "Ritual is not assigned to character"
-        
+            return None, "Ritual não está atribuído ao personagem"
         character.rituals.remove(ritual)
         db.session.commit()
         return character, None
@@ -1351,7 +1362,7 @@ class WizardcraftService:
         """Update wizardcraft"""
         wizardcraft = Wizardcraft.query.get(wizardcraft_id)
         if not wizardcraft:
-            return None, "Wizardcraft not found"
+            return None, "Feitiço não encontrado"
         
         if name:
             wizardcraft.name = name
@@ -1367,7 +1378,7 @@ class WizardcraftService:
         """Delete wizardcraft"""
         wizardcraft = Wizardcraft.query.get(wizardcraft_id)
         if not wizardcraft:
-            return False, "Wizardcraft not found"
+            return False, "Feitiço não encontrado"
         
         db.session.delete(wizardcraft)
         db.session.commit()
@@ -1377,7 +1388,7 @@ class WizardcraftService:
         """Toggle wizardcraft hidden status"""
         wizardcraft = Wizardcraft.query.get(wizardcraft_id)
         if not wizardcraft:
-            return None, "Wizardcraft not found"
+            return None, "Feitiço não encontrado"
         
         wizardcraft.hidden = not wizardcraft.hidden
         db.session.commit()
@@ -1387,14 +1398,14 @@ class WizardcraftService:
         """Assign wizardcraft to character"""
         wizardcraft = Wizardcraft.query.get(wizardcraft_id)
         if not wizardcraft:
-            return None, "Wizardcraft not found"
+            return None, "Feitiço não encontrado"
         
         character = Character.query.get(character_id)
         if not character:
-            return None, "Character not found"
+            return None, "Personagem não encontrado"
         
         if wizardcraft in character.wizardcrafts:
-            return None, "Wizardcraft already assigned to character"
+            return None, "Feitiço já atribuído ao personagem"
         
         character.wizardcrafts.append(wizardcraft)
         db.session.commit()
@@ -1404,14 +1415,14 @@ class WizardcraftService:
         """Unassign wizardcraft from character"""
         wizardcraft = Wizardcraft.query.get(wizardcraft_id)
         if not wizardcraft:
-            return None, "Wizardcraft not found"
+            return None, "Feitiço não encontrado"
         
         character = Character.query.get(character_id)
         if not character:
-            return None, "Character not found"
+            return None, "Personagem não encontrado"
         
         if wizardcraft not in character.wizardcrafts:
-            return None, "Wizardcraft is not assigned to character"
+            return None, "Feitiço não está atribuído ao personagem"
         
         character.wizardcrafts.remove(wizardcraft)
         db.session.commit()
@@ -1422,5 +1433,447 @@ class InventoryService:
     @staticmethod
     def get_character_inventories(character_id):
         """Get all inventories for a character"""
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Personagem não encontrado"
         
+        inventories = Inventory.query.filter_by(character_id=character_id).all()
+
+        has_equipment_inventory = any(inventory.inv_type == InventoryType.EQUIPED for inventory in inventories)
+        has_cargo_inventory = any(inventory.inv_type == InventoryType.CARRIED for inventory in inventories)
+        if (not has_equipment_inventory or not has_cargo_inventory):
+            InventoryService.create_standards_inventories_for_character(character_id)
+            inventories = Inventory.query.filter_by(character_id=character_id).all()
+            
         
+        return [i.toDict() for i in inventories], None
+    
+    @staticmethod
+    def get_inventory_by_id(inventory_id):
+        """Get inventory by ID"""
+        return Inventory.query.get(inventory_id)
+    
+    @staticmethod
+    def get_inventory_items(inventory_id):
+        """Get all items in an inventory"""
+        inventory = Inventory.query.get(inventory_id)
+        if not inventory:
+            return None, "Inventário não encontrado"
+        
+        items = {}
+        for inventory_item in inventory.items:
+            item = Item.query.get(inventory_item.item_id)
+            if item:
+                if item.item_type not in items:
+                    items[item.item_type] = []
+                items[item.item_type].append({
+                    **inventory_item.toDict(),
+                    **item.toDict()
+                })
+        
+        return items, None
+    
+    @staticmethod
+    def add_item_to_inventory(inventory_id, item_id, quantity=1):
+        """Add an item to an inventory"""
+        inventory = Inventory.query.get(inventory_id)
+        if not inventory:
+            return None, "Inventário não encontrado"
+        
+        item: Item = Item.query.get(item_id)
+        if not item:
+            return None, "Item não encontrado"
+        items_added = 0
+
+        max_quantity = item.max_quantity if item.max_quantity else 1
+
+        # Check if the item is stackable and already exists in the inventory
+        existing_inventory_items: list[Item] = InventoryItem.query.filter_by(inventory_id=inventory_id, item_id=item_id).all()
+        if item.stackable and existing_inventory_items:
+            for i, inventory_item in enumerate(existing_inventory_items):
+                if item.stackable:
+                    inventory_item.quantity += quantity
+                    if inventory_item.quantity > max_quantity:
+                        quantity = inventory_item.quantity - max_quantity
+                        inventory_item.quantity = max_quantity
+                        db.session.add(inventory_item)
+                    else:
+                        db.session.add(inventory_item)
+                        db.session.commit()
+                        return inventory_item, None
+            
+            while quantity > 0:
+                if inventory.capacity != -1 and len(inventory.items) + items_added >= inventory.capacity:
+                    db.session.rollback()
+                    return None, "Inventário cheio"
+                if quantity > max_quantity:
+                    new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=max_quantity)
+                    db.session.add(new_inventory_item)
+                    quantity -= max_quantity
+                    items_added += 1
+                else:
+                    new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=quantity)
+                    db.session.add(new_inventory_item)
+                    break
+            db.session.commit()
+            return existing_inventory_items, None
+        
+        while quantity > 0:
+            if inventory.capacity != -1 and len(inventory.items) + items_added >= inventory.capacity:
+                db.session.rollback()
+                return None, "Inventário cheio"
+            if not item.stackable and quantity > 1:
+                new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=1)
+                db.session.add(new_inventory_item)
+                quantity -= 1
+                items_added += 1
+            elif not item.stackable and quantity == 1:
+                new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=1)
+                db.session.add(new_inventory_item)
+                break
+            else:
+                if quantity > max_quantity:
+                    new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=max_quantity)
+                    db.session.add(new_inventory_item)
+                    quantity -= max_quantity
+                    items_added += 1
+                else:
+                    new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=quantity)
+                    db.session.add(new_inventory_item)
+                    break
+        db.session.commit()
+        return new_inventory_item if new_inventory_item else None
+    
+    @staticmethod
+    def sync_carried_capacity(character_id):
+        inventory = Inventory.query.filter(Inventory.character_id == character_id, Inventory.inv_type == InventoryType.CARRIED).first()
+
+        if not inventory:
+            return None, "Inventário não encontrado"
+
+        if inventory.inv_type != InventoryType.CARRIED:
+            return None, "Inventário não é do tipo carregado"
+        
+        stat_limits, _ = CharacterService.calculate_stat_limits(character_id)
+        inventory_capacity = stat_limits["inventory_capacity"]["total_max"]
+        
+        inventory.capacity = inventory_capacity
+        
+        db.session.commit()
+        return inventory_capacity, None
+
+    @staticmethod
+    def remove_item_from_inventory(inventory_id, item_id, quantity=1):
+        """Remove an item from an inventory"""
+        inventory = Inventory.query.get(inventory_id)
+        if not inventory:
+            return None, "Inventário não encontrado"
+        
+        item = Item.query.get(item_id)
+        if not item:
+            return None, "Item não encontrado"
+        
+        existing_inventory_items = InventoryItem.query.filter_by(inventory_id=inventory_id, item_id=item_id).all()
+        if not existing_inventory_items:
+            return None, "Item não encontrado no inventário"
+        
+        total_quantity = sum(item.quantity for item in existing_inventory_items)
+        if total_quantity < quantity:
+            return None, "Quantidade insuficiente para remover"
+        
+        for existing_inventory_item in existing_inventory_items:
+            if quantity <= 0:
+                break
+            if existing_inventory_item.quantity <= quantity:
+                quantity -= existing_inventory_item.quantity
+                db.session.delete(existing_inventory_item)
+            else:
+                existing_inventory_item.quantity -= quantity
+                quantity = 0
+        
+        db.session.commit()
+        return existing_inventory_items, None
+    
+    @staticmethod
+    def create_inventory(character_id, name, description, type, capacity=0):
+        """Create a new inventory for a character"""
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Personagem não encontrado"
+        
+        inventory = Inventory(character_id=character_id, name=name, description=description, inv_type=type, capacity=capacity)
+        db.session.add(inventory)
+        db.session.commit()
+        return inventory, None
+    
+    @staticmethod
+    def delete_inventory(inventory_id):
+        """Delete an inventory"""
+        inventory = Inventory.query.get(inventory_id)
+        if not inventory:
+            return False, "Inventário não encontrado"
+        
+        items = InventoryItem.query.filter_by(inventory_id=inventory_id).all()
+        for item in items:
+            db.session.delete(item)
+        
+        db.session.delete(inventory)
+        db.session.commit()
+        return True, None
+    
+    @staticmethod
+    def update_inventory(inventory_id, name=None, description=None, capacity=None):
+        """Update an inventory"""
+        inventory = Inventory.query.get(inventory_id)
+        if not inventory:
+            return None, "Inventário não encontrado"
+        
+        if name:
+            inventory.name = name
+        if description:
+            inventory.description = description
+        if capacity is not None:
+            inventory.capacity = capacity
+        
+        db.session.commit()
+        return inventory, None
+    
+    @staticmethod
+    def create_standards_inventories_for_character(character_id):
+        """Create standard inventories for a character"""
+        character = Character.query.get(character_id)
+        if not character:
+            return None, "Personagem não encontrado"
+        
+        standard_inventories = [
+            {"name": "Carregado", "description": "Inventário dos items carregados no corpo do personagem", "type": InventoryType.CARRIED, "capacity": 10},
+            {"name": "Equipado", "description": "Inventário dos items equipados pelo personagem", "type": InventoryType.EQUIPED, "capacity": -1},
+        ]
+
+        created_inventories = []
+        for inv in standard_inventories:
+            inventory = Inventory(character_id=character_id, name=inv["name"], description=inv["description"], inv_type=inv["type"], capacity=inv["capacity"])
+            db.session.add(inventory)
+            created_inventories.append(inventory)
+
+        db.session.commit()
+        return created_inventories, None
+        
+    @staticmethod
+    def transfer_item_between_inventories(source_inventory_id, target_inventory_id, item_id, quantity=1):
+        """Transfer an item from one inventory to another"""
+        source_inventory = Inventory.query.get(source_inventory_id)
+        if not source_inventory:
+            return None, "Inventário de origem não encontrado"
+        
+        target_inventory = Inventory.query.get(target_inventory_id)
+        if not target_inventory:
+            return None, "Inventário de destino não encontrado"
+        
+        item = Item.query.get(item_id)
+        if not item:
+            return None, "Item não encontrado"
+        
+        existing_source_item = InventoryItem.query.filter_by(inventory_id=source_inventory_id, item_id=item_id).first()
+        if not existing_source_item:
+            return None, "Item não encontrado no inventário de origem"
+        
+        if existing_source_item.quantity < quantity:
+            return None, "Quantidade insuficiente para transferir"
+        
+        # Check if the target inventory has space
+        if not target_inventory.capacity == -1 and len(target_inventory.items) >= target_inventory.capacity:
+            return None, "Inventário de destino está cheio"
+        
+        # Remove from source inventory
+        existing_source_item.quantity -= quantity
+        if existing_source_item.quantity == 0:
+            db.session.delete(existing_source_item)
+        
+        # Add to target inventory
+        existing_target_item = InventoryItem.query.filter_by(inventory_id=target_inventory_id, item_id=item_id).first()
+        if existing_target_item and item.stackable:
+            existing_target_item.quantity += quantity
+        else:
+            new_target_item = InventoryItem(inventory_id=target_inventory_id, item_id=item_id, quantity=quantity)
+            db.session.add(new_target_item)
+        
+        db.session.commit()
+        return True, None
+    
+    def transfer_inventory_ownership(inventory_id, new_character_id):
+        """Transfer inventory ownership to another character"""
+        inventory = Inventory.query.get(inventory_id)
+        if not inventory:
+            return None, "Inventário não encontrado"
+        
+        new_character = Character.query.get(new_character_id)
+        if not new_character:
+            return None, "Personagem não encontrado"
+        
+        inventory.character_id = new_character_id
+        db.session.commit()
+        return inventory, None
+    
+    def get_inventory_types():
+        """Get all inventory types"""
+        return [inv_type.value for inv_type in InventoryType]
+    
+    def delete_character_inventories(character_id):
+        """Delete all inventories for a character"""
+        inventories = Inventory.query.filter_by(character_id=character_id).all()
+        for inventory in inventories:
+            items = InventoryItem.query.filter_by(inventory_id=inventory.id).all()
+            for item in items:
+                db.session.delete(item)
+            db.session.delete(inventory)
+        db.session.commit()
+        return True, None
+    
+class ItemService:
+    @staticmethod
+    def create_item(name, description, item_type, data, stackable=False, equipable=False, max_quantity=None, temporary=False, hidden=False):
+        """Create a new item"""
+        if item_type == "weapon":
+            item = Weapon(name=name, description=description, max_quantity=max_quantity, **data, stackable=stackable, equipable=equipable, temporary=temporary, hidden=hidden)
+        elif item_type == "armor":
+            item = Armor(name=name, description=description, max_quantity=max_quantity, **data, stackable=stackable, equipable=equipable, temporary=temporary, hidden=hidden)
+        elif item_type == "artefact":
+            item = Artefact(name=name, description=description, max_quantity=max_quantity, **data, stackable=stackable, equipable=equipable, temporary=temporary, hidden=hidden)
+        elif item_type == "utility":
+            item = Utility(name=name, description=description, max_quantity=max_quantity, stackable=stackable, equipable=equipable, temporary=temporary, hidden=hidden)
+        else:
+            return None, "Tipo de item inválido"
+        
+        db.session.add(item)
+        db.session.commit()
+        return item
+    
+    @staticmethod
+    def get_all_items():
+        """Get all items"""
+        return Item.query.all()
+    
+    @staticmethod
+    def get_item_by_id(item_id):
+        """Get item by ID"""
+        return Item.query.get(item_id)
+    
+    @staticmethod
+    def update_item(item_id, data=None, name=None, description=None, stackable=None, equipable=None, max_quantity=None):
+        """Update an item"""
+        item = Item.query.get(item_id)
+        if not item:
+            return None, "Item não encontrado"
+        
+        if item.item_type == "weapon" and data:
+            constraints = ["damage", "pericia", "critical", "range"]
+            # Handle weapon-specific update logic here
+            for key in constraints:
+                if key in data:
+                    setattr(item, key, data[key])
+        
+        if item.item_type == "armor" and data:
+            constraints = ["resistance", "reduction", "pericia", "size", "effect"]
+            # Handle armor-specific update logic here
+            for key in constraints:
+                if key in data:
+                    setattr(item, key, data[key])
+
+        if item.item_type == "artefact" and data:
+            constraints = ["effect"]
+            # Handle artefact-specific update logic here
+            for key in constraints:
+                if key in data:
+                    setattr(item, key, data[key])
+        if name:
+            item.name = name
+        if description:
+            item.description = description
+        if stackable is not None:
+            item.stackable = stackable
+        if equipable is not None:
+            item.equipable = equipable
+        if max_quantity is not None:
+            item.max_quantity = max_quantity
+        
+        db.session.commit()
+        return item, None
+    
+    @staticmethod
+    def delete_item(item_id):
+        """Delete an item"""
+        item = Item.query.get(item_id)
+        if not item:
+            return False, "Item não encontrado"
+        
+        inventory_items = InventoryItem.query.filter_by(item_id=item_id).all()
+        for inventory_item in inventory_items:
+            db.session.delete(inventory_item)
+        
+        db.session.delete(item)
+        db.session.commit()
+        return True, None
+    
+    @staticmethod
+    def toggle_item_hidden_status(item_id):
+        """Toggle item hidden status"""
+        item = Item.query.get(item_id)
+        if not item:
+            return None, "Item não encontrado"
+        
+        item.hidden = not item.hidden
+        db.session.commit()
+        return item, None
+
+    @staticmethod
+    def toggle_item_temporary_status(item_id):
+        """Toggle item temporary status"""
+        item = Item.query.get(item_id)
+        if not item:
+            return None, "Item não encontrado"
+        
+        item.temporary = not item.temporary
+        db.session.commit()
+        return item, None
+    
+
+class InventoryItemService:
+    @staticmethod
+    def get_inventory_item(inventory_id, item_id):
+        """Get an inventory item by inventory and item ID"""
+        return InventoryItem.query.filter_by(inventory_id=inventory_id, item_id=item_id).first()
+    
+    @staticmethod
+    def get_all_inventory_items(inventory_id):
+        """Get all inventory items"""
+        return InventoryItem.query.filter_by(inventory_id=inventory_id).all()
+    
+    @staticmethod
+    def update_inventory_item_quantity(inventory_id, item_id, quantity):
+        """Update the quantity of an inventory item"""
+        inventory_item = InventoryItem.query.filter_by(inventory_id=inventory_id, item_id=item_id).first()
+        item = Item.query.get(item_id)
+        if not item:
+            return None, "Item não encontrado"
+        if not inventory_item:
+            return None, "Item do inventário não encontrado"
+        
+        if item.max_quantity is not None and item.stackable and quantity > item.max_quantity:
+            return None, f"Quantidade excede o máximo permitido para este item ({item.max_quantity})"
+
+        inventory_item.quantity = quantity
+        db.session.commit()
+        return inventory_item, None
+    
+    @staticmethod
+    def delete_inventory_item(inventory_id, item_id):
+        """Delete an inventory item"""
+        inventory_item = InventoryItem.query.filter_by(inventory_id=inventory_id, item_id=item_id).all()
+        if not inventory_item:
+            return False, "Item do inventário não encontrado"
+        
+        for item in inventory_item:
+            db.session.delete(item)
+        db.session.commit()
+        return True, None

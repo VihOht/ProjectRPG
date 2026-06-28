@@ -14,12 +14,13 @@ export default function CreateClassForm({ onSucess }: CreateClassFormProps) {
     const [formData, setFormData] = useState<CreateClassRequest>({
         name: "",
         description: "",
-        base_life: 0,
-        base_mana: 0,
-        base_sanity: 0,
-        base_defense: 0,
+        base_life: 100,
+        base_mana: 40,
+        base_sanity: 100,
+        base_defense: 5,
         base_ocultism: 0,
         base_power: 0,
+        base_inventory_capacity: 10,
         has_mana: false,
         has_ocultism: false,
     });
@@ -112,6 +113,18 @@ export default function CreateClassForm({ onSucess }: CreateClassFormProps) {
                             type="number"
                             name="base_sanity"
                             value={formData.base_sanity}
+                            onChange={handleChange}
+                            className="w-20 px-2 py-1 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
+                        />
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                        <label className="flex items-center gap-1 text-sm text-gray-300">
+                            Capacidade de Inventário Base
+                        </label>
+                        <input
+                            type="number"
+                            name="base_inventory_capacity"
+                            value={formData.base_inventory_capacity}
                             onChange={handleChange}
                             className="w-20 px-2 py-1 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
                         />

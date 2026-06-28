@@ -106,7 +106,7 @@ export default function CreateConversionRuleForm({ onSucess }: CreateConversionR
                         className="w-full px-3 py-2 bg-vaccineGray-800/20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vaccinePurple focus:border-transparent text-sm text-white"
                     >
                         <option value="">Selecione uma estatística</option>
-                        {["life", "mana", "defense", "ocultism", "sanity", "power"].map((stat) => (
+                        {["life", "mana", "defense", "ocultism", "sanity", "power", "inventory_capacity"].map((stat) => (
                             <option key={stat} value={stat}>
                                 {stat}
                             </option>

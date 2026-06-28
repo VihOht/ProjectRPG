@@ -1,7 +1,8 @@
+import { toast } from "react-hot-toast";
 import { Card } from "../components/Card";
 import { Header } from "../components/Header";
 import { StarSky } from "../components/StarSky";
-import { useCreateCharacter, useCharacters, useGetUsers } from "../hooks";
+import { useCreateCharacter, useCharacters, useGetUsers, useDeleteCharacter } from "../hooks";
 import { useAuthProvider } from "../providers";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
@@ -12,6 +13,7 @@ export default function Index() {
   const [isDocumentOpening, setIsDocumentOpening] = useState(false);
   const [isAccountOpening, setIsAccountOpening] = useState(false);
 
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/auth/login");
@@ -19,7 +21,8 @@ export default function Index() {
   }, [isAuthenticated, navigate]);
 
   const { mutate: createCharacter, isPending } = useCreateCharacter();
-  const { data: characterData, isLoading: characterLoading } =
+  const { mutate: deleteCharacter } = useDeleteCharacter();
+  const { data: characterData, isLoading: characterLoading, refetch: refetchCharacters } =
     useCharacters();
   const { data: usersData } = useGetUsers(user?.role === "ADMIN");
   const isAdmin = user?.role === "ADMIN";
@@ -48,6 +51,22 @@ export default function Index() {
   const getOwnerName = (ownerId: number) => {
     return userMap.get(ownerId) ?? `Usuário #${ownerId}`;
   };
+
+  const onDeleteCharacter = (characterId: number) => {
+    if (!confirm("Tem certeza que deseja deletar esta ficha?") || !confirm("Esta ação não pode ser desfeita.")) {
+      return;
+    }
+    deleteCharacter(characterId, {
+      onSuccess: () => {
+        toast.success("Ficha deletada.");
+        refetchCharacters();
+      },
+      onError: (error) => {
+        toast.error(
+          error.response?.data?.message || "Erro ao deletar ficha."
+        );
+      }
+    });}
 
   if (!isAuthenticated) {
     return (
@@ -145,6 +164,12 @@ export default function Index() {
                               >
                                 Abrir
                               </button>
+                              <button
+                                onClick={() => onDeleteCharacter(character.id)}
+                                className="ml-2 px-3 py-1.5 rounded-md bg-red-700 text-white hover:bg-red-700/80 transition-colors cursor-pointer"
+                              >
+                                Deletar
+                              </button>
                             </td>
                           </tr>
                         ))
@@ -197,6 +222,12 @@ export default function Index() {
                                 className="px-3 py-1.5 rounded-md bg-vaccinePurple text-white hover:bg-purple-700 transition-colors"
                               >
                                 Abrir
+                              </button>
+                              <button
+                                onClick={() => onDeleteCharacter(character.id)}
+                                className="ml-2 px-3 py-1.5 rounded-md bg-red-700 text-white hover:bg-red-700/80 transition-colors cursor-pointer"
+                              >
+                                Deletar
                               </button>
                             </td>
                           </tr>

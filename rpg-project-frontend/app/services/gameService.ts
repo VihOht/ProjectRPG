@@ -747,7 +747,211 @@ export const gameService = {
     characterId: number
   ): Promise<T.StandardResponse> => {
     return (await api.post(`/api/wizardcrafts/${wizardcraftId}/unassign/${characterId}`)).data;
-  }
+  },
+
+    // =====================================================
+  // INVENTORIES
+  // =====================================================
+
+  getCharacterInventories: async (
+    characterId: number
+  ): Promise<T.ListInventoriesResponse> => {
+    const response = await api.get<T.ListInventoriesResponse>(
+      `/api/characters/${characterId}/inventories`
+    );
+
+    return response.data;
+  },
+
+  createInventory: async (
+    characterId: number,
+    data: T.CreateInventoryRequest
+  ): Promise<T.CreateInventoryResponse> => {
+    const response = await api.post<T.CreateInventoryResponse>(
+      `/api/characters/${characterId}/inventories`,
+      data
+    );
+
+    return response.data;
+  },
+
+  updateInventory: async (
+    inventoryId: number,
+    data: T.UpdateInventoryRequest
+  ): Promise<T.UpdateInventoryResponse> => {
+    const response = await api.put<T.UpdateInventoryResponse>(
+      `/api/inventories/${inventoryId}`,
+      data
+    );
+
+    return response.data;
+  },
+
+  deleteInventory: async (
+    inventoryId: number
+  ): Promise<T.StandardResponse> => {
+    const response = await api.delete<T.StandardResponse>(
+      `/api/inventories/${inventoryId}`
+    );
+
+    return response.data;
+  },
+
+  getInventoryTypes: async (): Promise<T.InventoryTypesResponse> => {
+    const response = await api.get<T.InventoryTypesResponse>(
+      '/api/inventories/types'
+    );
+
+    return response.data;
+  },
+
+  transferInventoryOwnership: async (
+    inventoryId: number,
+    newCharacterId: number
+  ): Promise<T.TransferInventoryOwnershipResponse> => {
+    const response = await api.post<T.TransferInventoryOwnershipResponse>(
+      `/api/inventories/${inventoryId}/transfer-ownership/${newCharacterId}`
+    );
+
+    return response.data;
+  },
+
+  // =====================================================
+  // INVENTORY ITEMS
+  // =====================================================
+
+  getInventoryItems: async (
+    inventoryId: number
+  ): Promise<T.InventoryItemsResponse> => {
+    const response = await api.get<T.InventoryItemsResponse>(
+      `/api/inventories/${inventoryId}/items`
+    );
+
+    return response.data;
+  },
+
+  addItemToInventory: async (
+    inventoryId: number,
+    data: T.AddInventoryItemRequest
+  ): Promise<T.AddInventoryItemResponse> => {
+    const response = await api.post<T.AddInventoryItemResponse>(
+      `/api/inventories/${inventoryId}/items`,
+      data
+    );
+
+    return response.data;
+  },
+
+  deleteInventoryItem: async (
+    inventoryId: number,
+    itemId: number
+  ): Promise<T.StandardResponse> => {
+    const response = await api.delete<T.StandardResponse>(
+      `/api/inventories/${inventoryId}/items/${itemId}`
+    );
+
+    return response.data;
+  },
+
+  removeItemFromInventory: async (
+    inventoryId: number,
+    itemId: number,
+    data: T.RemoveInventoryItemRequest
+  ): Promise<T.RemoveInventoryItemResponse> => {
+    const response = await api.post<T.RemoveInventoryItemResponse>(
+      `/api/inventories/${inventoryId}/items/${itemId}/remove`,
+      data
+    );
+
+    return response.data;
+  },
+
+  transferItemBetweenInventories: async (
+    sourceInventoryId: number,
+    targetInventoryId: number,
+    data: T.TransferInventoryItemRequest
+  ): Promise<T.StandardResponse> => {
+    const response = await api.post<T.StandardResponse>(
+      `/api/inventories/${sourceInventoryId}/transfer-item/${targetInventoryId}`,
+      data
+    );
+
+    return response.data;
+  },
+
+  // =====================================================
+  // ITEMS
+  // =====================================================
+
+  getItems: async (): Promise<T.ListItemsResponse> => {
+    const response = await api.get<T.ListItemsResponse>('/api/items');
+
+    return response.data;
+  },
+
+  getItemById: async (
+    itemId: number
+  ): Promise<T.GetItemResponse> => {
+    const response = await api.get<T.GetItemResponse>(
+      `/api/items/${itemId}`
+    );
+
+    return response.data;
+  },
+
+  createItem: async (
+    data: T.CreateItemRequest
+  ): Promise<T.CreateItemResponse> => {
+    const response = await api.post<T.CreateItemResponse>(
+      '/api/items',
+      data
+    );
+
+    return response.data;
+  },
+
+  updateItem: async (
+    itemId: number,
+    data: T.UpdateItemRequest
+  ): Promise<T.UpdateItemResponse> => {
+    const response = await api.put<T.UpdateItemResponse>(
+      `/api/items/${itemId}`,
+      data
+    );
+
+    return response.data;
+  },
+
+  deleteItem: async (
+    itemId: number
+  ): Promise<T.StandardResponse> => {
+    const response = await api.delete<T.StandardResponse>(
+      `/api/items/${itemId}`
+    );
+
+    return response.data;
+  },
+    toggleItemVisibility: async (
+    itemId: number
+  ): Promise<T.ToggleItemVisibilityResponse> => {
+    const response = await api.post<T.ToggleItemVisibilityResponse>(
+      `/api/items/${itemId}/toggle-visibility`
+    );
+
+    return response.data;
+  },
+
+  toggleItemTemporary: async (
+    itemId: number
+  ): Promise<T.ToggleItemTemporaryResponse> => {
+    const response = await api.post<T.ToggleItemTemporaryResponse>(
+      `/api/items/${itemId}/toggle-temporary`
+    );
+
+    return response.data;
+  },
+
+
 
 };
 

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from application.services.character import (
-    AttributePowerService, AttributeValueService, ClassAbilityService, RaceService, AttributeService, PericiasService,
+    AttributePowerService, AttributeValueService, ClassAbilityService, InventoryService, RaceService, AttributeService, PericiasService,
     ClassService, RitualService, SpecialAbilityService, SubclassService, CharacterAttributesService,
     CharacterService, ConversionRuleService, LevelUpRuleService, ClassPowerService, WizardcraftService
 )
@@ -935,6 +935,7 @@ def create_class(current_user):
         base_mana=data.get('base_mana', 10),
         base_ocultism=data.get('base_ocultism', 10),
         base_power=data.get('base_power', 10),
+        base_inventory_capacity=data.get('base_inventory_capacity', 10),
         has_mana=data.get('has_mana', False),
         has_ocultism=data.get('has_ocultism', False)
     )
@@ -991,6 +992,7 @@ def update_class(current_user, class_id):
         base_mana=data.get('base_mana'),
         base_ocultism=data.get('base_ocultism'),
         base_power=data.get('base_power'),
+        base_inventory_capacity=data.get('base_inventory_capacity'),
         has_mana=data.get('has_mana'),
         has_ocultism=data.get('has_ocultism')
     )
@@ -1191,7 +1193,12 @@ def create_character(current_user):
     """Create a new character for the current user"""
 
     character, error = CharacterService.create_character(user_id=current_user.id, is_player=True if not _is_admin(current_user) else False)
+
+
+    if error:
+        return jsonify({'message': error}), 400
     
+    created_inventories, error = InventoryService.create_standards_inventories_for_character(character.id)
     if error:
         return jsonify({'message': error}), 400
     
@@ -1954,5 +1961,6 @@ def unassign_wizardcraft_from_character(current_user, wizardcraft_id, character_
         'message': 'Wizardcraft desatribuído do personagem com sucesso',
         'character': character.toDict()
     }), 200
+
 
 

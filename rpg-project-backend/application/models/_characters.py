@@ -153,6 +153,7 @@ class Character(db.Model):
     att_ocultism: int = db.Column(db.Integer, nullable=False, default=0)
     att_mana: int = db.Column(db.Integer, nullable=False, default=0)
     att_power: int = db.Column(db.Integer, nullable=False, default=0)
+    att_inventory_capacity: int = db.Column(db.Integer, nullable=False, default=0)
 
     offset_life: int = db.Column(db.Integer, nullable=False, default=0)
     offset_defense: int = db.Column(db.Integer, nullable=False, default=0)
@@ -160,6 +161,7 @@ class Character(db.Model):
     offset_ocultism: int = db.Column(db.Integer, nullable=False, default=0)
     offset_mana: int = db.Column(db.Integer, nullable=False, default=0)
     offset_power: int = db.Column(db.Integer, nullable=False, default=0)
+    offset_inventory_capacity: int = db.Column(db.Integer, nullable=False, default=0)
 
     life: int = db.Column(db.Integer, nullable=False, default=10)
     sanity: int = db.Column(db.Integer, nullable=False, default=10)

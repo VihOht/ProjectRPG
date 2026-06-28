@@ -93,6 +93,12 @@ export function CharacterStats({
                 bonus: characterData.stat_limits.power.bonus,
                 total: characterData.stat_limits.power.total_max,
             },
+            inventory_capacity: {
+                base: characterData.stat_limits.inventory_capacity.base,
+                bonus: characterData.stat_limits.inventory_capacity.bonus,
+                total: characterData.stat_limits.inventory_capacity.total_max,
+            },
+            
         });
 
         setOffset({

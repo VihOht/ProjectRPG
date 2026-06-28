@@ -15,3 +15,6 @@ export * from './useSpecialAbilities';
 export * from './useAttributePowers';
 export * from './useRituals';
 export * from './useWizardcrafts';
+export * from './useItems';
+export * from './useInventory';
+export * from './useInventoryItems';
