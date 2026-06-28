@@ -1542,7 +1542,7 @@ class InventoryService:
                     db.session.add(new_inventory_item)
                     break
         db.session.commit()
-        return new_inventory_item if new_inventory_item else None
+        return new_inventory_item, None if new_inventory_item else None, None
     
     @staticmethod
     def sync_carried_capacity(character_id):
