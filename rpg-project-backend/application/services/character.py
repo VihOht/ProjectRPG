@@ -1467,8 +1467,8 @@ class InventoryService:
                 if item.item_type not in items:
                     items[item.item_type] = []
                 items[item.item_type].append({
+                    **item.toDict(),
                     **inventory_item.toDict(),
-                    **item.toDict()
                 })
         
         return items, None
