@@ -1,7 +1,7 @@
-import { useState } from "react";
+
 import { useSubclasses, useCharacter } from "../../hooks";
-import { LucideArrowBigDown } from "lucide-react";
 import AssignRitualModal from "./dialogs/AssignRitualModal";
+import { AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 
 export interface RitualItemProps {
     character_id: number;
@@ -10,29 +10,12 @@ export interface RitualItemProps {
 export default function RitualSection(
     { character_id }: RitualItemProps
 ) {
-    const [open, setOpen] =
-        useState(false);
 
     const { data: character } = useCharacter(character_id);
     const { data: subclasses } = useSubclasses();
 
     return (
-        <div className={` transition-all duration-500 mb-6 mt-6`}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
-              Rituais
-            </h3>
-            <div className="flex gap-2">
-              <AssignRitualModal character_id={character_id} />
-              <button
-                onClick={() => setOpen(!open)}
-                className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
-              >
-                <LucideArrowBigDown className={`transition-transform ${open ? 'rotate-180' : ''}`} />
-              </button>
-            </div>
-          </div>
-          <div className={`${open ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
+        <SubsectionItem title="Rituais" character_id={character_id}>
             {character?.character.rituals.length === 0 ? (
               <p className="text-vaccineGray-400">
                 Nenhum ritual disponível.
@@ -47,9 +30,7 @@ export default function RitualSection(
                 )}
               </div>
             )}
-          </div>
-
-        </div>
+        </SubsectionItem>
     )
         
 }
@@ -62,4 +43,23 @@ const RitualCard = ({ ritual, subclass }: { ritual: any; subclass: any }) => {
             <p className="text-vaccineGray-400">Custo de Ocultismo: {ritual.ocultism_cost}</p>
         </div>
     );
+}
+
+function SubsectionItem({ title, children, character_id }: { title: string; children: React.ReactNode; character_id: number }) {
+  return (
+    <AccordionItem value={title} className="mb-8 bg-vaccineBlueTones-900/10 p-4 rounded-md">
+      <div className="flex justify-between items-center">
+        <AccordionTrigger>
+          <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
+            {title}
+          </h3>
+        </AccordionTrigger>
+        <AssignRitualModal character_id={character_id} />
+        
+      </div>
+      <AccordionContent>
+          { children}
+      </AccordionContent>
+    </AccordionItem>
+  );
 }

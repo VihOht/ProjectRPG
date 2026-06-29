@@ -17,6 +17,8 @@ import TransferInventoryItemModal from "./dialogs/TransferInventoryItemModal";
 import RemoveInventoryItemModal from "./dialogs/RemoveInventoryItemModal";
 import CreateInventoryModal from "./dialogs/CreateInventoryModal";
 import { toast } from "react-hot-toast";
+import { SheetSection } from "./SheetSection";
+import { AccordionContent, AccordionItem, AccordionTrigger, Accordion } from "../ui/accordion";
 
 interface CharacterInventoryProps {
   characterId: number;
@@ -25,9 +27,6 @@ interface CharacterInventoryProps {
 export function CharacterInventory({ characterId }: CharacterInventoryProps) {
   const { data: inventoriesData, isLoading } =
     useCharacterInventories(characterId);
-
-  const [open, setOpen] = useState(false);
-
   const inventories = useMemo(() => {
     return inventoriesData?.inventories ?? [];
   }, [inventoriesData]);
@@ -61,60 +60,50 @@ export function CharacterInventory({ characterId }: CharacterInventoryProps) {
   }
 
   return (
-    <section className="mb-8 bg-vaccineBlueTones-900/10 rounded-md p-4">
-      <div className="items-center flex justify-between mb-4">
-        <h2
-          onClick={() => setOpen(!open)}
-          className="text-3xl cursor-pointer min-w-[80%] font-walthari font-semibold text-vaccineGray-300"
-        >
-          Inventários
-        </h2>
-
-        <CreateInventoryModal characterId={characterId} />
-      </div>
-
-      <div
-        className={`transition-all duration-700 ${
-          open ? "max-h-screen h-auto overflow-y-auto mt-4" : "max-h-0 overflow-hidden opacity-0"
-        }`}
-      >
+    <SheetSection
+      title="Inventário"
+      actions={<CreateInventoryModal characterId={characterId} />}
+    >
+      <div className="h-auto overflow-y-auto pr-2">
         {inventories.length === 0 ? (
           <p className="text-vaccineGray-400">
             Nenhum inventário encontrado.
           </p>
         ) : (
           <div className="space-y-8 h-auto overflow-y-auto pr-2">
-            {equippedInventory && (
-              <InventorySection
-                inventory={equippedInventory}
-                title="Equipados"
-                variant="equipped"
-                characterId={characterId}
-              />
-            )}
+            <Accordion type="multiple" className="w-full">
+              {equippedInventory && (
+                <InventorySection
+                  inventory={equippedInventory}
+                  title="Equipados"
+                  variant="equipped"
+                  characterId={characterId}
+                />
+              )}
 
-            {carriedInventory && (
-              <InventorySection
-                inventory={carriedInventory}
-                title="Carregados"
-                variant="compact"
-                characterId={characterId}
-              />
-            )}
+              {carriedInventory && (
+                <InventorySection
+                  inventory={carriedInventory}
+                  title="Carregados"
+                  variant="compact"
+                  characterId={characterId}
+                />
+              )}
 
-            {otherInventories.map((inventory) => (
-              <InventorySection
-                key={inventory.id}
-                inventory={inventory}
-                title={inventory.name}
-                variant="compact"
-                characterId={characterId}
-              />
-            ))}
+              {otherInventories.map((inventory) => (
+                <InventorySection
+                  key={inventory.id}
+                  inventory={inventory}
+                  title={inventory.name}
+                  variant="compact"
+                  characterId={characterId}
+                />
+              ))}
+            </Accordion>
           </div>
         )}
       </div>
-    </section>
+    </SheetSection>
   );
 }
 
@@ -138,8 +127,6 @@ function InventorySection({
 
   const { refetch: refetchInventories } = useCharacterInventories(characterId);
 
-  const [open, setOpen] = useState(false);
-
   const { mutate: deleteInventory } = useDeleteInventory(inventory.id);
 
   const onDeleteInventory = () => {
@@ -161,13 +148,15 @@ function InventorySection({
 
 
   return (
-    <div className="space-y-4 h-auto">
-      <div className={`flex flex-col w-full h-full justify-between gap-3 ${open ? "border-b" : ""} border-vaccineGray-300/20 pb-2`}>
+    <AccordionItem value={title} className="mb-8 bg-vaccineBlueTones-900/10 p-4 rounded-md">
+      <div className="flex flex-col w-full h-full justify-between gap-3">
         <div>
             <div className="flex justify-between w-full gap-2 mb-1">
-                <h3 onClick={() => setOpen(!open)} className="text-2xl cursor-pointer font-trajanPBold text-vaccineGray-300">
-                    {title}
-                </h3>
+                <AccordionTrigger >
+                  <h3 className="text-2xl cursor-pointer font-trajanPBold text-vaccineGray-300">
+                      {title}
+                  </h3>
+                </AccordionTrigger>
                 <div className="flex items-center gap-2">
                     <AddInventoryItemModal inventoryId={inventory.id} />
                     <CreateTemporaryItemModal inventoryId={inventory.id} />
@@ -179,9 +168,7 @@ function InventorySection({
                       )
                     }
                 </div>  
-            </div>
-
-          
+            </div>   
         </div>
         <div className="flex items-center gap-2 h-full">
           <p className="text-sm w-full text-vaccineGray-600">
@@ -192,7 +179,7 @@ function InventorySection({
           </span>
         </div>
       </div>
-      <div className={`transition-all duration-700 ${open ? "max-h-screen h-auto overflow-y-auto mt-4" : "max-h-0 overflow-hidden opacity-0"}`}>
+      <AccordionContent className="mt-4">
         {isLoading ? (
           <p className="text-vaccineGray-400">Carregando itens...</p>
         ) : items.length === 0 ? (
@@ -210,8 +197,8 @@ function InventorySection({
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </AccordionContent>
+    </AccordionItem>
   );
 }
 

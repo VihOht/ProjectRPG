@@ -4,21 +4,14 @@ import { Header } from "../components/Header";
 import { StarSky } from "../components/StarSky";
 import { useCreateCharacter, useCharacters, useGetUsers, useDeleteCharacter } from "../hooks";
 import { useAuthProvider } from "../providers";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 export default function Index() {
-  const { isAuthenticated, user } = useAuthProvider();
+  const { isAuthenticated, user, isReady } = useAuthProvider();
   const navigate = useNavigate();
   const [isDocumentOpening, setIsDocumentOpening] = useState(false);
   const [isAccountOpening, setIsAccountOpening] = useState(false);
-
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/auth/login");
-    }
-  }, [isAuthenticated, navigate]);
 
   const { mutate: createCharacter, isPending } = useCreateCharacter();
   const { mutate: deleteCharacter } = useDeleteCharacter();
@@ -68,12 +61,18 @@ export default function Index() {
       }
     });}
 
-  if (!isAuthenticated) {
+  if (!isReady) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-500">Redirecting to login...</p>
+        <p className="text-xl text-gray-500">Loading...</p>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    navigate("/auth/login");
+    toast.error("Você precisa estar logado para acessar esta página.");
+    return null;
   }
 
   return (

@@ -87,6 +87,10 @@ export default function RpgSheet() {
     };
 
     const handleTransferOwnership = () => {
+        if (!transferTargetId) {
+            toast.error("Selecione um usuário para transferir a posse da ficha.");
+            return;
+        }
         if (transferTargetId === "RETURN_TO_NPC") {
             if (window.confirm('Tem certeza que deseja devolver esta ficha para NPC? Esta ação não pode ser desfeita.')) {
                 returnToAdmin();
@@ -116,7 +120,6 @@ export default function RpgSheet() {
             toast.error("Ficha não encontrada. Redirecionando para a página inicial.");
             redirect("/");
         }
-        console.log("characterError?.response?.status", characterError?.response?.status);
         if (characterError?.response?.status === 401) {
             toast.error("Você não tem permissão para acessar esta ficha. Redirecionando para a página inicial.");
             redirect("/");
@@ -301,6 +304,7 @@ export default function RpgSheet() {
                                             onChange={(event) => setTransferTargetId(event.target.value)}
                                             className="min-w-64 rounded-md border border-gray-300 bg-white px-3 py-2 text-vaccineBlack"
                                         >
+                                            <option value="">Selecione um usuário</option>
                                             {transferOptions.map((listedUser) => (
                                                 <option key={listedUser.id} value={listedUser.id}>
                                                     {listedUser.username} ({listedUser.email})

@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useCharacter, useSubclasses, useClassPowers, useAttributePowers, useAttributes, useClass } from "../../hooks";
 import type { AbilityItem, ClassPowerItem, SpecialAbilityItem, AttributePowerItem } from "../../types";
 import AssignAbilitiesModal from "./dialogs/AssignAbilitiesModal";
-import { LucideArrowBigDown } from "lucide-react";
 import WizardcraftSection from "./WizardcraftSection";
 import RitualSection from "./RitualSection";
+import { SheetSection } from "./SheetSection";
+import { AccordionContent, AccordionTrigger, AccordionItem, Accordion } from "../ui/accordion";
 
 interface CharacterAbilitiesProps {
   characterId: number;
@@ -21,20 +22,6 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
     return characterData?.character.special_abilities ?? [];
   }, [characterData]);
 
-  const [openTabs, setOpenTabs] = useState({
-    classPowers: false,
-    attributePowers: false,
-    abilities: false,
-    specialAbilities: false,
-  });
-
-  const toggleTab = (tabName: keyof typeof openTabs) => {
-    setOpenTabs((prev) => ({
-      ...prev,
-      [tabName]: !prev[tabName],
-    }));
-  }
-
   if (!characterData) {
     return (
       <section className="text-vaccineGray-200 mb-8 text-center">
@@ -50,8 +37,6 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
   const { data: attributePowersData } = useAttributePowers();
 
   const { data: attributesData } = useAttributes();
-
-  const [open, setOpen] = useState(false);
 
   const attributePowers = useMemo<AttributePowerItem[]>(() => {
     if (!attributePowersData || !characterData) return [];
@@ -86,27 +71,14 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
 
 
   return (
-    <section className="mb-8 bg-vaccineBlueTones-900/10 rounded-md p-4">
-      <div className="items-center flex justify-between mb-4">
-        <h2 onClick={() => {setOpen(!open)}} className="text-3xl cursor-pointer min-w-[80%] font-walthari font-semibold text-vaccineGray-300">
-          Habilidades
-        </h2>
+    <SheetSection
+      title="Habilidades"
+      actions={
         <AssignAbilitiesModal characterId={characterId} />
-      </div>
-      <div className={`transition-all duration-700 ${open ? 'max-h-screen h-full mt-4' : 'max-h-0 overflow-hidden opacity-0'}`}>
-        <div className={`space-y-6 mb-6`}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
-              Poderes de Classe
-            </h3>
-            <button
-              onClick={() => toggleTab('classPowers')}
-              className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
-            >
-              <LucideArrowBigDown className={`transition-transform ${openTabs.classPowers ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
-          <div className={`${openTabs.classPowers ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
+      }
+    >
+      <Accordion type="multiple" className={`w-full `}>
+        <SubsectionItem title="Poderes de Classe">
             {classPowers.length === 0 ? (
               <p className="text-vaccineGray-400">
                 Nenhum poder de classe disponível.
@@ -118,100 +90,60 @@ export function CharacterAbilities({ characterId }: CharacterAbilitiesProps) {
                 ))}
               </div>
             )}
-          </div>
-        </div>
-        
-        <div className={`space-y-6 mb-6 transition-all duration-500`}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
-              Poderes de Atributo
-            </h3>
-            <button
-              onClick={() => toggleTab('attributePowers')}
-              className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
-            >
-              <LucideArrowBigDown className={`transition-transform ${openTabs.attributePowers ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
-          <div className={`${openTabs.attributePowers ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
-            {attributePowers.length === 0 ? (
-              <p className="text-vaccineGray-400">
-                Nenhum poder de atributo disponível.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                {attributePowers.map((power) => (
-                  <AttributePowerCard key={power.id} power={power} attribute_name={getAttributeNameFromPower(power)} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+          </SubsectionItem>
+          
+          <SubsectionItem title="Poderes de Atributo">
+              {attributePowers.length === 0 ? (
+                <p className="text-vaccineGray-400">
+                  Nenhum poder de atributo disponível.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                  {attributePowers.map((power) => (
+                    <AttributePowerCard key={power.id} power={power} attribute_name={getAttributeNameFromPower(power)} />
+                  ))}
+                </div>
+              )}
+          </SubsectionItem>
 
-        <div className={` transition-all duration-500`}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
-              Habilidades de Classe
-            </h3>
-            <button
-              onClick={() => toggleTab('abilities')}
-              className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
-            >
-              <LucideArrowBigDown className={`transition-transform ${openTabs.abilities ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
-          <div className={`${openTabs.abilities ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
-            {abilities.length === 0 ? (
-              <p className="text-vaccineGray-400">
-                Nenhuma habilidade de classe disponível.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {abilities.map((ability) => (
-                  <AbilityCard key={ability.id} ability={ability} subclassName={ability.subclass_id ? getSubclassName(ability.subclass_id) : undefined} />
-                ))}
-              </div>
-            )}
-          </div>
+          <SubsectionItem title="Habilidades de Classe">
+              {abilities.length === 0 ? (
+                <p className="text-vaccineGray-400">
+                  Nenhuma habilidade de classe disponível.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {abilities.map((ability) => (
+                    <AbilityCard key={ability.id} ability={ability} subclassName={ability.subclass_id ? getSubclassName(ability.subclass_id) : undefined} />
+                  ))}
+                </div>
+              )}
 
-        </div>
+          </SubsectionItem>
+            
+          {characterClass?.class.has_mana && (
+            <WizardcraftSection character_id={characterId} />
+          )}
 
-        {characterClass?.class.has_mana && (
-          <WizardcraftSection character_id={characterId} />
-        )}
+          {characterClass?.class.has_ocultism && (
+            <RitualSection character_id={characterId} />
+          )}
 
-        {characterClass?.class.has_ocultism && (
-          <RitualSection character_id={characterId} />
-        )}
-
-        <div className={`mt-6 transition-all duration-500`}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
-              Habilidades Especiais
-            </h3>
-            <button
-              onClick={() => toggleTab('specialAbilities')}
-              className="px-3 py-1 cursor-pointer bg-vaccineBlueTones-400 hover:bg-blue-700 text-vaccineBlueTones-100 rounded-md transition"
-            >
-              <LucideArrowBigDown className={`transition-transform ${openTabs.specialAbilities ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
-          <div className={`${openTabs.specialAbilities ? 'max-h-screen' : 'max-h-0 overflow-hidden opacity-0'} transition-all duration-500`}>
-            {specialAbilities.length === 0 ? (
-              <p className="text-vaccineGray-400">
-                Nenhuma habilidade especial disponível.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                {specialAbilities.map((ability) => (
-                  <SpecialAbilityCard key={ability.id} ability={ability} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
+          <SubsectionItem title="Habilidades Especiais">
+              {specialAbilities.length === 0 ? (
+                <p className="text-vaccineGray-400">
+                  Nenhuma habilidade especial disponível.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                  {specialAbilities.map((ability) => (
+                    <SpecialAbilityCard key={ability.id} ability={ability} />
+                  ))}
+                </div>
+              )}
+          </SubsectionItem>
+      </Accordion>
+    </SheetSection>
   );
 }
 
@@ -277,5 +209,23 @@ function AttributePowerCard({ power, attribute_name }: { power: AttributePowerIt
         {power.description}
       </p>
     </article>
+  );
+}
+
+function SubsectionItem({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <AccordionItem value={title} className="mb-8 bg-vaccineBlueTones-900/10 p-4 rounded-md">
+      <div className="flex justify-between items-center">
+        <AccordionTrigger>
+          <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">
+            {title}
+          </h3>
+        </AccordionTrigger>
+        
+      </div>
+      <AccordionContent>
+          { children}
+      </AccordionContent>
+    </AccordionItem>
   );
 }

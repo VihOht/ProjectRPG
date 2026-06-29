@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { authService } from '../services/auth';
+import { useEffect, useState } from 'react';
 import type {
   LoginRequest,
   LoginResponse,
@@ -119,9 +120,17 @@ export const useInviteUser = () => {
 export const useAuth = () => {
   const { data: verifyData, isLoading: isVerifying, error: verifyError } = useVerify();
   const { data: userData, isLoading: isLoadingUser } = useCurrentUser();
+  const [ isReady, setIsReady ] = useState(false);
+  const [ isAuthenticated, setIsAuthenticated ] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+    setIsAuthenticated(authService.isAuthenticated());
+  }, []);
 
   return {
-    isAuthenticated: authService.isAuthenticated(),
+    isAuthenticated: isAuthenticated && isReady,
+    isReady,
     user: userData?.user || verifyData?.user || null,
     isLoading: isVerifying || isLoadingUser,
     error: verifyError,

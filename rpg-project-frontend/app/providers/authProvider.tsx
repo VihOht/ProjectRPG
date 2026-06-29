@@ -24,6 +24,7 @@ interface AuthContextValue {
   username: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isReady: boolean;
   errorMessage: string | null;
   login: (payload: LoginRequest) => Promise<LoginResponse>;
   register: (payload: RegisterRequest) => Promise<RegisterResponse>;
@@ -44,7 +45,7 @@ function getAxiosErrorMessage(error: AxiosError<ApiErrorResponse> | null): strin
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
 
-  const { user, username, isAuthenticated, isLoading } = useAuth();
+  const { user, username, isAuthenticated, isLoading, isReady } = useAuth();
   const loginMutation = useLogin();
   const registerMutation = useRegister();
   const logoutMutation = useLogout();
@@ -59,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       username,
       isAuthenticated,
       isLoading,
+      isReady,
       errorMessage,
       login: (payload: LoginRequest) => loginMutation.mutateAsync(payload),
       register: (payload: RegisterRequest) => registerMutation.mutateAsync(payload),
