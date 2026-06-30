@@ -120,16 +120,16 @@ export const useInviteUser = () => {
 export const useAuth = () => {
   const { data: verifyData, isLoading: isVerifying, error: verifyError } = useVerify();
   const { data: userData, isLoading: isLoadingUser } = useCurrentUser();
-  const [ isReady, setIsReady ] = useState(false);
-  const [ isAuthenticated, setIsAuthenticated ] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     setIsReady(true);
-    setIsAuthenticated(authService.isAuthenticated());
   }, []);
 
+
+
   return {
-    isAuthenticated: isAuthenticated && isReady,
+    isAuthenticated: authService.isAuthenticated(),
     isReady,
     user: userData?.user || verifyData?.user || null,
     isLoading: isVerifying || isLoadingUser,

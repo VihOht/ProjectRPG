@@ -6,9 +6,37 @@ import { AttributesTab } from "../components/documents/tabs/AttributesTab";
 import ConversionTab from "../components/documents/tabs/ConversionsTab";
 import RuleBookModal from "../components/documents/dialogs/RuleBookModal";
 import { ItemsTab } from "../components/documents/tabs/ItemsTab";
+import { useAuthProvider } from "../providers";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 
 
 export default function DocumentsPage() {
+    const { isAuthenticated, isLoading, isReady } = useAuthProvider();
+
+    const navigate = useNavigate();
+
+    if (isLoading || !isReady) {
+    return (<>
+    <StarSky>
+      <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
+        <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
+          <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
+          <p className="text-center text-vaccineBlack mb-6">Verificando autenticação...</p>
+        </div>
+      </div>
+    </StarSky>
+    </>)
+  }
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate("/auth/login");
+        }
+    }, [isAuthenticated, navigate]);
+
+
+
     return (
         <StarSky>
             <Header> 

@@ -4,11 +4,11 @@ import { Header } from "../components/Header";
 import { StarSky } from "../components/StarSky";
 import { useCreateCharacter, useCharacters, useGetUsers, useDeleteCharacter } from "../hooks";
 import { useAuthProvider } from "../providers";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 export default function Index() {
-  const { isAuthenticated, user, isReady } = useAuthProvider();
+  const { isAuthenticated, user, isReady, isLoading } = useAuthProvider();
   const navigate = useNavigate();
   const [isDocumentOpening, setIsDocumentOpening] = useState(false);
   const [isAccountOpening, setIsAccountOpening] = useState(false);
@@ -61,19 +61,25 @@ export default function Index() {
       }
     });}
 
-  if (!isReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-500">Loading...</p>
+    useEffect(() => {
+      if (!isAuthenticated) {
+        navigate("/auth/login");
+      }
+    }, [isAuthenticated, navigate]);
+
+    if (isLoading || !isReady) {
+    return (<>
+    <StarSky>
+      <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
+        <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
+          <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
+          <p className="text-center text-vaccineBlack mb-6">Verificando autenticação...</p>
+        </div>
       </div>
-    );
+    </StarSky>
+    </>)
   }
 
-  if (!isAuthenticated) {
-    navigate("/auth/login");
-    toast.error("Você precisa estar logado para acessar esta página.");
-    return null;
-  }
 
   return (
     <StarSky>

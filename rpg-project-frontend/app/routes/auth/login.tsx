@@ -5,7 +5,7 @@ import { useAuthProvider } from "../../providers";
 import { StarSky } from "../../components/StarSky";
 
 export default function LoginPage() {
-    const { isAuthenticated, isLoading } = useAuthProvider()
+    const { isAuthenticated, isLoading, isReady } = useAuthProvider()
 	const navigate = useNavigate();
 	const loginMutation = useLogin();
 
@@ -20,11 +20,19 @@ export default function LoginPage() {
         }
     }, [isAuthenticated, navigate])
 
-    if (isLoading) {
+      if (isLoading || !isReady) {
     return (<>
-        <h1>Loading...</h1>
+    <StarSky>
+      <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
+        <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
+          <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
+          <p className="text-center text-vaccineBlack mb-6">Verificando autenticação...</p>
+        </div>
+      </div>
+    </StarSky>
     </>)
-    }
+  }
+
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();

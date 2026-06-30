@@ -15,7 +15,7 @@ type DecodedToken = {
 };
 
 export default function RegisterPage() {
-  const { isAuthenticated, isLoading } = useAuthProvider()
+  const { isAuthenticated, isLoading, isReady } = useAuthProvider()
   const navigate = useNavigate();
   const registerMutation = useRegister();
   const { token } = useParams();
@@ -39,13 +39,26 @@ export default function RegisterPage() {
     token: token || "",
   });
 
-
-
   useEffect(() => {
         if (isAuthenticated) {
             navigate("/")
         }
-}, [isAuthenticated, navigate])
+    }, [isAuthenticated, navigate])
+
+  if (isLoading || !isReady) {
+    return (<>
+    <StarSky>
+      <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
+        <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
+          <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
+          <p className="text-center text-vaccineBlack mb-6">Verificando autenticação...</p>
+        </div>
+      </div>
+    </StarSky>
+    </>)
+  }
+
+
 
   if (!TokenData) {
     return (
