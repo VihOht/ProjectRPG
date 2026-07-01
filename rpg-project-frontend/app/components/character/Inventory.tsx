@@ -31,6 +31,8 @@ export function CharacterInventory({ characterId }: CharacterInventoryProps) {
     return inventoriesData?.inventories ?? [];
   }, [inventoriesData]);
 
+  console.log("Inventories:", inventories);
+
   const equippedInventory = inventories.find(
     (inventory) =>
       inventory.type === "Equipped" ||
@@ -119,6 +121,7 @@ function InventorySection({
   characterId: number;
 }) {
   const { data, isLoading } = useInventoryItems(inventory.id);
+  console.log("Inventory Items for inventory", inventory.id, ":", data);
 
   const items = useMemo<InventoryEntry[]>(() => {
     if (!data?.items) return [];
@@ -225,7 +228,7 @@ function EquippedItemCard({ item, characterId }: { item: InventoryEntry; charact
           <div className="flex items-center gap-2">
             { item.stackable && (
               <span className="rounded-md bg-vaccinePurple/30 px-3 py-1 text-sm text-white">
-                x{item.quantity} / {item.max_quantity || "-"}
+                x{item.quantity} / {item.max_quantity ? item.max_quantity > 0 ? item.max_quantity : item.max_quantity === -1 ? "∞" : "-" : "-"}
               </span>
             )}
             <InventoryItemActions
@@ -270,7 +273,7 @@ function CompactItemCard({ item, characterId }: { item: InventoryEntry; characte
         <div className="flex items-center gap-2">
           { item.stackable && (
             <span className="rounded-md bg-vaccineBlueTones-400/40 px-2 py-1 text-xs text-vaccineGray-200">
-              x{item.quantity} / {item.max_quantity || "-"}
+              x{item.quantity} / {item.max_quantity ? item.max_quantity > 0 ? item.max_quantity : item.max_quantity === -1 ? "∞" : "-" : "-"}
             </span>
           )}
           <InventoryItemActions
@@ -398,7 +401,7 @@ export default function InventoryItemActions({
             </button>
 
             {open && (
-                <div className="absolute right-0 top-8 z-50 rounded-lg border border-vaccineGray-300/20 bg-vaccineBlueTones-1000 p-2 shadow-xl flex flex-col gap-1">
+                <div className="absolute right-10 top-[-5px] z-50 rounded-lg border border-vaccineGray-300/20 bg-vaccineBlueTones-1000 p-2 shadow-xl flex flex gap-1">
 
                     <TransferInventoryItemModal
                         inventoryId={item.inventory_id}

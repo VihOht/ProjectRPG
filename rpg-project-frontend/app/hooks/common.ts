@@ -6,8 +6,10 @@ import {
   useQueryClient,
   type UseMutationResult,
   type UseQueryResult,
+  onlineManager,
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
+import { useEffect } from 'react';
 
 export interface ApiError {
   message?: string;
@@ -28,6 +30,72 @@ export function createGetAllHook<TResponse>(
       retry: 1,
     });
 }
+
+export function createGetAllHookV2<TResponse>(
+  queryKey: string,
+  fn: () => Promise<TResponse>,
+  syncFn: () => Promise<void>
+) {
+  return (): UseQueryResult<TResponse, AxiosError> => {
+    const queryClient = useQueryClient();
+
+    const query = useQuery<TResponse, AxiosError>({
+      networkMode: 'always',
+      queryKey: [queryKey],
+      queryFn: fn,
+      staleTime: DEFAULT_STALE_TIME,
+      retry: 1,
+    });
+
+    useEffect(() => {
+      if (!onlineManager.isOnline()) return;
+
+      syncFn().then(() => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] });
+      }).catch((error) => {
+        console.error(`Error syncing ${queryKey}:`, error);
+      });
+    }, [queryClient, queryKey, syncFn]);
+
+
+    return query;
+  }
+}
+
+export function createGetByIdHookV2<TResponse>(
+  queryKey: string,
+  fn: (id: number) => Promise<TResponse>,
+  syncFn?: (id: number) => Promise<void>
+) {
+  return (id: number | null): UseQueryResult<TResponse, AxiosError> => {
+    const queryClient = useQueryClient();
+
+    const query = useQuery<TResponse, AxiosError>({
+      networkMode: 'always',
+      queryKey: [queryKey, id],
+      queryFn: () => fn(id!),
+      enabled: !!id,
+      staleTime: DEFAULT_STALE_TIME,
+      retry: 1,
+    });
+
+    useEffect(() => {
+      if (!onlineManager.isOnline()) return;
+
+      if (syncFn && id) {
+        syncFn(id).then(() => {
+          queryClient.invalidateQueries({ queryKey: [queryKey, id] });
+        }).catch((error) => {
+          console.error(`Error syncing ${queryKey}:`, error);
+        });
+      }
+    }, [queryClient, queryKey, syncFn, id]);
+
+    return query;
+  };
+}
+
+
 
 export function createGetByIdHook<TResponse>(
   queryKey: string,

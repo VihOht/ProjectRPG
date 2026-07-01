@@ -1,3 +1,4 @@
+import { characterRepository } from '../repositories';
 import { gameService } from '../services/gameService';
 import {
   createGetAllHook,
@@ -60,9 +61,10 @@ export const useAssignAbilityToCharacter = (characterId: number) => {
 
   return useMutation({
     mutationFn: async (abilityId: number) => {
-      return gameService.assignAbilityToCharacter(abilityId, characterId);
+      return characterRepository.assignAbilityToCharacter(abilityId, characterId);
     },
-    onSuccess: () => {
+    onSuccess: (updatedCharacter) => {
+      queryClient.setQueryData(['character', characterId], updatedCharacter);
       // Invalidate the characters query to refetch the updated data
       queryClient.invalidateQueries({
         queryKey: ['character', characterId],
@@ -76,9 +78,10 @@ export const useUnassignAbilityFromCharacter = (characterId: number) => {
 
   return useMutation({
     mutationFn: async (abilityId: number) => {
-      return gameService.unassignAbilityFromCharacter(abilityId, characterId);
+      return characterRepository.unassignAbilityFromCharacter(abilityId, characterId);
     },
-    onSuccess: () => {
+    onSuccess: (updatedCharacter) => {
+      queryClient.setQueryData(['character', characterId], updatedCharacter);
       // Invalidate the characters query to refetch the updated data
       queryClient.invalidateQueries({
         queryKey: ['character', characterId],

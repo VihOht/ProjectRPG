@@ -1,22 +1,25 @@
 import { gameService } from '../services/gameService';
+import { racesRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
 } from './common';
 
 export const useRaces =
-  createGetAllHook(
+  createGetAllHookV2(
     'races',
-    gameService.getRaces
+    racesRepository.getAll,
+    racesRepository.syncAll
   );
 
 export const useRace =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'race',
-    gameService.getRaceById
+    racesRepository.getById,
+    racesRepository.syncById
   );
 
 export const useCreateRace =

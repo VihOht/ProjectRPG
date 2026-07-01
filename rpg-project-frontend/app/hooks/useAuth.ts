@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tan
 import { useNavigate } from 'react-router';
 import { authService } from '../services/auth';
 import { useEffect, useState } from 'react';
+import type { AuthSession } from '../database/db';
+import { authSessionRepository } from '../repositories';
 import type {
   LoginRequest,
   LoginResponse,
@@ -12,6 +14,18 @@ import type {
   InviteUserRequest,
 } from '../types/auth';
 import { AxiosError } from 'axios';
+
+
+
+export const useAuthSession = (): UseQueryResult<AuthSession | null, Error> => {
+  return useQuery({
+    networkMode: 'always',
+    queryKey: ['auth-session'],
+    queryFn: () => authSessionRepository.getAuthSession(),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+};
 
 /**
  * Hook for user login
@@ -56,10 +70,14 @@ export const useRegister = () => {
  * Hook for token verification
  */
 export const useVerify = (): UseQueryResult<VerifyResponse, AxiosError> => {
+  const { data: session } = useAuthSession();
+  const isAuthenticated = Boolean(session && new Date() < session.expiresAt);
+ 
+  
   return useQuery<VerifyResponse, AxiosError>({
     queryKey: ['verify'],
     queryFn: authService.verify,
-    enabled: authService.isAuthenticated(), // Only run if token exists
+    enabled: isAuthenticated, // Only run if token exists
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -69,10 +87,12 @@ export const useVerify = (): UseQueryResult<VerifyResponse, AxiosError> => {
  * Hook for getting current user
  */
 export const useCurrentUser = (): UseQueryResult<CurrentUserResponse, AxiosError> => {
+  const { data: session } = useAuthSession();
+  const isAuthenticated = Boolean(session && new Date() < session.expiresAt);
   return useQuery<CurrentUserResponse, AxiosError>({
     queryKey: ['currentUser'],
     queryFn: authService.getCurrentUser,
-    enabled: authService.isAuthenticated(), // Only run if token exists
+    enabled: isAuthenticated, // Only run if token exists
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -119,19 +139,32 @@ export const useInviteUser = () => {
  */
 export const useAuth = () => {
   const { data: verifyData, isLoading: isVerifying, error: verifyError } = useVerify();
-  const { data: userData, isLoading: isLoadingUser } = useCurrentUser();
+  const { isLoading: isLoadingUser } = useCurrentUser();
   const [isReady, setIsReady] = useState(false);
+  const { data: session, isLoading: isLoadingSession } = useAuthSession();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
 
   useEffect(() => {
-    setIsReady(true);
-  }, []);
+    if (!isLoadingSession && session !== undefined) {
+      setIsReady(true);
+      setIsAuthenticated(session ? new Date() < session.expiresAt : false);
+      if (!session || new Date() >= session.expiresAt) {
+        authSessionRepository.deleteAuthSession().then(() => {
+          setIsAuthenticated(false);
+        }).catch((error) => {
+          console.error('Error deleting expired auth session:', error);
+        });
+      }
+    }
+  }, [isLoadingSession, session]);
+
 
 
 
   return {
-    isAuthenticated: authService.isAuthenticated(),
+    isAuthenticated,
     isReady,
-    user: userData?.user || verifyData?.user || null,
+    user: session?.user || verifyData?.user || null,
     isLoading: isVerifying || isLoadingUser,
     error: verifyError,
     username: authService.getStoredUsername(),

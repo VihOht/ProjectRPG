@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { LucidePlusCircle } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 import { AppModal } from "../../ui/AppModal";
-import { useCreateItem, useAddItemToInventory, useToggleItemTemporary } from "../../../hooks";
+import { useCreateItem, useAddItemToInventory } from "../../../hooks";
 import type { CreateItemRequest } from "../../../types";
 
 interface CreateTemporaryItemModalProps {
@@ -15,8 +15,6 @@ export default function CreateTemporaryItemModal({
 }: CreateTemporaryItemModalProps) {
   const [open, setOpen] = useState(false);
 
-  const [createdItemId, setCreatedItemId] = useState<number | null>(null);
-
   const [formData, setFormData] = useState<CreateItemRequest>({
     name: "",
     description: "",
@@ -27,9 +25,10 @@ export default function CreateTemporaryItemModal({
     data: {},
   });
 
+  const [quantity, setQuantity] = useState<number>(1);
+
   const { mutate: createItem, isPending: isCreating } = useCreateItem();
   const { mutate: addItem, isPending: isAdding } = useAddItemToInventory(inventoryId);
-  const { mutate: toggleTemporary } = useToggleItemTemporary(createdItemId);
 
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
@@ -41,6 +40,10 @@ export default function CreateTemporaryItemModal({
           ? checked
           : type === "number" && value !== ""
           ? Number(value)
+          ? name === "max_quantity" && Number(value) < 0
+            ? -1
+            : Number(value)
+          : Number(value)
           : value,
       ...(name === "item_type"
         ? { data: getDefaultDataByType(value) }
@@ -68,35 +71,17 @@ export default function CreateTemporaryItemModal({
 
     createItem(formData, {
       onSuccess: (response) => {
-        const itemId = response.item.id;
-        setCreatedItemId(itemId);
-
-        toggleTemporary(undefined, {
+        const item_id = response.item.id;
+        resetForm();
+        addItem({ item_id, quantity }, {
           onSuccess: () => {
-            addItem(
-              {
-                item_id: itemId,
-                quantity: 1,
-              },
-              {
-                onSuccess: () => {
-                  toast.success("Item temporário criado e adicionado.");
-                  setOpen(false);
-                  resetForm();
-                },
-                onError: (error: any) => {
-                  toast.error(
-                    error?.response?.data?.message ||
-                      "Item criado, mas não foi possível adicioná-lo ao inventário."
-                  );
-                },
-              }
-            );
+            toast.success("Item temporário criado e adicionado ao inventário!");
+            setOpen(false);
           },
           onError: (error: any) => {
             toast.error(
               error?.response?.data?.message ||
-                "Item criado, mas não foi possível marcá-lo como temporário."
+                "Erro ao adicionar item temporário ao inventário."
             );
           },
         });
@@ -120,7 +105,7 @@ export default function CreateTemporaryItemModal({
       max_quantity: undefined,
       data: {},
     });
-    setCreatedItemId(null);
+    setQuantity(1);
   };
 
   return (
@@ -201,14 +186,36 @@ export default function CreateTemporaryItemModal({
           </div>
 
           {formData.stackable && (
-            <Input
-              label="Quantidade máxima"
-              name="max_quantity"
-              type="number"
-              value={formData.max_quantity ?? ""}
-              onChange={handleChange}
-            />
+            <>
+              <div>
+                <Input
+                  label="Quantidade máxima"
+                  name="max_quantity"
+                  type="number"
+                  value={formData.max_quantity ? formData.max_quantity : ""}
+                  onChange={handleChange}
+                />
+                {formData.max_quantity === -1 ? (
+                  <p className="text-xs text-gray-400 mt-1">
+                    A quantidade máxima é ilimitada.
+                  </p>
+                ) : (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Coloque -1 para quantidade máxima ilimitada.
+                  </p>
+                )}
+              </div>
+              
+              <Input
+                label="Quantidade a adicionar"
+                name="quantity"
+                type="number"
+                value={quantity ?? ""}
+                onChange={(e) => setQuantity(Number(e.target.value < 0 ? 1 : (formData.max_quantity && formData.max_quantity !== -1 && Number(e.target.value) > formData.max_quantity) ? formData.max_quantity : e.target.value))}
+              />
+            </>
           )}
+
 
           {formData.item_type === "weapon" && (
             <WeaponFields data={formData.data || {}} onChange={handleDataChange} />

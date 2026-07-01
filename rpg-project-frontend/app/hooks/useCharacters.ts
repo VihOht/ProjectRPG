@@ -1,21 +1,29 @@
+// app/hooks/useCharacters.ts
+
 import { gameService } from '../services/gameService';
+import { characterRepository } from '../repositories/characterRepository';
+import { characterAttributesRepository } from '../repositories/characterAttributesRepository';
+import { ConnectivityManager } from '../services/onlineManager';
+import { useEffect } from 'react';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createDeleteHook,
 } from './common';
 
 export const useCharacters =
-  createGetAllHook(
+  createGetAllHookV2(
     'characters',
-    gameService.getCharacters
+    characterRepository.getCharacters,
+    characterRepository.syncCharacters
   );
 
 export const useCharacter =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'character',
-    gameService.getCharacterById
+    characterRepository.getCharacterById,
+    characterRepository.syncCharacter
   );
 
 export const useCreateCharacter =
@@ -38,7 +46,6 @@ import {
   useQuery,
   useQueryClient,
   type UseMutationResult,
-  type UseQueryResult,
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
@@ -63,26 +70,30 @@ interface ApiError {
 
 export const useUpdateCharacterGeneral = (
   characterId: number | null
-): UseMutationResult<
-  CreateCharacterResponse,
-  AxiosError<ApiError>,
-  UpdateCharacterGeneralRequest
-> => {
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data) =>
-      gameService.updateCharacterGeneral(characterId!, data),
+    networkMode: 'always',
+    mutationFn: (data: UpdateCharacterGeneralRequest) => characterRepository.updateCharacterGeneral(characterId!, data),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['character', characterId],
-      });
+    onSuccess: (updatedCharacter) => {
+      queryClient.setQueryData(['character', characterId],
+        updatedCharacter
+      );
 
-      queryClient.invalidateQueries({
-        queryKey: ['characters'],
+      queryClient.setQueryData(['characters'], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          characters: oldData.characters.map((char: any) =>
+            char.id === characterId ? updatedCharacter : char
+          ),
+        };
       });
-    },
+    }
+
   });
 };
 
@@ -90,22 +101,25 @@ export const useUpdateCharacterGeneral = (
 // UPDATE CHARACTER STATS
 // ======================================================
 
-export const useUpdateCharacterStats = (
+export function useUpdateCharacterStats(
   characterId: number | null
-): UseMutationResult<
-  CreateCharacterResponse,
-  AxiosError<ApiError>,
-  UpdateCharacterStatsRequest
-> => {
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data) =>
-      gameService.updateCharacterStats(characterId!, data),
+    mutationFn: (data: UpdateCharacterStatsRequest) =>
+      characterRepository.updateCharacterStats(characterId!, data),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['character', characterId],
+    onSuccess: (updatedCharacter) => {
+      queryClient.setQueryData(['character', characterId], updatedCharacter);
+      queryClient.setQueryData(['characters'], (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          characters: oldData.characters.map((char: any) =>
+            char.id === characterId ? updatedCharacter : char
+          ),
+        };
       });
     },
   });
@@ -115,22 +129,25 @@ export const useUpdateCharacterStats = (
 // UPDATE CHARACTER DESCRIPTION
 // ======================================================
 
-export const useUpdateCharacterDescription = (
+export function useUpdateCharacterDescription (
   characterId: number | null
-): UseMutationResult<
-  CreateCharacterResponse,
-  AxiosError<ApiError>,
-  UpdateCharacterDescriptionRequest
-> => {
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data) =>
-      gameService.updateCharacterDescription(characterId!, data),
+    mutationFn: (data: UpdateCharacterDescriptionRequest) =>
+      characterRepository.updateCharacterDescription(characterId!, data),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['character', characterId],
+    onSuccess: (updatedCharacter) => {
+      queryClient.setQueryData(['character', characterId], updatedCharacter);
+      queryClient.setQueryData(['characters'], (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          characters: oldData.characters.map((char: any) =>
+            char.id === characterId ? updatedCharacter : char
+          ),
+        };
       });
     },
   });
@@ -259,50 +276,50 @@ export const useReturnCharacterToAdmin = (
 // CHARACTER ATTRIBUTES
 // ======================================================
 
-export const useCharacterAttributes = (
-  characterId: number | null
-): UseQueryResult<
-  ListCharacterAttributesResponse,
-  AxiosError
-> => {
-  return useQuery({
-    queryKey: ['character-attributes', characterId],
+export function useCharacterAttributes  (
+  character_id: number | null
+) {
+  const queryClient = useQueryClient();
 
-    queryFn: () =>
-      gameService.getCharacterAttributes(characterId!),
-
-    enabled: !!characterId,
-
-    retry: 1,
-
-    staleTime: 5 * 60 * 1000,
+  const query = useQuery({
+    networkMode: 'always',
+    queryKey: ['character-attributes', character_id],
+    queryFn: () => characterAttributesRepository.getCharacterAttributes(character_id!),
+    enabled: !!character_id,
   });
-};
+
+  useEffect(() => {
+      if (!ConnectivityManager.isOnline()) return;
+
+      characterAttributesRepository.syncCharacterAttributes(character_id!).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['character-attributes', character_id] });
+      }).catch((error) => {
+        console.error(`Error syncing ${character_id}:`, error);
+      });
+    }, [queryClient, character_id, characterAttributesRepository]);
+  
+    return query;
+}
+
 
 // ======================================================
 // UPDATE CHARACTER PERICIAS
 // ======================================================
 
-export const useUpdateCharacterPericias = (
+export function useUpdateCharacterPericias (
   characterId: number | null
-): UseMutationResult<
-  StandardResponse,
-  AxiosError<ApiError>,
-  BulkUpdateCharacterPericiasRequest
-> => {
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data) =>
-      gameService.updateCharacterPericias(
+    mutationFn: (data: BulkUpdateCharacterPericiasRequest) =>
+      characterAttributesRepository.updateCharacterPericias(
         characterId!,
         data
       ),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['character-attributes', characterId],
-      });
+    onSuccess: (updatedAttributes: ListCharacterAttributesResponse) => {
+      queryClient.setQueryData(['character-attributes', characterId], updatedAttributes);
 
       queryClient.invalidateQueries({
         queryKey: ['character', characterId],

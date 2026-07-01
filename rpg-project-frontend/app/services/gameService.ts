@@ -1,3 +1,4 @@
+// app//services/gameService.ts
 import { api } from './api';
 
 import type * as T from '../types';

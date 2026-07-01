@@ -1,7 +1,8 @@
 import { gameService } from '../services/gameService';
+import { ritualsRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
@@ -9,17 +10,20 @@ import {
 import { AxiosError } from 'axios';
 import type { ApiError } from './common';
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
+import { characterRepository } from '../repositories';
 
 export const useRituals =
-  createGetAllHook(
+  createGetAllHookV2(
     'rituals',
-    gameService.getRituals
+    ritualsRepository.getAll,
+    ritualsRepository.syncAll
   );
 
 export const useRitual =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'ritual',
-    gameService.getRitualById
+    ritualsRepository.getById,
+    ritualsRepository.syncById
   );
 
 export const useCreateRitual =
@@ -62,9 +66,10 @@ export const useAssignRitualToCharacter = (characterId: number) => {
 
   return useMutation({
     mutationFn: async (ritualId: number) => {
-      return gameService.assignRitualToCharacter(ritualId, characterId);
+      return characterRepository.assignRitualToCharacter(ritualId, characterId);
     },
-    onSuccess: () => {
+    onSuccess: (updatedCharacter) => {
+      queryClient.setQueryData(['character', characterId], updatedCharacter);
       // Invalidate the characters query to refetch the updated data
       queryClient.invalidateQueries({
         queryKey: ['character', characterId],
@@ -77,9 +82,10 @@ export const useUnassignRitualFromCharacter = (characterId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (ritualId: number) => {
-      return gameService.unassignRitualFromCharacter(ritualId, characterId);
+      return characterRepository.unassignRitualFromCharacter(ritualId, characterId);
     },
-    onSuccess: () => {
+    onSuccess: (updatedCharacter) => {
+      queryClient.setQueryData(['character', characterId], updatedCharacter);
       // Invalidate the characters query to refetch the updated data
       queryClient.invalidateQueries({
         queryKey: ['character', characterId],

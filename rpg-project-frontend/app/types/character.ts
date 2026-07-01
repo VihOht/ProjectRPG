@@ -370,6 +370,10 @@ export type ListCharacterAttributesResponse = {
   attributes: CharacterAttributeItem[];
 }
 
+export type GetCharacterAttributeResponse = {
+  attribute: CharacterAttributeItem
+}
+
 
 // ATTRIBUTE POWERS
 

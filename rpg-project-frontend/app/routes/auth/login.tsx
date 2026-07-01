@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
-import { useLogin } from "../../hooks";
+import { useAuthSession, useLogin } from "../../hooks";
 import { useAuthProvider } from "../../providers";
 import { StarSky } from "../../components/StarSky";
 
@@ -8,6 +8,7 @@ export default function LoginPage() {
     const { isAuthenticated, isLoading, isReady } = useAuthProvider()
 	const navigate = useNavigate();
 	const loginMutation = useLogin();
+	const { refetch: refetchAuthSession } = useAuthSession();
 
 	const [form, setForm] = useState({
 		login_identifier: "",
@@ -15,10 +16,10 @@ export default function LoginPage() {
 	});
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && isReady) {
             navigate("/")
         }
-    }, [isAuthenticated, navigate])
+    }, [isAuthenticated, navigate, isReady])
 
       if (isLoading || !isReady) {
     return (<>
@@ -39,7 +40,7 @@ export default function LoginPage() {
 
 		try {
 			await loginMutation.mutateAsync(form);
-			navigate("/");
+			await refetchAuthSession();
 		} catch {
 			// Error is handled in mutation state.
 		}

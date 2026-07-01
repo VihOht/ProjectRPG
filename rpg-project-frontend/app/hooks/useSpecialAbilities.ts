@@ -1,30 +1,41 @@
-import { gameService } from '../services';
+import { gameService } from '../services/gameService';
+import { specialAbilitiesRepository } from '../repositories/gameDataRepositories';
 import {
-    createGetAllHook,
-    createGetByIdHook,
-    createCreateHook,
+    createGetAllHookV2,
+    createGetByIdHookV2,
     createUpdateHook,
     createDeleteHook,
 } from './common';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { characterRepository } from '../repositories';
+import type { CreateSpecialAbilityRequest } from '../types';
 
 
 export const useGetAllSpecialAbilities = 
-    createGetAllHook(
+    createGetAllHookV2(
         'specialAbilities',
-        gameService.getSpecialAbilities
+        specialAbilitiesRepository.getAll,
+        specialAbilitiesRepository.syncAll
     );
 
 export const useGetSpecialAbilityById =
-    createGetByIdHook(
+    createGetByIdHookV2(
         'specialAbility',
-        gameService.getSpecialAbilityById
+        specialAbilitiesRepository.getById,
+        specialAbilitiesRepository.syncById
     );
 
-export const useCreateSpecialAbility =
-    createCreateHook(
-        'specialAbilities',
-        gameService.createSpecialAbility
-    );
+export function useCreateSpecialAbility() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: CreateSpecialAbilityRequest) => characterRepository.createSpecialAbilityForCharacter(data.character_id, data),
+        onSuccess: (updatedCharacter) => {
+            queryClient.setQueryData(['character', updatedCharacter.character.id], updatedCharacter);
+            queryClient.invalidateQueries({ queryKey: ['specialAbilities'] });
+        }
+    });
+}
 
 export const useUpdateSpecialAbility =
     createUpdateHook(

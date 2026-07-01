@@ -6,12 +6,14 @@ import { useCreateCharacter, useCharacters, useGetUsers, useDeleteCharacter } fr
 import { useAuthProvider } from "../providers";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { onlineManager } from "@tanstack/react-query";
 
 export default function Index() {
-  const { isAuthenticated, user, isReady, isLoading } = useAuthProvider();
+  const { isAuthenticated, user, isReady } = useAuthProvider();
   const navigate = useNavigate();
   const [isDocumentOpening, setIsDocumentOpening] = useState(false);
   const [isAccountOpening, setIsAccountOpening] = useState(false);
+
 
   const { mutate: createCharacter, isPending } = useCreateCharacter();
   const { mutate: deleteCharacter } = useDeleteCharacter();
@@ -62,23 +64,10 @@ export default function Index() {
     });}
 
     useEffect(() => {
-      if (!isAuthenticated) {
+      if (!isAuthenticated && isReady) {
         navigate("/auth/login");
       }
-    }, [isAuthenticated, navigate]);
-
-    if (isLoading || !isReady) {
-    return (<>
-    <StarSky>
-      <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
-        <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
-          <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
-          <p className="text-center text-vaccineBlack mb-6">Verificando autenticação...</p>
-        </div>
-      </div>
-    </StarSky>
-    </>)
-  }
+    }, [isAuthenticated, navigate, isReady]);
 
 
   return (
@@ -86,8 +75,8 @@ export default function Index() {
       <Header>
         {isAdmin && (
           <Link
-            to="/accounts"
-            className={`px-3 py-2 bg-vaccineGray-300 rounded-md ${isAccountOpening ? 'bg-vaccineGray-800' : 'hover:bg-vaccineGray-400'} cursor-pointer text-center transition-colors`}
+            to={`${onlineManager.isOnline() ? "/accounts" : "#"}`}
+            className={`px-3 py-2 bg-vaccineGray-300 rounded-md ${isAccountOpening || !onlineManager.isOnline() ? 'bg-vaccineGray-800' : 'hover:bg-vaccineGray-400'} cursor-pointer text-center transition-colors`}
             onClick={() => setIsAccountOpening(true)}
           >
             Contas
@@ -111,8 +100,8 @@ export default function Index() {
               },
             );
           }}
-          disabled={isPending}
-          className={`px-4 py-2 bg-vaccinePurple ${isPending ? 'opacity-50 cursor-not-allowed' : 'hover:bg-purple-700'} text-white rounded-md transition-colors`}
+          disabled={isPending || !onlineManager.isOnline()}
+          className={`px-4 py-2 bg-vaccinePurple ${isPending || !onlineManager.isOnline() ? 'opacity-50' : 'hover:bg-purple-700'} text-white cursor-pointer rounded-md transition-colors`}
         >
           Nova Ficha
         </button>

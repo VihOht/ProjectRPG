@@ -1493,7 +1493,7 @@ class InventoryService:
             for i, inventory_item in enumerate(existing_inventory_items):
                 if item.stackable:
                     inventory_item.quantity += quantity
-                    if inventory_item.quantity > max_quantity:
+                    if inventory_item.quantity > max_quantity and max_quantity != -1:
                         quantity = inventory_item.quantity - max_quantity
                         inventory_item.quantity = max_quantity
                         db.session.add(inventory_item)
@@ -1503,9 +1503,14 @@ class InventoryService:
                         return inventory_item, None
             
             while quantity > 0:
-                if inventory.capacity != -1 and len(inventory.items) + items_added >= inventory.capacity:
+                if inventory.capacity != -1 and (len(inventory.items) + items_added >= inventory.capacity):
                     db.session.rollback()
                     return None, "Inventário cheio"
+                if max_quantity == -1:
+                    new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=quantity)
+                    db.session.add(new_inventory_item)
+                    quantity = 0
+                    break
                 if quantity > max_quantity:
                     new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=max_quantity)
                     db.session.add(new_inventory_item)
@@ -1519,7 +1524,7 @@ class InventoryService:
             return existing_inventory_items, None
         
         while quantity > 0:
-            if inventory.capacity != -1 and len(inventory.items) + items_added >= inventory.capacity:
+            if inventory.capacity != -1 and (len(inventory.items) + items_added >= inventory.capacity):
                 db.session.rollback()
                 return None, "Inventário cheio"
             if not item.stackable and quantity > 1:
@@ -1532,6 +1537,11 @@ class InventoryService:
                 db.session.add(new_inventory_item)
                 break
             else:
+                if max_quantity == -1:
+                    new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=quantity)
+                    db.session.add(new_inventory_item)
+                    quantity = 0
+                    break
                 if quantity > max_quantity:
                     new_inventory_item = InventoryItem(inventory_id=inventory_id, item_id=item_id, quantity=max_quantity)
                     db.session.add(new_inventory_item)
@@ -1542,7 +1552,7 @@ class InventoryService:
                     db.session.add(new_inventory_item)
                     break
         db.session.commit()
-        return new_inventory_item, None if new_inventory_item else None, None
+        return (new_inventory_item, None) if new_inventory_item else (None, None)
     
     @staticmethod
     def sync_carried_capacity(character_id):
@@ -1673,6 +1683,9 @@ class InventoryService:
         item = Item.query.get(item_id)
         if not item:
             return None, "Item não encontrado"
+        
+        if not item.equipable and target_inventory.inv_type == InventoryType.EQUIPED:
+            return None, "Apenas itens equipáveis podem ser adicionados ao inventário de equipados"
         
         existing_source_item = InventoryItem.query.filter_by(inventory_id=source_inventory_id, item_id=item_id).first()
         if not existing_source_item:

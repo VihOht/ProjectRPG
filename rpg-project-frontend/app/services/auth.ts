@@ -1,4 +1,4 @@
-import { api, tokenStorage, usernameStorage } from './api';
+import { api } from './api';
 import type {
   LoginRequest,
   LoginResponse,
@@ -10,6 +10,9 @@ import type {
   InviteUserRequest
 } from '../types/auth';
 import type { StandardResponse } from '../types';
+import { authSessionRepository } from '../repositories/authSessionRepository';
+import type { AuthSession } from '../database/db';
+import { useAuthSession } from '../hooks';
 
 /**
  * Authentication Service
@@ -41,10 +44,7 @@ export const authService = {
     
     // Store token and username in localStorage
     if (response.data.token) {
-      tokenStorage.setToken(response.data.token);
-    }
-    if (response.data.user?.username) {
-      usernameStorage.setUsername(response.data.user.username);
+      await authSessionRepository.createAuthSession(response.data.token, 24 * 60 * 60 * 1000, response.data.user);
     }
     
     return response.data;
@@ -55,6 +55,16 @@ export const authService = {
    */
   verify: async (): Promise<VerifyResponse> => {
     const response = await api.get<VerifyResponse>('/auth/verify');
+    if (response.data.user) {
+      const session = await authSessionRepository.getAuthSession();
+      if (session) {
+        session.verifiedAt = new Date();
+        await authSessionRepository.updateAuthSession({
+          token: session.token,
+          expiresAt: session.expiresAt.getTime()
+        });
+      }
+    }
     return response.data;
   },
 
@@ -77,23 +87,29 @@ export const authService = {
    * Logout user (clear local storage)
    */
   logout: (): void => {
-    tokenStorage.removeToken();
-    usernameStorage.removeUsername();
+    authSessionRepository.deleteAuthSession();
   },
 
   /**
    * Check if user is authenticated
    */
-  isAuthenticated: (): boolean => {
-    return !!tokenStorage.getToken();
+  isAuthenticated: () => {
+
+    const { data: session } = useAuthSession();
+    
+    if (!session) return undefined;
+    const now = new Date();
+    return Boolean(now < session.expiresAt);
   },
 
   /**
    * Get stored username
    */
-  getStoredUsername: (): string | null => {
-    return usernameStorage.getUsername();
-  },
+  getStoredUsername: () => {
+    const session = useAuthSession().data as AuthSession | null;
+    if (!session) return null;
+    return session.user.username;
+  }
 
   
 };

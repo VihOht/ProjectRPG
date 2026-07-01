@@ -7,9 +7,8 @@ import { CharacterAttributes } from "../components/character/Atributes";
 import { CharacterLore } from "../components/character/Lore";
 import type { UpdateCharacterGeneralRequest } from "../types";
 import { useDeleteCharacter, useCharacter, useToggleCharacterActive, useTransferCharacterOwnership, useReturnCharacterToAdmin, useUpdateCharacterGeneral } from "../hooks/useCharacters";
-import { useGetUserById, useGetUsers, useCharacters, useLevelUpRules } from "../hooks";
+import { useGetUserById, useGetUsers, useCharacters, useLevelUpRules, useAuth } from "../hooks";
 import { Header } from "../components/Header";
-import { useAuthProvider } from "../providers";
 import { toast } from "react-hot-toast";
 import { CharacterAbilities } from "../components/character/Abilities";
 import { CharacterInventory } from "../components/character/Inventory";
@@ -18,8 +17,7 @@ import { CharacterInventory } from "../components/character/Inventory";
 export default function RpgSheet() {
     const navigate = useNavigate();
     const redirect = useNavigate();
-    const { isAuthenticated, isLoading, isReady } = useAuthProvider();
-    const { user } = useAuthProvider();
+    const { isAuthenticated, user } = useAuth();
     const [isEditingHeader, setIsEditingHeader] = useState(false);
     const [transferTargetId, setTransferTargetId] = useState<string>("");
     const { refetch: refetchCharacters } = useCharacters();
@@ -35,7 +33,7 @@ export default function RpgSheet() {
    
     const { mutate: deleteCharacter } = useDeleteCharacter();
     const { mutate: toggleActive, isPending: isTogglingActive } = useToggleCharacterActive(characterId!);
-    const { data: ownerData } = useGetUserById(characterData?.character.own ?? -1, !!characterData?.character.own);
+    const { data: ownerData } = useGetUserById(characterData?.character?.own ?? -1, !!characterData?.character?.own);
     const { mutate: transferOwnership, isPending: isTransferring } = useTransferCharacterOwnership(characterId!);
     const { mutate: returnToAdmin, isPending: isReturning } = useReturnCharacterToAdmin(characterId!);
     const { data: usersData } = useGetUsers();
@@ -117,10 +115,12 @@ export default function RpgSheet() {
 
     
     useEffect(() => {
+        // @ts-ignore
         if (!characterData && characterError && characterError.response?.status === 404) {
             toast.error("Ficha não encontrada. Redirecionando para a página inicial.");
             redirect("/");
         }
+        // @ts-ignore
         if (characterError?.response?.status === 401) {
             toast.error("Você não tem permissão para acessar esta ficha. Redirecionando para a página inicial.");
             redirect("/");
@@ -128,6 +128,7 @@ export default function RpgSheet() {
         if (characterError) {
             toast.error("Ocorreu um erro ao carregar a ficha. Redirecionando para a página inicial.");
             redirect("/");
+            console.error(characterError);
         }
     }, [characterError]);
 
@@ -166,18 +167,6 @@ export default function RpgSheet() {
         );
     }
 
-    if (isLoading || !isReady) {
-    return (<>
-    <StarSky>
-      <div className="min-h-screen flex items-center justify-center p-4 font-vollkorn">
-        <div className="w-full max-w-md bg-vaccineGray-300 rounded-lg shadow-lg p-8">
-          <h1 className="text-4xl text-center font-myFont text-vaccinePurple mb-2">Insonia</h1>
-          <p className="text-center text-vaccineBlack mb-6">Verificando autenticação...</p>
-        </div>
-      </div>
-    </StarSky>
-    </>)
-  }
 
     if (isCharacterLoading) {
         return (
@@ -199,6 +188,7 @@ export default function RpgSheet() {
         );
     }
     if (characterError) {
+        // @ts-ignore
         if (characterError.response?.status === 404) {
             return (
                 <StarSky>
@@ -251,7 +241,11 @@ export default function RpgSheet() {
                 setAddExperienceAmount("0");
                 toast.success("Informações atualizadas com sucesso!");
              },
-            onError: () => { toast.error("Erro ao atualizar informações."); }
+            onError: () => { 
+                console.log("Erro ao atualizar informações.");
+                toast.error("Erro ao atualizar informações."
+
+                ); }
         });
         
     };

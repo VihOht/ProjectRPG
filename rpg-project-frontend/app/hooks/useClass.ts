@@ -1,23 +1,26 @@
 
+import { classesRepository } from '../repositories/classesRepository';
 import { gameService } from '../services/gameService';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
 } from './common';
 
 export const useClasses =
-  createGetAllHook(
+  createGetAllHookV2(
     'classes',
-    gameService.getClasses
+    classesRepository.getClasses,
+    classesRepository.syncClasses
   );
 
 export const useClass =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'class',
-    gameService.getClassById
+    classesRepository.getClass,
+    classesRepository.syncClass
   );
 
 export const useCreateClass =

@@ -1,8 +1,9 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { authSessionRepository } from '../repositories';
+import { ConnectivityManager } from './onlineManager';
 
 const debug = import.meta.env.VITE_DEBUG === 'true' || false;
 
-console.log('Debug mode:', debug);
 // Base URL for the API
 var API_BASE_URL: string;
 if (!debug) {
@@ -19,50 +20,15 @@ export const api = axios.create({
   },
 });
 
-// Token storage helpers
-export const tokenStorage = {
-  getToken: (): string | null => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('auth_token');
-  },
-  setToken: (token: string): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('auth_token', token);
-  },
-  removeToken: (): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('auth_token');
-  },
-};
-
-// Username storage helpers
-export const usernameStorage = {
-  getUsername: (): string | null => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('username');
-  },
-  setUsername: (username: string): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('username', username);
-  },
-  removeUsername: (): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('username');
-  },
-};
 
 // Request interceptor - automatically add token and username to headers
 api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = tokenStorage.getToken();
-    const username = usernameStorage.getUsername();
+  async (config: InternalAxiosRequestConfig) => {
+    const session = await authSessionRepository.getAuthSession();
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    if (username) {
-      config.headers['X-Username'] = username;
+    if (session) {
+      config.headers.Authorization = `Bearer ${session.token}`;
+      config.headers['X-Username'] = session.user.username;
     }
 
     return config;
@@ -75,17 +41,15 @@ api.interceptors.request.use(
 // Response interceptor - handle token expiration
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    // Check if it's a 401 Unauthorized error
+  async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid - clear storage
-      tokenStorage.removeToken();
-      usernameStorage.removeUsername();
-      
-      // Store error flag for components to detect and redirect
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('auth_error', 'token_invalid');
+      const session = await authSessionRepository.getAuthSession();
+      if (session && new Date() >= session.expiresAt) {
+        await authSessionRepository.deleteAuthSession();
       }
+    }
+    if (error.response?.status === 500) {
+      ConnectivityManager.checkApiReachability();
     }
     return Promise.reject(error);
   }

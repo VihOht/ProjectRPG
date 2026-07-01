@@ -1,5 +1,6 @@
 import type { CreateUserRequest, GetUsersResponse, UpdateUserInfoRequest, UpdateUserInfoResponse, User } from '../types';
-import { userService, authService } from '../services';
+import { authService } from '../services/auth';
+import { userService } from '../services/user';
 import { useMutation, useQuery, type UseQueryResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios'; 
 import { toast } from 'react-hot-toast'; 

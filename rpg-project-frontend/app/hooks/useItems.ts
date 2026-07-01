@@ -3,22 +3,25 @@
 // ======================================================
 
 import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
-import { gameService } from "../services";
+import { gameService } from "../services/gameService";
+import { itemsRepository } from "../repositories/gameDataRepositories";
 
 import type { ToggleItemTemporaryResponse, ToggleItemVisibilityResponse, UpdateItemRequest, UpdateItemResponse } from "../types";
-import { createCreateHook, createDeleteHook, createGetAllHook, createGetByIdHook, type ApiError } from "./common";
+import { createCreateHook, createDeleteHook, createGetAllHookV2, createGetByIdHookV2, type ApiError } from "./common";
 import type { AxiosError } from "axios";
 
 export const useItems =
-  createGetAllHook(
+  createGetAllHookV2(
     'items',
-    gameService.getItems
+    itemsRepository.getAll,
+    itemsRepository.syncAll
   );
 
 export const useItem =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'item',
-    gameService.getItemById
+    itemsRepository.getById,
+    itemsRepository.syncById
   );
 
 export const useCreateItem =

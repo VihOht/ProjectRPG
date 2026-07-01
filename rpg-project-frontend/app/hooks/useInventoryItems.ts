@@ -4,28 +4,39 @@
 
 import type { AxiosError } from "axios";
 import type { ApiError } from "./common";
-import type { AddInventoryItemRequest, AddInventoryItemResponse, InventoryItemsResponse, RemoveInventoryItemRequest, RemoveInventoryItemResponse, StandardResponse, TransferInventoryItemRequest } from "../types";
-import { useMutation, useQuery, useQueryClient, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query";
+import type { AddInventoryItemRequest, AddInventoryItemResponse, RemoveInventoryItemRequest, RemoveInventoryItemResponse, StandardResponse, TransferInventoryItemRequest } from "../types";
+import { useMutation, useQuery, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
 import { gameService } from "../services";
+import { inventoryItemsRepository } from "../repositories/inventoryItemsRepository";
+import { ConnectivityManager } from "../services/onlineManager";
+import { useEffect } from "react";
 
-export const useInventoryItems = (
+export function useInventoryItems (
   inventoryId: number | null
-): UseQueryResult<
-  InventoryItemsResponse,
-  AxiosError<ApiError>
-> => {
-  return useQuery({
+)
+  {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ['inventory-items', inventoryId],
-
     queryFn: () =>
-      gameService.getInventoryItems(inventoryId!),
-
+      inventoryItemsRepository.getInventoryItems(inventoryId!),
     enabled: !!inventoryId,
-
     retry: 1,
-
     staleTime: 5 * 60 * 1000,
   });
+
+  useEffect(() => {
+      if (!ConnectivityManager.isOnline()) return;
+
+      inventoryItemsRepository.syncInventoryItems(inventoryId!).then(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['inventory-items', inventoryId],
+        });
+      });
+  }, [inventoryId, queryClient]);
+
+  return query;
 };
 
 export const useAddItemToInventory = (

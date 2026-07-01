@@ -1,23 +1,26 @@
 
 import { gameService } from '../services/gameService';
+import { subclassesRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
 } from './common';
 
 export const useSubclasses =
-  createGetAllHook(
+  createGetAllHookV2(
     'subclasses',
-    gameService.getSubclasses
+    subclassesRepository.getAll,
+    subclassesRepository.syncAll
   );
 
 export const useSubclass =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'subclass',
-    gameService.getSubclassById
+    subclassesRepository.getById,
+    subclassesRepository.syncById
   );
 
 export const useCreateSubclass =

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useClasses, useDeleteClass, useDeleteAbility, useDeleteClassPower, useDeleteSubclass, useToggleAbilityVisibility, useToggleClassPowerVisibility } from "../../../hooks";
-import { useAuthProvider } from "../../../providers";
+import { useClasses, useDeleteClass, useDeleteAbility, useDeleteClassPower, useDeleteSubclass, useToggleAbilityVisibility, useToggleClassPowerVisibility, useAuth } from "../../../hooks";
 import type { ClassItem } from "../../../types";
 import toast from "react-hot-toast";
 import ClassModal from "../dialogs/ClassModal";
@@ -14,7 +13,7 @@ import GetWizardcraftModal from "../dialogs/GetWizardcraftModal";
 
 export function ClassesTab() {
 
-    const { user } = useAuthProvider();
+    const { user } = useAuth();
     const { data: classesData, isLoading } = useClasses();
     const [isAdmin, setIsAdmin] = useState(false);
     const [classes, setClasses] = useState<ClassItem[]>([]);

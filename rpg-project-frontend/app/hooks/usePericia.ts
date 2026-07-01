@@ -1,22 +1,25 @@
 import { gameService } from '../services/gameService';
+import { periciasRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
 } from './common';
 
 export const usePericias =
-  createGetAllHook(
+  createGetAllHookV2(
     'pericias',
-    gameService.getPericias
+    periciasRepository.getAll,
+    periciasRepository.syncAll
   );
 
 export const usePericia =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'pericia',
-    gameService.getPericiaById
+    periciasRepository.getById,
+    periciasRepository.syncById
   );
 
 export const useCreatePericia =

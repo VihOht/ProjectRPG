@@ -1,22 +1,25 @@
 import { gameService } from '../services/gameService';
+import { levelUpRulesRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
 } from './common';
 
 export const useLevelUpRules =
-  createGetAllHook(
+  createGetAllHookV2(
     'level-up-rules',
-    gameService.getLevelUpRules
+    levelUpRulesRepository.getAll,
+    levelUpRulesRepository.syncAll
   );
 
 export const useLevelUpRule =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'level-up-rule',
-    gameService.getLevelUpRuleById
+    levelUpRulesRepository.getById,
+    levelUpRulesRepository.syncById
   );
 
 export const useCreateLevelUpRule =

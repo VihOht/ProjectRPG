@@ -1,24 +1,27 @@
 // hooks/useAttributes.ts
 
 import { gameService } from '../services/gameService';
+import { attributesRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
 } from './common';
 
 export const useAttributes =
-  createGetAllHook(
+  createGetAllHookV2(
     'attributes',
-    gameService.getAttributes
+    attributesRepository.getAll,
+    attributesRepository.syncAll
   );
 
 export const useAttribute =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'attribute',
-    gameService.getAttributeById
+    attributesRepository.getById,
+    attributesRepository.syncById
   );
 
 export const useCreateAttribute =

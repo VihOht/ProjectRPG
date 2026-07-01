@@ -1,7 +1,8 @@
 import { gameService } from '../services/gameService';
+import { wizardcraftsRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
@@ -9,17 +10,20 @@ import {
 import { AxiosError } from 'axios';
 import type { ApiError } from './common';
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
+import { characterRepository } from '../repositories';
 
 export const useWizardcrafts =
-  createGetAllHook(
+  createGetAllHookV2(
     'wizardcrafts',
-    gameService.getWizardcrafts
+    wizardcraftsRepository.getAll,
+    wizardcraftsRepository.syncAll
   );
 
 export const useWizardcraft =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'wizardcraft',
-    gameService.getWizardcraftById
+    wizardcraftsRepository.getById,
+    wizardcraftsRepository.syncById
   );
 
 export const useCreateWizardcraft =
@@ -62,9 +66,10 @@ export const useAssignWizardcraftToCharacter = (characterId: number) => {
 
   return useMutation({
     mutationFn: async (wizardcraftId: number) => {
-      return gameService.assignWizardcraftToCharacter(wizardcraftId, characterId);
+      return characterRepository.assignWizardcraftToCharacter(wizardcraftId, characterId);
     },
-    onSuccess: () => {
+    onSuccess: (updatedCharacter) => {
+      queryClient.setQueryData(['character', characterId], updatedCharacter);
       // Invalidate the characters query to refetch the updated data
       queryClient.invalidateQueries({
         queryKey: ['character', characterId],
@@ -77,9 +82,10 @@ export const useUnassignWizardcraftFromCharacter = (characterId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (wizardcraftId: number) => {
-      return gameService.unassignWizardcraftFromCharacter(wizardcraftId, characterId);
+      return characterRepository.unassignWizardcraftFromCharacter(wizardcraftId, characterId);
     },
-    onSuccess: () => {
+    onSuccess: (updatedCharacter) => {
+      queryClient.setQueryData(['character', characterId], updatedCharacter);
       // Invalidate the characters query to refetch the updated data
       queryClient.invalidateQueries({
         queryKey: ['character', characterId],

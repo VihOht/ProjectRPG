@@ -1,8 +1,9 @@
 
 import { gameService } from '../services/gameService';
+import { conversionRulesRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
@@ -10,15 +11,17 @@ import {
 
 
 export const useConversionRules =
-  createGetAllHook(
+  createGetAllHookV2(
     'conversion-rules',
-    gameService.getConversionRules
+    conversionRulesRepository.getAll,
+    conversionRulesRepository.syncAll
   );
 
 export const useConversionRule =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'conversion-rule',
-    gameService.getConversionRuleById
+    conversionRulesRepository.getById,
+    conversionRulesRepository.syncById
   );
 
 export const useCreateConversionRule =

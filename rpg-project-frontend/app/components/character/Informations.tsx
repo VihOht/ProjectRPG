@@ -79,6 +79,7 @@ export function CharacterInformation({
 
     useEffect(() => {
         if (updateError) {
+            // @ts-ignore
             toast.error(updateError?.response?.data?.message || "Erro ao atualizar as informações.");
             setInformation(prev => prev); // Revert to previous information on error
         }

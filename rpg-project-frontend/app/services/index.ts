@@ -1,4 +1,4 @@
-export { api, tokenStorage, usernameStorage } from './api';
+export { api } from './api';
 export { authService } from './auth';
 export { gameService } from './gameService';
 export { loreService } from './lore';

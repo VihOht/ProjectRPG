@@ -146,7 +146,7 @@ export function CharacterStats({
             });
         }
 
-        if (offset) {
+        if (is_admin && offset) {
             updateOffsetsMutate({
                 offset_life: offset.offset_life,
                 offset_sanity: offset.offset_sanity,
@@ -162,6 +162,7 @@ export function CharacterStats({
 
     useEffect(() => {
         if (updateStatsError) {
+            // @ts-ignore
             toast.error(updateStatsError?.response?.data?.message || "Erro ao atualizar as estatísticas.");
         } 
     }, [updateStatsError]);

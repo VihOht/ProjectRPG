@@ -10,18 +10,19 @@ import {
 import { AxiosError } from 'axios';
 
 import { gameService } from '../services/gameService';
-
+import { inventoriesRepository } from '../repositories/inventoriesRepository';
 
 import type {
   CreateInventoryRequest,
   CreateInventoryResponse,
   InventoryTypesResponse,
-  ListInventoriesResponse,
   StandardResponse,
   TransferInventoryOwnershipResponse,
   UpdateInventoryRequest,
   UpdateInventoryResponse,
 } from '../types';
+import { useEffect } from 'react';
+import { ConnectivityManager } from '../services/onlineManager';
 
 interface ApiError {
   message?: string;
@@ -33,24 +34,33 @@ interface ApiError {
 // INVENTORIES
 // ======================================================
 
-export const useCharacterInventories = (
+export function useCharacterInventories (
   characterId: number | null
-): UseQueryResult<
-  ListInventoriesResponse,
-  AxiosError<ApiError>
-> => {
-  return useQuery({
+) {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    networkMode: 'always',
     queryKey: ['character-inventories', characterId],
-
     queryFn: () =>
-      gameService.getCharacterInventories(characterId!),
-
+      inventoriesRepository.getCharacterInventories(characterId!),
     enabled: !!characterId,
-
     retry: 1,
-
     staleTime: 5 * 60 * 1000,
   });
+
+  useEffect(() => {
+      if (!ConnectivityManager.isOnline()) return;
+
+      inventoriesRepository.syncCharacterInventories(characterId!).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['character-inventories', characterId] });
+      }).catch((error) => {
+        console.error(`Error syncing ${['character-inventories', characterId]}:`, error);
+      });
+    }, [queryClient, characterId, inventoriesRepository]);
+  
+
+    return query;
 };
 
 export const useCreateInventory = (

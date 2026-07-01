@@ -1,23 +1,28 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { onlineManager, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { gameService } from '../services/gameService';
+import { classPowersRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
+  DEFAULT_STALE_TIME,
 } from './common';
 
 export const useClassPowers =
-  createGetAllHook(
+  createGetAllHookV2(
     'class-powers',
-    gameService.getClassPowers
+    classPowersRepository.getAll,
+    classPowersRepository.syncAll
   );
 
 export const useClassPower =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'class-power',
-    gameService.getClassPowerById
+    classPowersRepository.getById,
+    classPowersRepository.syncById
   );
 
 export const useCreateClassPower =
@@ -38,11 +43,30 @@ export const useDeleteClassPower =
     gameService.deleteClassPower
   );
 
-export const useClassPowersByClassId = (classId: number) => {
-  return createGetAllHook(
-    `class-powers-by-class-${classId}`,
-    () => gameService.getClassPowersByClassId(classId)
-  )();
+export const useClassPowersByClassId = (classId: number | null) => {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    networkMode: 'always',
+    queryKey: ['class-powers-by-class', classId],
+    queryFn: () => classPowersRepository.getByClassId(classId!),
+    enabled: !!classId,
+    staleTime: DEFAULT_STALE_TIME,
+    retry: 1,
+  });
+
+  useEffect(() => {
+    if (!onlineManager.isOnline() || !classId) return;
+
+    classPowersRepository.syncByClassId(classId).then(() => {
+      queryClient.invalidateQueries({ queryKey: ['class-powers-by-class', classId] });
+      queryClient.invalidateQueries({ queryKey: ['class-powers'] });
+    }).catch((error) => {
+      console.error('Error syncing class powers by class:', error);
+    });
+  }, [classId, queryClient]);
+
+  return query;
 }
 
 export const useToggleClassPowerVisibility = () => {

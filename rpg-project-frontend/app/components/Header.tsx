@@ -6,6 +6,7 @@ import { AppModal } from "./ui/AppModal";
 import { useUpdateUser } from "../hooks";
 import type { UpdateUserInfoRequest } from "../types";
 import ChangeOwnPasswordForm from "./accounts/ChangeOwnPasswordForm";
+import { ConnectivityManager } from "../services/onlineManager";
 
 
 export function Header({ children }: { children?: React.ReactNode }) {
@@ -15,6 +16,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
         username: user?.username || "",
         email: user?.email || "",
     });
+
 
     const navigate = useNavigate();
     const { mutate: updateUser, isPending: isUpdatingUser } = useUpdateUser();
@@ -29,6 +31,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
         if (isAuthenticated) {
         logout();
+        navigate("/auth/login");
         } else {
         navigate("/auth/login");
         }
@@ -75,6 +78,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
               {user.username}
             </span>
           )}
+          
 
           <button
             onClick={handleAuthAction}
@@ -82,6 +86,13 @@ export function Header({ children }: { children?: React.ReactNode }) {
           >
             {isAuthenticated ? "Logout" : "Login"}
           </button>
+        
+          {ConnectivityManager.isOnline() ? (
+            <span className="text-green-500 text-sm ml-2">Online</span>
+          ) : (
+            <span className="text-red-500 text-sm ml-2">Offline</span>
+          )}
+
         </div>
 
         {/* Mobile button */}

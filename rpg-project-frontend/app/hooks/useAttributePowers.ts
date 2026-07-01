@@ -1,7 +1,8 @@
 import { gameService } from '../services/gameService';
+import { attributePowersRepository } from '../repositories/gameDataRepositories';
 import {
-  createGetAllHook,
-  createGetByIdHook,
+  createGetAllHookV2,
+  createGetByIdHookV2,
   createCreateHook,
   createUpdateHook,
   createDeleteHook,
@@ -12,15 +13,17 @@ import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/r
 
 
 export const useAttributePowers =
-  createGetAllHook(
+  createGetAllHookV2(
     'attribute-powers',
-    gameService.getAttributePowers
+    attributePowersRepository.getAll,
+    attributePowersRepository.syncAll
   );
 
 export const useAttributePower =
-  createGetByIdHook(
+  createGetByIdHookV2(
     'attribute-power',
-    gameService.getAttributePowerById
+    attributePowersRepository.getById,
+    attributePowersRepository.syncById
   );
 
 
