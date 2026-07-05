@@ -1,4 +1,5 @@
 
+import { cloudflareDevProxy } from "@react-router/dev/vite/cloudflare";
 import { reactRouter } from "@react-router/dev/vite"
 import tailwindcss from "@tailwindcss/vite"
 import path from "path"
@@ -7,12 +8,18 @@ import { VitePWA } from "vite-plugin-pwa"
 import tsconfigPaths from "vite-tsconfig-paths"
 
 
+// const isCloudflareBuild =
+//   process.env.CF_PAGES === "1" ||
+//   process.env.CLOUDFLARE_ENV ||
+//   process.env.WORKERS_CI;
+
 // https://vite.dev/config/
 export default defineConfig( ({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
   plugins: [
+    cloudflareDevProxy(),
     tailwindcss(), 
     reactRouter(), 
     tsconfigPaths(), 
@@ -59,8 +66,9 @@ export default defineConfig( ({ mode }) => {
           },
         }
       ]
-    }
-  })],
+    }}
+  )
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./app")
