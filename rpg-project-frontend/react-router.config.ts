@@ -6,4 +6,8 @@ export default {
     routeDiscovery: {
         mode: "initial",
     },
+
+    future: {
+        v8_viteEnvironmentApi: true
+    }
 } satisfies Config;
