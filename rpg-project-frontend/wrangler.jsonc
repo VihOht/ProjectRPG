@@ -2,9 +2,10 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "projeto-rpg-frontend",
   "compatibility_date": "2026-07-05",
-  "main": "./workers/app.ts",
+  "main": "./build/server/index.js",
   "assets": {
     "directory": "./build/client",
     "binding": "ASSETS"
-  }
+  },
+  "compatibility_flags": ["nodejs_compat"]
 }

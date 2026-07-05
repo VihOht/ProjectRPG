@@ -8,6 +8,14 @@ import { StarSky } from "./components/StarSky";
 import { setUpOnlineManager, ConnectivityManager } from "./services/onlineManager";
 import { syncQueue } from "./sync/syncService";
 
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js");
+  });
+}
+
+
 // links
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
