@@ -9,13 +9,6 @@ import { setUpOnlineManager, ConnectivityManager } from "./services/onlineManage
 import { syncQueue } from "./sync/syncService";
 
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js");
-  });
-}
-
-
 // links
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
