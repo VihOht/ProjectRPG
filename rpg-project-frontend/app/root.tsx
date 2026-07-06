@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { StarSky } from "./components/StarSky";
 import { setUpOnlineManager, ConnectivityManager } from "./services/onlineManager";
 import { syncQueue } from "./sync/syncService";
+import { registerSW } from "virtual:pwa-register";
 
 
 // links
@@ -69,6 +70,18 @@ export default function App() {
   useEffect(() => {
     setUpOnlineManager();
     preloadRouteModules();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const updateSW = registerSW({
+      immediate: true,
+    });
+
+    return () => {
+      updateSW();
+    }
   }, []);
 
   useEffect(() => {

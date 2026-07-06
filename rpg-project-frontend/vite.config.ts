@@ -44,7 +44,7 @@ export default defineConfig( ({ mode }) => {
       ]
     },
     workbox: {
-      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
+      globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2,webmanifest,json}"],
       runtimeCaching: [
         {
           urlPattern: new RegExp(`^${env.VITE_API_URL}/.*`),
