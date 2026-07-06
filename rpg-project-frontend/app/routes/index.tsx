@@ -107,7 +107,7 @@ export default function Index() {
         </button>
       </Header>
 
-      <main className="flex-1 flex font-vollkorn items-center justify-center p-8 ">
+      <main className="flex-1 flex font-vollkorn items-center justify-center md:p-8 p-4">
         <div className="bg-vaccineGray-300/0 md:border-1 md:border-vaccineGray-300/50 text-shadow-lg rounded-lg shadow-lg md:p-8 md:max-w-6xl w-full mx-auto">
           <h3 className="text-4xl w-full text-center font-bold mb-6 text-vaccinePurple ">
             Fichas
@@ -124,13 +124,13 @@ export default function Index() {
                   Players
                 </h4>
                 <div className="overflow-x-auto rounded-lg border border-gray-300 bg-white">
-                  <table className="w-full border-collapse ">
+                  <table className="w-full border-collapse">
                     <thead className="bg-vaccineGray-400 text-vaccineBlack">
                       <tr>
-                        <th className="px-4 py-3 text-left">Nome</th>
+                        <th className="px-4 py-3 min-w-[160px] text-left">Nome</th>
                         <th className="px-4 py-3 text-left">Dono</th>
                         <th className="px-4 py-3 text-left">Nível</th>
-                        <th className="px-4 py-3 text-left">Ação</th>
+                        <th className="px-4 min-w-[170px] py-3 text-left">Ação</th>
                       </tr>
                     </thead>
                     <tbody>

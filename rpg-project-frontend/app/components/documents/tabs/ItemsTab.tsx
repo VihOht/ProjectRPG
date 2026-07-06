@@ -51,7 +51,7 @@ export function ItemsTab() {
   const temporaryItems = items.filter((item) => item.temporary);
 
   return (
-    <div className="w-full space-y-8 px-4 py-6">
+    <div className="w-full space-y-8 md:px-4 px-2 md:py-6 py-4">
       <div className="flex items-center justify-between">
         <div className="p-2">
           <h2 className="text-2xl font-semibold text-vaccineGray-300">
@@ -67,7 +67,7 @@ export function ItemsTab() {
       </div>
 
       <section className="space-y-5">
-        <div className="space-y-3 w-full break-all">
+        <div className="space-y-3 w-full break-words">
           <ItemGroup
             title="Itens permanentes"
             description="Itens comuns disponíveis no sistema."
@@ -154,7 +154,7 @@ function ItemCard({ item, isAdmin }: ItemCardProps) {
   };
 
   return (
-    <article className="bg-vaccineBlueTones-1000/20 rounded-md px-3 py-0 border border-vaccineGray-200/20">
+    <article className="bg-vaccineBlueTones-1000/20 rounded-md md:px-3 px-2 py-1 border border-vaccineGray-200/20">
       <div className="flex items-start justify-between gap-3">
         <div className="w-[70%]">
           <h3
@@ -180,7 +180,7 @@ function ItemCard({ item, isAdmin }: ItemCardProps) {
         </div>
 
         {isAdmin && (
-          <div className="flex gap-2">
+          <div className="flex justify-gap-2">
             <button
               type="button"
               onClick={onToggleVisibility}
@@ -193,7 +193,7 @@ function ItemCard({ item, isAdmin }: ItemCardProps) {
             <button
               type="button"
               onClick={onToggleTemporary}
-              className="rounded-md px-2 py-1 text-xs text-white hover:opacity-90"
+              className="rounded-md px-2 py-1 mr-1 text-xs text-white hover:opacity-90"
               title={
                 item.temporary
                   ? "Remover dos temporários"
@@ -389,7 +389,7 @@ function ItemTypeSection({ title, items, isAdmin }: ItemTypeSectionProps) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center cursor-pointer justify-between px-3 py-1 text-left"
+        className="flex w-full items-center cursor-pointer justify-between md:px-3 px-2 py-1 text-left"
       >
         <span className="text-sm font-semibold text-vaccineGray-300">
           {title}

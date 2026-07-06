@@ -276,7 +276,7 @@ export default function RpgSheet() {
                     </button>
                 </Header>
                 {/* Main Content */}
-                <main className="flex-1 break-words h-full md:p-8 p-4 text-sm text-vaccineBlack">
+                <main className="flex-1 break-words h-full md:p-8 p-2 text-sm text-vaccineBlack">
                 {/* <div
                     ref={sheetRef}
                     className="max-w-5xl mx-auto border-1 border-vaccineGray-300/50 rounded-lg shadow-lg p-8 print-area"
@@ -288,7 +288,7 @@ export default function RpgSheet() {
                         </h1>
 
                         {isAdmin && characterData?.character && (
-                            <section className="mb-8 rounded-lg border border-vaccinePurple/30 bg-white/80 p-4 space-y-4">
+                            <section className="mb-8 rounded-lg border border-vaccinePurple/30 bg-vaccineGray-300/80 p-4 space-y-4">
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                     <div>
                                         <p className="text-sm uppercase tracking-wide text-gray-600">Administração</p>

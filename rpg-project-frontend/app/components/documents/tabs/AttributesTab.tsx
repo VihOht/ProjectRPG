@@ -137,7 +137,7 @@ export function AttributesTab() {
                         const attributePericias = periciasByAttribute ? periciasByAttribute[attribute.id] ?? [] : [];
 
                         return (
-                            <div key={attribute.id} className="bg-vaccineGray-1000/20">
+                            <div key={attribute.id} className="bg-vaccineGray-1000/20 px-2">
                                 <div className="flex items-center gap-2">
                                     <button
                                         type="button"

@@ -214,7 +214,7 @@ function AttributePowerCard({ power, attribute_name }: { power: AttributePowerIt
 
 function SubsectionItem({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <AccordionItem value={title} className="mb-8 bg-vaccineBlueTones-900/10 p-4 rounded-md">
+    <AccordionItem value={title} className="mb-8 bg-vaccineBlueTones-900/10 md:p-4 p-2 rounded-md">
       <div className="flex justify-between items-center">
         <AccordionTrigger>
           <h3 className="text-xl font-trajanPBold text-vaccineGray-300 mb-3">

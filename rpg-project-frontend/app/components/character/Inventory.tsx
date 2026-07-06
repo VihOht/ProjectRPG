@@ -151,7 +151,7 @@ function InventorySection({
 
 
   return (
-    <AccordionItem value={title} className="mb-8 bg-vaccineBlueTones-900/10 p-4 rounded-md">
+    <AccordionItem value={title} className="mb-8 bg-vaccineBlueTones-900/10 md:p-4 p-2 rounded-md">
       <div className="flex flex-col w-full h-full justify-between gap-3">
         <div>
             <div className="flex justify-between w-full gap-2 mb-1">
@@ -216,26 +216,28 @@ function EquippedItemCard({ item, characterId }: { item: InventoryEntry; charact
 
       <div className="relative z-10">
         <div className="mb-3 flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-vaccinePurple">
-              {getItemTypeLabel(item.item_type)}
-            </p>
+          <div className="flex items-start md:flex-row flex-col gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-vaccinePurple">
+                {getItemTypeLabel(item.item_type)}
+              </p>
 
-            <h4 className="font-trajanPBold text-2xl text-vaccineGray-200 break-words">
-              {item.name}
-            </h4>
+              <h4 className="font-trajanPBold text-2xl text-vaccineGray-200 break-words">
+                {item.name}
+              </h4>
+            </div>
+            <div className="flex items-center gap-2">
+              { item.stackable && (
+                <span className="rounded-md min-w-[70px] text-center border border-vaccinePurple/40 bg-vaccineBlueTones-1000/50 px-3 py-1 text-sm text-vaccineGray-300">
+                  x{item.quantity} / {item.max_quantity ? item.max_quantity > 0 ? item.max_quantity : item.max_quantity === -1 ? "∞" : "-" : "-"}
+                </span>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            { item.stackable && (
-              <span className="rounded-md bg-vaccinePurple/30 px-3 py-1 text-sm text-white">
-                x{item.quantity} / {item.max_quantity ? item.max_quantity > 0 ? item.max_quantity : item.max_quantity === -1 ? "∞" : "-" : "-"}
-              </span>
-            )}
             <InventoryItemActions
               item={item}
               characterId={characterId}
             />
-          </div>
         </div>
 
         <p className="whitespace-pre-line text-vaccineGray-300 break-words">
@@ -256,7 +258,7 @@ function CompactItemCard({ item, characterId }: { item: InventoryEntry; characte
     <article className="rounded-md border border-vaccineGray-300/30 bg-vaccineBlueTones-1000/60 p-3">
       <div className="flex items-start justify-between gap-3">
         <div onClick={() => setOpen(!open)} className="flex cursor-pointer gap-3">
-          <div className="rounded-md bg-vaccinePurple/20 p-2 text-vaccinePurple">
+          <div className="rounded-md p-2 h-full flex bg-vaccinePurple/20 text-vaccinePurple">
             <Icon className="h-5 w-5" />
           </div>
 

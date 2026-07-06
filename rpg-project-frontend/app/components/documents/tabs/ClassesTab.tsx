@@ -53,7 +53,7 @@ export function ClassesTab() {
 
  
     return (
-        <div className="w-full space-y-6 px-4 py-6">
+        <div className="w-full space-y-6 md:px-4 md:py-6 px-2 py-4">
 
             <div className="flex items-center justify-between">
                 <div className="p-2">
@@ -72,7 +72,7 @@ export function ClassesTab() {
             ) : classes.length === 0 ? (
                 <p className="text-gray-600">Nenhuma classe cadastrada.</p>
             ) : (
-                <div className="space-y-5 w-full break-all">
+                <div className="space-y-2 w-full break-words">
                     {classes.map((charClass) => (
                         <ClassItem key={charClass.id} charClass={charClass} isAdmin={isAdmin} />
                     ))}
@@ -171,13 +171,13 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
     };
 
     return (
-        <article key={charClass.id} className="bg-vaccineBlueTones-1000/20 rounded-md p-4 border border-vaccineGray-200/20 border-1">
+        <article key={charClass.id} className="bg-vaccineBlueTones-1000/20 rounded-md md:p-4 p-2 border border-vaccineGray-200/20 border-1">
             {/** CLASS */}
             <div className="flex items-start justify-between gap-3">
                 <h3 onClick={() => setOpen(!open)} className="text-2xl font-semibold text-vaccinePurple hover:underline w-[70%] cursor-pointer">
                     {charClass.name}
                 </h3>
-                <div className="flex gap-2">
+                <div className="flex mt-2 gap-2">
                     {charClass.has_ocultism && (
                         <GetRitualsModal />
                     )}
@@ -259,8 +259,8 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                 </div>
 
                 {/** ABILITIES */}
-                <div className="mb-3 mt-4 break-all">
-                    <h4 className="font-semibold text-vaccineGray-300 mt-2">Habilidades da Classe</h4>
+                <div className="mb-3 mt-4 break-words">
+                    <h4 className="font-semibold text-vaccineGray-300 mt-2 mb-2">Habilidades da Classe</h4>
                     {charClass.abilities && charClass.abilities.length > 0 ? (
                         <ul className="space-y-2 pl-2 text-vaccineGray-800">
                             {charClass.abilities.map((ability) => ( ability.class_id && !ability.subclass_id) && (
@@ -269,7 +269,7 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                                         <h5 className="font-semibold">{ability.name}: <span className="text-sm text-vaccineGray-600">{ability.description}</span></h5>
                                     </div>
                                     {isAdmin && (
-                                        <div className="flex gap-2">
+                                        <div className="flex md:flex-row flex-col gap-2">
                                             {ability.hidden !== null && (
                                                 <button
                                                     type="button"
@@ -299,7 +299,7 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
 
                 {/** CLASS POWERS */}
                 <div className="mb-3">
-                    <h4 className="font-semibold text-vaccineGray-300">Poderes de Classe</h4>
+                    <h4 className="font-semibold mb-2 text-vaccineGray-300">Poderes de Classe</h4>
                     {charClass.classPowers && charClass.classPowers.length > 0 ? (
                         <ul className="space-y-2 pl-2 text-vaccineGray-800">
                             {charClass.classPowers.map((power) => (
@@ -309,7 +309,7 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
 
                                     </div>
                                     {isAdmin && (
-                                        <div className="flex gap-2">
+                                        <div className="flex md:flex-row flex-col gap-2">
                                             {power.hidden !== null && (
                                                 <button
                                                     type="button"
@@ -339,11 +339,11 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
 
                 {/** SUBCLASSES */}
                 <div>
-                    <h4 className="font-semibold text-vaccineGray-300">Subclasses</h4>
+                    <h4 className="font-semibold text-vaccineGray-300 mb-2">Subclasses</h4>
                     {charClass.subclasses && charClass.subclasses.length > 0 ? (
                         <div className="space-y-3 mt-2 text-gray-300">
                             {charClass.subclasses.map((subclass) => (
-                                <div key={subclass.id} className="border-l-4 border-vaccinePurple pl-4 py-1 px-3">
+                                <div key={subclass.id} className="border-l-4 border-vaccinePurple md:pl-4 pl-2 py-1 px-3">
                                     <div className="flex items-start justify-between gap-3">
                                         <h5 className="font-semibold">{subclass.name}</h5>
                                         {isAdmin && (
@@ -362,16 +362,16 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                                     <p className="text-vaccineGray-600">{subclass.description}</p>
 
                                         {/** SUBCLASS ABILITIES */}
-                                    <p className="font-medium mt-2">Habilidades da Subclasse</p>
+                                    <p className="font-medium mb-2 mt-2">Habilidades da Subclasse</p>
                                     {subclass.abilities && subclass.abilities.length > 0 ? (
-                                        <ul className="space-y-2 pl-2 text-vaccineGray-800">
+                                        <ul className="space-y-2 md:pl-2 pl-1 text-vaccineGray-800">
                                             {subclass.abilities.map((ability) => (
                                                 <li key={ability.id} className="flex items-start text-vaccineGray-400 justify-between gap-3 rounded-md border border-vaccineGray-200/20 px-2 mt-1 py-2">
                                                     <div>
                                                         <span className="font-semibold">{ability.name}:</span> {ability.description}
                                                     </div>
                                                     {isAdmin && (
-                                                        <div className="flex gap-2">
+                                                        <div className="flex md:flex-row flex-col gap-2">
                                                             {ability.hidden !== null && (
                                                                 <button
                                                                     type="button"

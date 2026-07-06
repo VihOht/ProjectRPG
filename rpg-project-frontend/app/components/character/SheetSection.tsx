@@ -12,7 +12,7 @@ export interface SheetSectionProps {
 export function SheetSection({ title, actions, children, className, onOpenChange }: SheetSectionProps) {
     return (
         <Accordion type="single" collapsible className={`w-full ${className || ''}`} onValueChange={(value) => onOpenChange?.(value !== "")}>
-            <AccordionItem value={title} className="mb-8 bg-vaccineBlueTones-900/10 p-4 rounded-md">
+            <AccordionItem value={title} className="mb-8 bg-vaccineBlueTones-900/10 md:p-4 p-2 rounded-md">
                 <div className="itens-center flex justify-between">
                     <AccordionTrigger>
                         <h1 className="text-3xl w-[100%] cursor-pointer font-walthari font-semibold mb-4 text-vaccineGray-300">
