@@ -21,11 +21,15 @@ export default defineConfig( ({ mode }) => {
     reactRouter(), 
     tsconfigPaths(), 
     VitePWA({
-    devOptions: {
-      enabled: true
-    },
+    strategies: "injectManifest",
+    srcDir: "app",
     registerType: "autoUpdate",
     includeAssets: ["icon_temporary.png"],
+    injectManifest: {
+      globPatterns: [
+      "**/*.{js,css,html,ico,png,svg,woff,woff2,webmanifest}"
+      ]
+    },
     manifest: {
       name: "Insônia",
       short_name: "Insônia",
@@ -43,27 +47,6 @@ export default defineConfig( ({ mode }) => {
         }
       ]
     },
-    workbox: {
-      globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2,webmanifest,json}"],
-      runtimeCaching: [
-        {
-          urlPattern: new RegExp(`^${env.VITE_API_URL}/.*`),
-          handler: "NetworkFirst",
-          options: {
-            cacheName: "api-cache",
-            networkTimeoutSeconds: 3,
-
-            expiration: {
-              maxEntries: 200,
-              maxAgeSeconds: 60 * 60 * 24, // 1 day
-            },
-            cacheableResponse: {
-              statuses: [0, 200],
-            },
-          },
-        }
-      ]
-    }
   })],
   resolve: {
     alias: {
