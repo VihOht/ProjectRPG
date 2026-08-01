@@ -1,0 +1,17 @@
+{
+  "name": "Insônia",
+  "short_name": "Insônia",
+  "description": "Gerenciador de fichas de RPG",
+  "theme_color": "#000000",
+  "background_color": "#000000",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon_temporary.png",
+      "sizes": "447x447",
+      "type": "image/png"
+    }
+  ]
+}

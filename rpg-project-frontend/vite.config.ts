@@ -11,46 +11,42 @@ export default defineConfig( ({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    build: {
-    outDir: "build",
+     build: {
     manifest: true,
   },
   plugins: [
-    cloudflare(),
-    tailwindcss(), 
-    reactRouter(), 
-    tsconfigPaths(), 
+    tailwindcss(),
+    reactRouter(),
+    tsconfigPaths(),
     VitePWA({
-    strategies: "injectManifest",
-    srcDir: "app",
-    registerType: "autoUpdate",
-    includeAssets: ["icon_temporary.png"],
-    injectManifest: {
-      globPatterns: [
-      "**/*.{js,css,html,ico,png,svg,woff,woff2,webmanifest}"
-      ]
-    },
-    manifest: {
-      name: "Insônia",
-      short_name: "Insônia",
-      description: "Gerenciador de fichas de RPG",
-      theme_color: "#000000",
-      background_color: "#000000",
-      display: "standalone",
-      orientation: "portrait",
-      start_url: "/",
-      icons: [
-        {
-          src: "icon_temporary.png",
-          sizes: "447x447",
-          type: "image/png"
-        }
-      ]
-    },
-  })],
+      strategies: "injectManifest",
+      srcDir: "app",
+      filename: "sw.ts",
+      // React Router + Cloudflare build client assets here, while Vite's
+      // generic default is dist. Keep the service worker in the deployed root.
+      outDir: "build/client",
+      registerType: "autoUpdate",
+      injectRegister: false,
+      manifest: false,
+      injectManifest: {
+        // Phase 1: compile and register the worker without intercepting requests.
+        // Precache injection is enabled with the offline-first implementation.
+        injectionPoint: undefined,
+      },
+      devOptions: {
+        enabled: true,
+        type: "module",
+      },
+    }),
+    cloudflare({
+      viteEnvironment: {
+        name: "ssr"
+      }
+    }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./app")
     },
   }
-}})
+};})

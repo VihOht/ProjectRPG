@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "rpg-frontend",
-  "compatibility_date": "2026-07-05",
+  "name": "rpg-project",
+  "compatibility_date": "2026-07-06",
   "observability": {
     "enabled": true
   },

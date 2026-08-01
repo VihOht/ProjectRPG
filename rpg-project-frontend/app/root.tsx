@@ -73,15 +73,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const updateSW = registerSW({
+    registerSW({
       immediate: true,
+      onNeedRefresh() {
+        console.info("A new application version is ready");
+      },
+      onRegisteredSW(_serviceWorkerUrl, registration) {
+        console.info("Service worker registered", registration?.scope);
+      },
+      onRegisterError(error) {
+        console.error("Service worker registration failed", error);
+      },
     });
-
-    return () => {
-      updateSW();
-    }
   }, []);
 
   useEffect(() => {
