@@ -50,14 +50,22 @@ export function createGetAllHookV2<TResponse>(
     useEffect(() => {
       if (!onlineManager.isOnline()) return;
 
-      syncFn().then(() => {
-        queryClient.invalidateQueries({ queryKey: [queryKey] });
-      }).catch((error) => {
-        console.error(`Error syncing ${queryKey}:`, error);
-      });
-    }, [queryClient, queryKey, syncFn]);
+      let cancelled = false;
 
+      (async () => {
+        await syncFn();
 
+        if (!cancelled) {
+          queryClient.invalidateQueries({ queryKey: [queryKey] });
+        }
+      })()
+      
+      
+      return () => {
+        cancelled = true;
+      }
+    }, []);
+    
     return query;
   }
 }
@@ -81,13 +89,21 @@ export function createGetByIdHookV2<TResponse>(
 
     useEffect(() => {
       if (!onlineManager.isOnline()) return;
+      if (!syncFn || !id) return;
 
-      if (syncFn && id) {
-        syncFn(id).then(() => {
-          queryClient.invalidateQueries({ queryKey: [queryKey, id] });
-        }).catch((error) => {
-          console.error(`Error syncing ${queryKey}:`, error);
-        });
+      let cancelled = false;
+
+
+      (async () => {
+        await syncFn(id);
+
+        if (!cancelled) {
+          queryClient.invalidateQueries({ queryKey: [queryKey] });
+        }
+      })();
+      
+      return () => {
+        cancelled = true;
       }
     }, [queryClient, queryKey, syncFn, id]);
 

@@ -1,15 +1,18 @@
 
 import { useEffect, useState } from "react";
-import { useClasses, useCreateAbility } from "../../../hooks";
-import type { CreateAbilityRequest, SubclassItem } from '../../../types'
+import { useCreateAbility } from "../../../hooks";
+import type { CreateAbilityRequest, ListClassesResponse, SubclassItem } from '../../../types'
 import toast from "react-hot-toast";
 
 export interface CreateClassAbilityFormProps {
     onSucess: () => void;
+    refetchClasses: () => void;
+    classesData: ListClassesResponse; // You can replace 'any' with the appropriate type for classData if available
 }
 
 
-export default function CreateClassAbilityForm({ onSucess }: CreateClassAbilityFormProps) {
+
+export default function CreateClassAbilityForm({ onSucess, refetchClasses, classesData }: CreateClassAbilityFormProps) {
 
     const [formData, setFormData] = useState<CreateAbilityRequest>({
         name: "",
@@ -17,8 +20,6 @@ export default function CreateClassAbilityForm({ onSucess }: CreateClassAbilityF
         class_id: undefined,
         subclass_id: undefined,
     });
-
-    const { data: classesData, refetch } = useClasses();
     
 
     const [filteredSubclasses, setFilteredSubclasses] = useState<SubclassItem[]>([]);
@@ -51,7 +52,7 @@ export default function CreateClassAbilityForm({ onSucess }: CreateClassAbilityF
             onSuccess: () => {
                 toast.success("Ability created successfully!");
                 onSucess();
-                refetch();
+                refetchClasses();
             },
             onError: () => {
                 toast.error("Failed to create ability. Please try again.");

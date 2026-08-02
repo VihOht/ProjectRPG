@@ -24,6 +24,15 @@ export const api = axios.create({
 // Request interceptor - automatically add token and username to headers
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
+    const isPublicAuthRequest =
+      config.url === '/auth/login' || config.url === '/auth/register';
+
+    // Login and registration do not need a stored token. Avoid making these
+    // requests wait for IndexedDB before Axios can open the network request.
+    if (isPublicAuthRequest) {
+      return config;
+    }
+
     const session = await authSessionRepository.getAuthSession();
 
     if (session) {

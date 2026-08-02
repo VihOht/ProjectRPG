@@ -23,7 +23,7 @@ import UpdateItemModal from "../dialogs/UpdateItemModal";
 
 export function ItemsTab() {
   const { user } = useAuthProvider();
-  const { data: itemsData, isLoading } = useItems();
+  const { data: itemsData, isLoading, refetch } = useItems();
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
@@ -74,6 +74,7 @@ export function ItemsTab() {
             items={permanentItems}
             isAdmin={isAdmin}
             emptyMessage="Nenhum item cadastrado."
+            refetch={refetch}
           />
 
           <ItemGroup
@@ -82,6 +83,7 @@ export function ItemsTab() {
             items={temporaryItems}
             isAdmin={isAdmin}
             emptyMessage="Nenhum item temporário cadastrado."
+            refetch={refetch}
           />
         </div>
       </section>
@@ -92,13 +94,13 @@ export function ItemsTab() {
 type ItemCardProps = {
   item: Item;
   isAdmin: boolean;
+  refetch: () => void;
 };
 
-function ItemCard({ item, isAdmin }: ItemCardProps) {
+function ItemCard({ item, isAdmin, refetch }: ItemCardProps) {
   const { mutate: deleteItemService } = useDeleteItem();
   const { mutate: toggleItemVisibility } = useToggleItemVisibility(item.id);
   const { mutate: toggleItemTemporary } = useToggleItemTemporary(item.id);
-  const { refetch: refetchItems } = useItems();
 
   const [open, setOpen] = useState(false);
 
@@ -111,7 +113,7 @@ function ItemCard({ item, isAdmin }: ItemCardProps) {
       deleteItemService(itemId, {
         onSuccess: () => {
           toast.success("Item excluído com sucesso.");
-          refetchItems();
+          refetch();
         },
         onError: (error: any) => {
           toast.error(
@@ -127,7 +129,7 @@ function ItemCard({ item, isAdmin }: ItemCardProps) {
     toggleItemVisibility(undefined, {
       onSuccess: () => {
         toast.success("Visibilidade do item atualizada com sucesso.");
-        refetchItems();
+        refetch();
       },
       onError: (error: any) => {
         toast.error(
@@ -142,7 +144,7 @@ function ItemCard({ item, isAdmin }: ItemCardProps) {
     toggleItemTemporary(undefined, {
       onSuccess: () => {
         toast.success("Status temporário do item atualizado com sucesso.");
-        refetchItems();
+        refetch();
       },
       onError: (error: any) => {
         toast.error(
@@ -203,7 +205,7 @@ function ItemCard({ item, isAdmin }: ItemCardProps) {
               {item.temporary ? <LucideClock3 /> : <LucideClock />}
             </button>
 
-            <UpdateItemModal itemData={item} />
+            <UpdateItemModal itemData={item} refetch={refetch} />
 
             <button
               type="button"
@@ -325,6 +327,7 @@ type ItemGroupProps = {
   items: Item[];
   isAdmin: boolean;
   emptyMessage: string;
+  refetch: () => void;
 };
 
 const itemTypes: {
@@ -344,6 +347,7 @@ function ItemGroup({
   items,
   isAdmin,
   emptyMessage,
+  refetch,
 }: ItemGroupProps) {
   return (
     <section className="space-y-2">
@@ -365,6 +369,7 @@ function ItemGroup({
               title={section.label}
               items={items.filter((item) => item.item_type === section.type)}
               isAdmin={isAdmin}
+              refetch={refetch}
             />
           ))}
         </div>
@@ -379,9 +384,10 @@ type ItemTypeSectionProps = {
   title: string;
   items: Item[];
   isAdmin: boolean;
+  refetch: () => void;
 };
 
-function ItemTypeSection({ title, items, isAdmin }: ItemTypeSectionProps) {
+function ItemTypeSection({ title, items, isAdmin, refetch }: ItemTypeSectionProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -412,7 +418,7 @@ function ItemTypeSection({ title, items, isAdmin }: ItemTypeSectionProps) {
             </p>
           ) : (
             items.map((item) => (
-              <ItemCard key={item.id} item={item} isAdmin={isAdmin} />
+              <ItemCard key={item.id} item={item} isAdmin={isAdmin} refetch={refetch} />
             ))
           )}
         </div>

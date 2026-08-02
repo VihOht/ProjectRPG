@@ -48,7 +48,9 @@ export default function LoginPage() {
 
 	const errorMessage = loginMutation.error?.response?.data
 		? (loginMutation.error.response.data as { message?: string }).message
-		: "Nao foi possivel entrar. Tente novamente.";
+		: loginMutation.error?.code === "ECONNABORTED"
+			? "A API demorou demais para responder. Tente novamente."
+			: "Nao foi possivel entrar. Tente novamente.";
 
 	return (
 		<StarSky>

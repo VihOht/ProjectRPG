@@ -1,24 +1,23 @@
 
 import { useState } from "react";
-import { useAttributes, useCreateAttributePower, useAttributePowers } from "../../../hooks";
-import type { CreateAttributePowerRequest } from '../../../types'
+import { useCreateAttributePower, useAttributePowers } from "../../../hooks";
+import type { CreateAttributePowerRequest, ListAttributesResponse } from '../../../types'
 import toast from "react-hot-toast";
 
 export interface CreateAttributePowerFormProps {
     onSucess: () => void;
+    attributesData: ListAttributesResponse
 }
 
 
-export default function CreateAttributePowerForm({ onSucess }: CreateAttributePowerFormProps) {
-
+export default function CreateAttributePowerForm({ onSucess, attributesData }: CreateAttributePowerFormProps) {
+    
     const [formData, setFormData] = useState<CreateAttributePowerRequest>({
         name: "",
         description: "",
         attribute_id: -1,
         level_to_unlock: undefined,
     });
-
-    const { data: attributesData } = useAttributes();
     
 
     const { refetch } = useAttributePowers();

@@ -8,10 +8,12 @@ import { LucideEdit } from "lucide-react";
 
 export interface UpdateClassModalProps {
     classData: ClassItem;
+    refetch: () => void;
 }
 
 
-export default function UpdateClassModal({ classData }: UpdateClassModalProps) {
+
+export default function UpdateClassModal({ classData, refetch }: UpdateClassModalProps) {
 
     const [open, setOpen] = useState(false);
 
@@ -29,8 +31,6 @@ export default function UpdateClassModal({ classData }: UpdateClassModalProps) {
         has_mana: classData?.has_mana || false,
         has_ocultism: classData?.has_ocultism || false,
     });
-
-    const { refetch } = useClasses();
 
     const { mutate: updateClass, isPending } = useUpdateClass(classData.id);
 

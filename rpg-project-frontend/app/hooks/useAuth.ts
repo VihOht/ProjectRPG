@@ -35,6 +35,9 @@ export const useLogin = () => {
 
   return useMutation<LoginResponse, AxiosError, LoginRequest>({
     mutationFn: authService.login,
+    // Authentication must be attempted immediately. The default "online"
+    // mode can leave the mutation paused indefinitely without calling Axios.
+    networkMode: 'always',
     onSuccess: () => {
       // Invalidate user queries to refetch
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
@@ -56,6 +59,7 @@ export const useLogin = () => {
 export const useRegister = () => {
   return useMutation<RegisterResponse, AxiosError, RegisterRequest>({
     mutationFn: authService.register,
+    networkMode: 'always',
     onSuccess: () => {
       // After registration, user might need to login
       console.log('Registration successful');

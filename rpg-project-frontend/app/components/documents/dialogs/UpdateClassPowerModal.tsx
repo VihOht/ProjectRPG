@@ -8,10 +8,12 @@ import { LucideEdit } from "lucide-react";
 
 export interface UpdateClassPowerModalProps {
     classPowerData: ClassPowerItem;
+    refetch: () => void;
 }
 
 
-export default function UpdateClassPowerModal({ classPowerData }: UpdateClassPowerModalProps) {
+
+export default function UpdateClassPowerModal({ classPowerData, refetch }: UpdateClassPowerModalProps) {
 
     const [formData, setFormData] = useState<UpdateClassPowerRequest>({
         name: classPowerData.name,
@@ -20,8 +22,6 @@ export default function UpdateClassPowerModal({ classPowerData }: UpdateClassPow
     });
 
     const [open, setOpen] = useState(false);
-
-    const { refetch } = useClasses();
     
     const { mutate: updateClassPower, isPending } = useUpdateClassPower(classPowerData.id);
 

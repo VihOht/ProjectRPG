@@ -1,14 +1,16 @@
 
 import { useState } from "react";
 import { useClasses, useCreateClassPower } from "../../../hooks";
-import type { CreateClassPowerRequest } from '../../../types'
+import type { CreateClassPowerRequest, ListClassesResponse } from '../../../types'
 import toast from "react-hot-toast";
 export interface CreateClassPowerFormProps {
     onSucess: () => void;
+    refetch: () => void;
+    classesData: ListClassesResponse
 }
+    
 
-
-export default function CreateClassPowerForm({ onSucess }: CreateClassPowerFormProps) {
+export default function CreateClassPowerForm({ onSucess, refetch, classesData }: CreateClassPowerFormProps) {
 
     const [formData, setFormData] = useState<CreateClassPowerRequest>({
         name: "",
@@ -16,8 +18,6 @@ export default function CreateClassPowerForm({ onSucess }: CreateClassPowerFormP
         class_id: -1,
         level_to_unlock: undefined,
     });
-
-    const { data: classesData, refetch } = useClasses();
     
     const { mutate: createClassPower, isPending } = useCreateClassPower();
 

@@ -1,14 +1,17 @@
 
 import { useState } from "react";
 import { useClasses, useCreateSubclass } from "../../../hooks";
-import type { CreateSubclassRequest} from '../../../types'
+import type { CreateSubclassRequest, ListClassesResponse} from '../../../types'
 
 export interface CreateSubclassFormProps {
     onSucess: () => void;
+    refetch: () => void;
+    classesData: ListClassesResponse
 }
 
 
-export default function CreateSubclassForm({ onSucess }: CreateSubclassFormProps) {
+
+export default function CreateSubclassForm({ onSucess, refetch, classesData }: CreateSubclassFormProps) {
 
     const [formData, setFormData] = useState<CreateSubclassRequest>({
         name: "",
@@ -16,7 +19,6 @@ export default function CreateSubclassForm({ onSucess }: CreateSubclassFormProps
         class_id: 0,
     });
 
-    const { data: classesData, refetch } = useClasses();
 
     const { mutate: createSubclass, isPending } = useCreateSubclass();
 

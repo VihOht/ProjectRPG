@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useClasses, useDeleteClass, useDeleteAbility, useDeleteClassPower, useDeleteSubclass, useToggleAbilityVisibility, useToggleClassPowerVisibility, useAuth } from "../../../hooks";
-import type { ClassItem } from "../../../types";
+import type { ClassItem, ListClassesResponse } from "../../../types";
 import toast from "react-hot-toast";
 import ClassModal from "../dialogs/ClassModal";
 import UpdateClassModal from "../dialogs/UpdateClassModal";
@@ -14,7 +14,7 @@ import GetWizardcraftModal from "../dialogs/GetWizardcraftModal";
 export function ClassesTab() {
 
     const { user } = useAuth();
-    const { data: classesData, isLoading } = useClasses();
+    const { data: classesData, isLoading, refetch: refetchClasses } = useClasses();
     const [isAdmin, setIsAdmin] = useState(false);
     const [classes, setClasses] = useState<ClassItem[]>([]);
 
@@ -46,7 +46,7 @@ export function ClassesTab() {
 
     
 
-    
+    console.count("ClassesTab render");
 
 
 
@@ -74,7 +74,7 @@ export function ClassesTab() {
             ) : (
                 <div className="space-y-2 w-full break-words">
                     {classes.map((charClass) => (
-                        <ClassItem key={charClass.id} charClass={charClass} isAdmin={isAdmin} />
+                        <ClassItem key={charClass.id} charClass={charClass} isAdmin={isAdmin} refetchClasses={refetchClasses} classesData={classesData!} />
                     ))}
                 </div>
             )}
@@ -85,10 +85,13 @@ export function ClassesTab() {
 export interface ClassItemProps {
     charClass: ClassItem;
     isAdmin: boolean;
+    refetchClasses: () => void;
+    classesData: ListClassesResponse;
 }
 
-function ClassItem({ charClass, isAdmin }: ClassItemProps) {
+function ClassItem({ charClass, isAdmin, refetchClasses, classesData }: ClassItemProps) {
 
+    console.count(`ClassItem render`);
     const { mutate: deleteClassService } = useDeleteClass();
     const { mutate: deleteAbilityService } = useDeleteAbility();
     const { mutate: deleteSubclassService } = useDeleteSubclass();
@@ -96,7 +99,6 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
     const { mutate: toggleAbilityVisibility } = useToggleAbilityVisibility();
     const { mutate: toggleClassPowerVisibility } = useToggleClassPowerVisibility();
     const [open, setOpen] = useState(false);
-    const { refetch: refetchClasses } = useClasses();
 
     const onDeleteClass = async (classId: number) => {
         if (confirm("Tem certeza que deseja excluir esta classe? Esta ação não pode ser desfeita.")) {
@@ -186,7 +188,7 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                     )}
                     {isAdmin && (
                         <>
-                            <UpdateClassModal classData={charClass} />
+                            <UpdateClassModal classData={charClass} refetch={refetchClasses} />
                             <button
                                 type="button"
                                 onClick={() => onDeleteClass(charClass.id)}
@@ -279,7 +281,7 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                                                     {ability.hidden ? <LucideEyeOff /> : <LucideEye />}
                                                 </button>
                                             )}
-                                            <UpdateClassAbilityModal abilityData={ability} />
+                                            <UpdateClassAbilityModal abilityData={ability} refetch={refetchClasses} classesData={classesData} />
                                             <button
                                                 type="button"
                                                 onClick={() => onDeleteAbility(ability.id)}
@@ -319,7 +321,7 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                                                     {power.hidden ? <LucideEyeOff /> : <LucideEye />}
                                                 </button>
                                             )}
-                                            <UpdateClassPowerModal classPowerData={power} />
+                                            <UpdateClassPowerModal classPowerData={power} refetch={refetchClasses} />
                                             <button
                                                 type="button"
                                                 onClick={() => onDeleteClassPower(power.id)}
@@ -348,7 +350,7 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                                         <h5 className="font-semibold">{subclass.name}</h5>
                                         {isAdmin && (
                                             <div className="flex gap-2">
-                                                <UpdateSubclassModal subclassData={subclass} />
+                                                <UpdateSubclassModal subclassData={subclass} refetchClasses={refetchClasses} />
                                                 <button
                                                     type="button"
                                                     onClick={() => onDeleteSubclass(subclass.id)}
@@ -381,7 +383,7 @@ function ClassItem({ charClass, isAdmin }: ClassItemProps) {
                                                                     {ability.hidden ? <LucideEyeOff /> : <LucideEye />}
                                                                 </button>
                                                             )}
-                                                            <UpdateClassAbilityModal abilityData={ability} />
+                                                            <UpdateClassAbilityModal abilityData={ability} refetch={refetchClasses} classesData={classesData} />
                                                             <button
                                                             type="button"
                                                             onClick={() => onDeleteAbility(ability.id)}

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useUpdateAttribute, useAttributes } from "../../../hooks";
+import { useUpdateAttribute } from "../../../hooks";
 import type { AttributeItem, UpdateAttributeRequest } from '../../../types'
 import toast from "react-hot-toast";
 import { AppModal } from "../../ui/AppModal";
@@ -8,10 +8,11 @@ import { LucideEdit } from "lucide-react";
 
 export interface UpdateAttributeModalProps {
     attributeData: AttributeItem
+    refetch: () => void;
 }
 
 
-export default function UpdateAttributeModal({ attributeData }: UpdateAttributeModalProps) {
+export default function UpdateAttributeModal({ attributeData, refetch }: UpdateAttributeModalProps) {
 
     const [formData, setFormData] = useState<UpdateAttributeRequest>({
         name: attributeData.name,
@@ -21,7 +22,6 @@ export default function UpdateAttributeModal({ attributeData }: UpdateAttributeM
     const [open, setOpen] = useState(false);
   
     const { mutate: updateAttribute, isPending } = useUpdateAttribute(attributeData.id);
-    const { refetch } = useAttributes();
 
     const handleChange = (e: any) => {
         const { name, value, type, checked } = e.target;

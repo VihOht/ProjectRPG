@@ -15,7 +15,7 @@ export function AttributesTab() {
     const { user } = useAuthProvider();
     const [isAdmin, setIsAdmin] = useState(false);
 
-    const { data: attributesData, isLoading } = useAttributes();
+    const { data: attributesData, isLoading, refetch } = useAttributes();
     const { data: periciasData } = usePericias();
     const { data: attributePowerData } = useAttributePowers();
 
@@ -152,7 +152,7 @@ export function AttributesTab() {
                                     </button>
                                     {isAdmin && (
                                         <div className="flex items-center gap-2"> 
-                                            <UpdateAttributeModal attributeData={attribute} />
+                                            <UpdateAttributeModal attributeData={attribute} refetch={refetch} />
                                             <button
                                                 type="button"
                                                 onClick={() => onDeleteAttribute(attribute.id)}

@@ -8,10 +8,12 @@ import { AppModal } from "../../ui/AppModal";
 
 export interface UpdateSubclassFormProps {
     subclassData: SubclassItem;
+    refetchClasses: () => void;
 }
 
 
-export default function UpdateSubclassForm({ subclassData }: UpdateSubclassFormProps) {
+
+export default function UpdateSubclassForm({ subclassData, refetchClasses }: UpdateSubclassFormProps) {
 
     const [formData, setFormData] = useState<UpdateSubclassRequest>({
         name: subclassData.name,
@@ -19,8 +21,6 @@ export default function UpdateSubclassForm({ subclassData }: UpdateSubclassFormP
     });
 
     const [open, setOpen] = useState(false);
-
-    const { refetch } = useClasses();
 
     const { mutate: updateSubclass, isPending } = useUpdateSubclass(subclassData.id);
 
@@ -37,7 +37,7 @@ export default function UpdateSubclassForm({ subclassData }: UpdateSubclassFormP
             onSuccess: () => {
                 toast.success("Subclasse atualizada com sucesso!");
                 setOpen(false);
-                refetch();
+                refetchClasses();
             }
             ,
             onError: () => {

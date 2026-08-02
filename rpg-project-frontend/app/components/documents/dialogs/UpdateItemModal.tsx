@@ -3,15 +3,16 @@ import { LucideEdit } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 import { AppModal } from "../../ui/AppModal";
-import { useItems, useUpdateItem } from "../../../hooks";
+import { useUpdateItem } from "../../../hooks";
 
 import type { Item, UpdateItemRequest } from "../../../types";
 
 export interface UpdateItemModalProps {
   itemData: Item;
+  refetch: () => void;
 }
 
-export default function UpdateItemModal({ itemData }: UpdateItemModalProps) {
+export default function UpdateItemModal({ itemData, refetch }: UpdateItemModalProps) {
   const [open, setOpen] = useState(false);
 
   const [formData, setFormData] = useState<UpdateItemRequest>({
@@ -23,7 +24,6 @@ export default function UpdateItemModal({ itemData }: UpdateItemModalProps) {
     data: getInitialItemData(itemData),
   });
 
-  const { refetch } = useItems();
   const { mutate: updateItem, isPending } = useUpdateItem(itemData.id);
 
   const handleChange = (e: any) => {

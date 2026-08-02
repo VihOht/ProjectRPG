@@ -23,7 +23,9 @@ export const authService = {
    * Register a new user
    */
   register: async (data: RegisterRequest): Promise<RegisterResponse> => {
-    const response = await api.post<RegisterResponse>('/auth/register', data);
+    const response = await api.post<RegisterResponse>('/auth/register', data, {
+      timeout: 15000,
+    });
     return response.data;
   },
 
@@ -40,7 +42,9 @@ export const authService = {
    * Login user and store token + username
    */
   login: async (data: LoginRequest): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>('/auth/login', data);
+    const response = await api.post<LoginResponse>('/auth/login', data, {
+      timeout: 15000,
+    });
     
     // Store token and username in localStorage
     if (response.data.token) {

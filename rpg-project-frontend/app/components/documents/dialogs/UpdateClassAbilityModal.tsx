@@ -1,25 +1,26 @@
 
 import { useEffect, useState } from "react";
 import { useClasses, useUpdateAbility } from "../../../hooks";
-import type { AbilityItem, SubclassItem, UpdateAbilityRequest } from '../../../types'
+import type { AbilityItem, ListClassesResponse, SubclassItem, UpdateAbilityRequest } from '../../../types'
 import toast from "react-hot-toast";
 import { LucideEdit } from "lucide-react";
 import { AppModal } from "../../ui/AppModal";
 
 export interface UpdateClassAbilityFormProps {
     abilityData: AbilityItem;
+    refetch: () => void;
+    classesData: ListClassesResponse; // You can replace 'any' with the appropriate type for classData if available
 }
 
 
-export default function UpdateClassAbilityForm({ abilityData }: UpdateClassAbilityFormProps) {
+
+export default function UpdateClassAbilityForm({ abilityData, refetch, classesData }: UpdateClassAbilityFormProps) {
 
     const [formData, setFormData] = useState<UpdateAbilityRequest>({
         name: abilityData.name,
         description: abilityData.description,
         subclass_id: abilityData.subclass_id
     });
-
-    const { data: classesData, refetch } = useClasses();
     
     const [filteredSubclasses, setFilteredSubclasses] = useState<SubclassItem[]>([]);
 
