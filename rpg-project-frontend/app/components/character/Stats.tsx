@@ -189,16 +189,11 @@ export function CharacterStats({
     }
 
     return (
+        <div className="mb-8 md:p-4 p-2 rounded-md">
+            <h2 className="text-3xl w-[100%] font-walthari font-semibold mb-4 text-vaccineGray-300" >
+                Estatísticas
+            </h2>
 
-        <SheetSection
-            title="Estatísticas"
-            actions={
-                <button disabled={!open && !isEditing} onClick={() => {isEditing ? handleSave() : setIsEditing(true)}} className="mb-4 cursor-pointer px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100">
-                    {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
-                </button>
-            }
-            onOpenChange={(open) => setOpen(open)}
-        >
             
             <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 `}>
                 <div>
@@ -208,9 +203,19 @@ export function CharacterStats({
                     <input
                         type="string"
                         value={stats.life}
+                        onClick={() => {
+                            if (!isEditing) {
+                                setIsEditing(true);
+                            }
+                        }}
+                        onBlur={() => {
+                            if (isEditing) {
+                                handleSave();
+                            }
+                        }}
                         onChange={(e) => handleChange("life", parseInt(e.target.value) || 0)}
                         readOnly={!isEditing}
-                        className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
+                        className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
                     />
                     <p className="mt-1 text-sm text-gray-600">{stats.life}/{statLimits.life.total}</p>
                     <p className="text-xs text-gray-500">Base {statLimits.life.base} + Bonus {statLimits.life.bonus}</p>
@@ -222,9 +227,19 @@ export function CharacterStats({
                     <input
                         type="string"
                         value={stats.sanity}
+                        onClick={() => {
+                            if (!isEditing) {
+                                setIsEditing(true);
+                            }
+                        }}
+                        onBlur={() => {
+                            if (isEditing) {
+                                handleSave();
+                            }
+                        }}
                         onChange={(e) => handleChange("sanity", parseInt(e.target.value) || 0)}
                         readOnly={!isEditing}                            
-                        className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
+                        className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
                     />
                     <p className="mt-1 text-sm text-gray-600">{stats.sanity}/{statLimits.sanity.total}</p>
                     <p className="text-xs text-gray-500">Base {statLimits.sanity.base} + Bonus {statLimits.sanity.bonus}</p>
@@ -238,9 +253,19 @@ export function CharacterStats({
                             <input
                                 type="string"
                                 value={stats.ocultism}
+                                onClick={() => {
+                                    if (!isEditing) {
+                                        setIsEditing(true);
+                                    }
+                                }}
+                                onBlur={() => {
+                                        if (isEditing) {
+                                            handleSave();
+                                        }
+                                    }}
                                 onChange={(e) => handleChange("ocultism", parseInt(e.target.value) || 0)}
                                 readOnly={!isEditing}
-                                className={`w-full bg-vaccineBlueTones-1000 text-vaccineGray-300 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 `}
+                                className={`w-full bg-vaccineBlueTones-1000 text-vaccineGray-300 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 `}
                             />
                             <p className="mt-1 text-sm text-gray-600">{stats.ocultism}/{statLimits.ocultism.total}</p>
                             <p className="text-xs text-gray-500">Base {statLimits.ocultism.base} + Bonus {statLimits.ocultism.bonus}</p>
@@ -268,9 +293,20 @@ export function CharacterStats({
                         <input
                             type="string"
                             value={stats.mana}
+                            
+                            onClick={() => {
+                                if (!isEditing) {
+                                    setIsEditing(true);
+                                }
+                            }}
+                            onBlur={() => {
+                                if (isEditing) {
+                                    handleSave();
+                                }
+                            }}
                             onChange={(e) => handleChange("mana", parseInt(e.target.value) || 0)}
                             readOnly={!isEditing}
-                            className={`w-full bg-vaccineBlueTones-1000 text-vaccineGray-300 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100`}
+                            className={`w-full bg-vaccineBlueTones-1000 text-vaccineGray-300 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100`}
                         />
                         <p className="mt-1 text-sm text-gray-600">{stats.mana}/{statLimits.mana.total}</p>
                         <p className="text-xs text-gray-500">Base {statLimits.mana.base} + Bonus {statLimits.mana.bonus}</p>
@@ -302,9 +338,20 @@ export function CharacterStats({
                             <input
                                 type="string"
                                 value={offset?.offset_life || 0}
+                                onClick={() => {
+                                    if (!isEditing) {
+                                        setIsEditing(true);
+                                    }
+                                }}
+
+                                onBlur={() => {
+                                    if (isEditing) {
+                                        handleSave();
+                                    }
+                                }}
                                 readOnly={!isEditing}
                                 onChange={(e) => handleChangeOffset("offset_life", parseInt(e.target.value) || 0)}
-                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
+                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
                             />
                         </div>
                         <div>
@@ -314,9 +361,20 @@ export function CharacterStats({
                             <input
                                 type="string"
                                 value={offset?.offset_sanity || 0}
+                                onClick={() => {
+                                    if (!isEditing) {
+                                        setIsEditing(true);
+                                    }
+                                }}
+
+                                onBlur={() => {
+                                    if (isEditing) {
+                                        handleSave();
+                                    }
+                                }}
                                 readOnly={!isEditing}
                                 onChange={(e) => handleChangeOffset("offset_sanity", parseInt(e.target.value) || 0)}
-                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
+                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
                             />
                         </div>
                         {classData.class.has_ocultism && (
@@ -328,9 +386,20 @@ export function CharacterStats({
                                     <input
                                         type="string"
                                         value={offset?.offset_ocultism || 0}
+                                        onClick={() => {
+                                            if (!isEditing) {
+                                                setIsEditing(true);
+                                            }
+                                        }}
+
+                                        onBlur={() => {
+                                            if (isEditing) {
+                                                handleSave();
+                                            }
+                                        }}
                                         readOnly={!isEditing}
                                         onChange={(e) => handleChangeOffset("offset_ocultism", parseInt(e.target.value) || 0)}
-                                        className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
+                                        className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
                                     />
                                 </div>
                                 <div>
@@ -340,9 +409,20 @@ export function CharacterStats({
                                     <input
                                         type="string"
                                         value={offset?.offset_power || 0}
+                                        onClick={() => {
+                                            if (!isEditing) {
+                                                setIsEditing(true);
+                                            }
+                                        }}
+
+                                        onBlur={() => {
+                                            if (isEditing) {
+                                                handleSave();
+                                            }
+                                        }}
                                         readOnly={!isEditing}
                                         onChange={(e) => handleChangeOffset("offset_power", parseInt(e.target.value) || 0)}
-                                        className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
+                                        className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
                                     />
                                 </div> 
                             </>
@@ -355,9 +435,20 @@ export function CharacterStats({
                                 <input
                                     type="string"
                                     value={offset?.offset_mana || 0}
+                                    onClick={() => {
+                                        if (!isEditing) {
+                                            setIsEditing(true);
+                                        }
+                                    }}
+
+                                    onBlur={() => {
+                                        if (isEditing) {
+                                            handleSave();
+                                        }
+                                    }}
                                     readOnly={!isEditing}
                                     onChange={(e) => handleChangeOffset("offset_mana", parseInt(e.target.value) || 0)}
-                                    className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
+                                    className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
                                 />
                             </div>
                         )}
@@ -368,14 +459,26 @@ export function CharacterStats({
                             <input
                                 type="string"
                                 value={offset?.offset_defense || 0}
+                                onClick={() => {
+                                    if (!isEditing) {
+                                        setIsEditing(true);
+                                    }
+                                }}
+
+                                onBlur={() => {
+                                    if (isEditing) {
+                                        handleSave();
+                                    }
+                                }}
                                 readOnly={!isEditing}
                                 onChange={(e) => handleChangeOffset("offset_defense", parseInt(e.target.value) || 0)}
-                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
+                                className={`w-full bg-vaccineBlueTones-1000 px-3 py-2 focus:outline-none focus:border-white rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-300`}
                             />
                         </div>
                     </div>
                 </div>
             )}
-        </SheetSection>
+        </div>
+
     );
 }

@@ -131,13 +131,35 @@ export function CharacterInformation({
         });
     }
 
+    // verifica se a informacao antiga é a mesma que a atual, utilizado no update
+    function hasChanges() {
+        if (!information || !savedInformation) return false;
+
+        return (
+            information.charClass !== savedInformation.charClass ||
+            information.subclass !== savedInformation.subclass ||
+            information.second_class !== savedInformation.second_class ||
+            information.race !== savedInformation.race ||
+            information.gender !== savedInformation.gender ||
+            information.age !== savedInformation.age
+        );
+    }
+
 
     function update() {
-        if (!information) return;
+        // verificação se a informacao é a mesma, se for não salva
+        if (!information || !savedInformation) return;
+
+        if (!hasChanges()) {
+            setIsEditing(false);
+            return;
+        }
+
         const characterGeneralData: UpdateCharacterGeneralRequest = {
             gender: information.gender ?? "",
             age: information.age ?? 0,
         };
+
         const charClass = getUpdateValue(information.charClass);
         const subclass = getUpdateValue(information.subclass);
         const secondClass = getUpdateValue(information.second_class);
@@ -151,40 +173,47 @@ export function CharacterInformation({
         updateGeneral(characterGeneralData, {
             onSuccess: () => setDraftInformation(null),
         });
+
         setIsEditing(false);
     }
 
     return (
-        <SheetSection
-            title="Informações Básicas"
-            onOpenChange={setIsSectionOpen}
-            actions={
-                <button
-                    disabled={!isSectionOpen && !isEditing}
-                    onClick={() => {
-                        if (isEditing) {
-                            update();
-                            return;
-                        }
-
-                        setIsEditing(true);
-                    }}
-                    className="px-4 py-2 bg-vaccineBlueTones-400 rounded-md hover:bg-blue-700 transition-colors text-vaccineBlueTones-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {isEditing ? "Salvar" : <FiEdit className="inline-block mr-1" />}
-                </button>
-            }
-        >
+  
             <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4`}>
                 <div>
+
                     <label className="block font-trajanPBold text-sm font-medium text-vaccineGray-300 mb-1">
                         Classe
                     </label>
                     <select
                     value={information?.charClass ?? EMPTY_SELECT_VALUE}
+                    // onClick ou onFocus faz não precisar de um botão de edição
+                    onFocus={() => {
+                        if (!isEditing) {
+                            setIsEditing(true);
+                        }
+                    }}
                     onChange={(e) => handleChange("charClass", e.target.value)}
-                    className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 ${(information?.charClass ?? EMPTY_SELECT_VALUE) > 0 ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
-                    disabled={!isEditing}
+                    // onBlur atualiza ao sair da caixa
+                    onBlur={() => {
+                            if (isEditing) {
+                                update();
+                            }
+                        }}
+                    className={`
+                        w-full
+                        font-trajanPRegular
+                        bg-vaccineBlueTones-1000
+                        px-3 py-2
+                        border border-transparent
+                        rounded-md
+                        focus:outline-none
+                        focus:border-white
+                        ${(information?.charClass ?? EMPTY_SELECT_VALUE) > 0
+                            ? "text-vaccineGray-400"
+                            : "text-vaccineBlueTones-300"
+                        }
+                    `}
                 >
                     <option value={EMPTY_SELECT_VALUE}>Selecione uma classe</option>
                     {classes.map((charClass) => (
@@ -200,9 +229,32 @@ export function CharacterInformation({
                     </label>
                     <select
                         value={information?.subclass ?? EMPTY_SELECT_VALUE}
+                        onFocus={() => {
+                        if (!isEditing) {
+                            setIsEditing(true);
+                        }
+                        }}
                         onChange={(e) => handleChange("subclass", e.target.value)}
-                        className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border border-gray-400 text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${(information?.subclass ?? EMPTY_SELECT_VALUE) > 0 ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
-                        disabled={!isEditing || !information?.charClass || information.charClass <= 0}
+                        onBlur={() => {
+                            if (isEditing) {
+                                update();
+                            }
+                        }}
+                        className={`
+                        w-full
+                        font-trajanPRegular
+                        bg-vaccineBlueTones-1000
+                        px-3 py-2
+                        border border-transparent
+                        rounded-md
+                        focus:outline-none
+                        focus:border-white
+                        ${(information?.charClass ?? EMPTY_SELECT_VALUE) > 0
+                            ? "text-vaccineGray-400"
+                            : "text-vaccineBlueTones-300"
+                        }
+                    `}
+                        disabled={!information?.charClass || information.charClass <= 0}
                     >
                         <option value={EMPTY_SELECT_VALUE}>Selecione uma subclasse</option>
                         {filteredSubclasses.map((subclass) => (
@@ -218,9 +270,32 @@ export function CharacterInformation({
                     </label>
                     <select
                         value={information?.second_class ?? EMPTY_SELECT_VALUE}
+                        onFocus={() => {
+                        if (!isEditing) {
+                            setIsEditing(true);
+                        }
+                        }}
                         onChange={(e) => handleChange("second_class", e.target.value)}
-                        className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${(information?.second_class ?? EMPTY_SELECT_VALUE) > 0 ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
-                        disabled={!isEditing}
+                        onBlur={() => {
+                            if (isEditing) {
+                                update();
+                            }
+                        }}
+                        className={`
+                        w-full
+                        font-trajanPRegular
+                        bg-vaccineBlueTones-1000
+                        px-3 py-2
+                        border border-transparent
+                        rounded-md
+                        focus:outline-none
+                        focus:border-white
+                        ${(information?.charClass ?? EMPTY_SELECT_VALUE) > 0
+                            ? "text-vaccineGray-400"
+                            : "text-vaccineBlueTones-300"
+                        }
+                    `}
+                        
                     >
                         <option value={EMPTY_SELECT_VALUE}>Selecione uma segunda classe</option>
                         {classes.map((charClass) => (
@@ -236,9 +311,32 @@ export function CharacterInformation({
                     </label>
                     <select
                         value={information?.race ?? EMPTY_SELECT_VALUE}
+                        onFocus={() => {
+                        if (!isEditing) {
+                            setIsEditing(true);
+                        }
+                        }}
                         onChange={(e) => handleChange("race", e.target.value)}
-                        className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000  px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineBlueTones-400 text-vaccineBlueTones-300 ${(information?.race ?? EMPTY_SELECT_VALUE) > 0 ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
-                        disabled={!isEditing}
+                        onBlur={() => {
+                            if (isEditing) {
+                                update();
+                            }
+                        }}
+                        className={`
+                        w-full
+                        font-trajanPRegular
+                        bg-vaccineBlueTones-1000
+                        px-3 py-2
+                        border border-transparent
+                        rounded-md
+                        focus:outline-none
+                        focus:border-white
+                        ${(information?.charClass ?? EMPTY_SELECT_VALUE) > 0
+                            ? "text-vaccineGray-400"
+                            : "text-vaccineBlueTones-300"
+                        }
+                        `}
+                        
                     >
                         <option value={EMPTY_SELECT_VALUE}>Selecione uma raça</option>
                         {races.map((race) => (
@@ -255,8 +353,28 @@ export function CharacterInformation({
                     <input
                         type="text"
                         value={information?.gender ?? ""}
+                        onClick={() => {
+                            if (!isEditing) {
+                                setIsEditing(true);
+                            }
+                        }}
                         onChange={(e) => handleChange("gender", e.target.value)}
-                        className={`w-full font-trajanPRegular bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border-gray-400 border text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineBlueTones-300 ${information?.gender != "0" ? "text-vaccineGray-400" : "text-vaccineBlueTones-300"}`}
+                        onBlur={() => {
+                            if (isEditing) {
+                                update();
+                            }
+                        }}
+                        className={`
+                            w-full
+                            font-trajanPRegular
+                            bg-vaccineBlueTones-1000
+                            px-3 py-2
+                            border border-transparent
+                            rounded-md
+                            focus:outline-none
+                            focus:border-white
+                            text-vaccineGray-400
+                        `}
                         readOnly={!isEditing}
                     />
                 </div>
@@ -267,15 +385,34 @@ export function CharacterInformation({
                     <input
                         type="text"
                         value={information?.age ?? ""}
+                        onClick={() => {
+                            if (!isEditing) {
+                                setIsEditing(true);
+                            }
+                        }}
                         onChange={(e) => handleChange("age", e.target.value)}
-                        className={`w-full font-trajanPRegular   bg-vaccineBlueTones-1000 px-3 py-2 ${isEditing ? 'border border-gray-400 text-vaccineGray-400' : ''} rounded-md focus:outline-none focus:ring-2 focus:ring-vaccineGray-100 text-vaccineGray-400`}
+                        onBlur={() => {
+                            if (isEditing) {
+                                update();
+                            }
+                        }}
+                        className={`
+                            w-full
+                            font-trajanPRegular
+                            bg-vaccineBlueTones-1000
+                            px-3 py-2
+                            border border-transparent
+                            rounded-md
+                            focus:outline-none
+                            focus:border-white
+                            text-vaccineGray-400
+                        `}
                         readOnly={!isEditing}
                     />
                 </div>
             </div>
 
-    
-        </SheetSection>
+   
     );
 }
 
