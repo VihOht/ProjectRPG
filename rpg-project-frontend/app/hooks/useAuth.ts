@@ -162,6 +162,33 @@ export const useAuth = () => {
     }
   }, [isLoadingSession, session]);
 
+//   useEffect(() => {
+//   if (isLoadingSession) {
+//     return;
+//   }
+
+//   setIsReady(true);
+
+//   const sessionValida =
+//     !!session && new Date() < session.expiresAt;
+
+//   setIsAuthenticated(sessionValida);
+
+//   if (session && new Date() >= session.expiresAt) {
+//     authSessionRepository
+//       .deleteAuthSession()
+//       .then(() => {
+//         setIsAuthenticated(false);
+//       })
+//       .catch((error) => {
+//         console.error(
+//           "Error deleting expired auth session:",
+//           error
+//         );
+//       });
+//   }
+// }, [isLoadingSession, session]);
+
 
 
 
