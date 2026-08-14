@@ -1,23 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import {
+  LucideClock,
+  LucideClock3,
   LucideDelete,
   LucideEye,
   LucideEyeOff,
-  LucideClock,
-  LucideClock3,
 } from "lucide-react";
 
-import { useAuthProvider } from "../../../providers";
-import {
-  useItems,
-  useDeleteItem,
-  useToggleItemVisibility,
-  useToggleItemTemporary,
-} from "../../../hooks";
-
 import type { Item } from "../../../types";
-
+import {
+  useDeleteItem,
+  useItems,
+  useToggleItemTemporary,
+  useToggleItemVisibility,
+} from "../../../hooks";
+import { useAuthProvider } from "../../../providers";
 import ItemModal from "../dialogs/ItemModal";
 import UpdateItemModal from "../dialogs/UpdateItemModal";
 
@@ -25,33 +23,22 @@ export function ItemsTab() {
   const { user } = useAuthProvider();
   const { data: itemsData, isLoading, refetch } = useItems();
 
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [items, setItems] = useState<Item[]>([]);
-
-  useEffect(() => {
-    if (itemsData?.items) {
-      setItems(itemsData.items);
-    }
-  }, [itemsData]);
-
-  useEffect(() => {
-    if (!user) return;
-    setIsAdmin(user.role === "ADMIN");
-  }, [user]);
+  const items = itemsData?.items ?? [];
+  const isAdmin = user?.role === "ADMIN";
 
   if (isLoading) {
     return <p className="text-gray-600">Carregando itens...</p>;
   }
 
   if (!user) {
-    return <p className="text-gray-600">Usuário não autenticado.</p>;
+    return <p className="text-gray-600">Usuario nao autenticado.</p>;
   }
 
   const permanentItems = items.filter((item) => !item.temporary);
   const temporaryItems = items.filter((item) => item.temporary);
 
   return (
-    <div className="w-full space-y-8 md:px-4 px-2 md:py-6 py-4">
+    <div className="w-full space-y-6 md:px-4 md:py-6 px-2 py-4">
       <div className="flex items-center justify-between">
         <div className="p-2">
           <h2 className="text-2xl font-semibold text-vaccineGray-300">
@@ -59,7 +46,8 @@ export function ItemsTab() {
           </h2>
 
           <p className="text-vaccineGray-600">
-            Visualização de armas, armaduras, artefatos e utilitários.
+            Visualizacao hierarquica de armas, armaduras, artefatos e
+            utilitarios.
           </p>
         </div>
 
@@ -67,10 +55,10 @@ export function ItemsTab() {
       </div>
 
       <section className="space-y-5">
-        <div className="space-y-3 w-full break-words">
+        <div className="space-y-4 w-full break-words">
           <ItemGroup
             title="Itens permanentes"
-            description="Itens comuns disponíveis no sistema."
+            description="Itens comuns disponiveis no sistema."
             items={permanentItems}
             isAdmin={isAdmin}
             emptyMessage="Nenhum item cadastrado."
@@ -78,11 +66,11 @@ export function ItemsTab() {
           />
 
           <ItemGroup
-            title="Temporários"
-            description="Itens marcados como temporários."
+            title="Temporarios"
+            description="Itens marcados como temporarios."
             items={temporaryItems}
             isAdmin={isAdmin}
-            emptyMessage="Nenhum item temporário cadastrado."
+            emptyMessage="Nenhum item temporario cadastrado."
             refetch={refetch}
           />
         </div>
@@ -104,25 +92,24 @@ function ItemCard({ item, isAdmin, refetch }: ItemCardProps) {
 
   const [open, setOpen] = useState(false);
 
-  const onDeleteItem = async (itemId: number) => {
+  const onDeleteItem = (itemId: number) => {
     if (
-      confirm(
-        "Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita."
+      !confirm(
+        "Tem certeza que deseja excluir este item? Esta acao nao pode ser desfeita.",
       )
     ) {
-      deleteItemService(itemId, {
-        onSuccess: () => {
-          toast.success("Item excluído com sucesso.");
-          refetch();
-        },
-        onError: (error: any) => {
-          toast.error(
-            error?.response?.data?.message ||
-              "Ocorreu um erro ao excluir o item."
-          );
-        },
-      });
+      return;
     }
+
+    deleteItemService(itemId, {
+      onSuccess: () => {
+        toast.success("Item excluido com sucesso.");
+        refetch();
+      },
+      onError: () => {
+        toast.error("Ocorreu um erro ao excluir o item.");
+      },
+    });
   };
 
   const onToggleVisibility = () => {
@@ -131,11 +118,8 @@ function ItemCard({ item, isAdmin, refetch }: ItemCardProps) {
         toast.success("Visibilidade do item atualizada com sucesso.");
         refetch();
       },
-      onError: (error: any) => {
-        toast.error(
-          error?.response?.data?.message ||
-            "Erro ao atualizar visibilidade do item."
-        );
+      onError: () => {
+        toast.error("Erro ao atualizar visibilidade do item.");
       },
     });
   };
@@ -143,25 +127,22 @@ function ItemCard({ item, isAdmin, refetch }: ItemCardProps) {
   const onToggleTemporary = () => {
     toggleItemTemporary(undefined, {
       onSuccess: () => {
-        toast.success("Status temporário do item atualizado com sucesso.");
+        toast.success("Status temporario do item atualizado com sucesso.");
         refetch();
       },
-      onError: (error: any) => {
-        toast.error(
-          error?.response?.data?.message ||
-            "Erro ao atualizar status temporário do item."
-        );
+      onError: () => {
+        toast.error("Erro ao atualizar status temporario do item.");
       },
     });
   };
 
   return (
-    <article className="bg-vaccineBlueTones-1000/20 rounded-md md:px-3 px-2 py-1 border border-vaccineGray-200/20">
+    <article className="bg-vaccineBlueTones-1000/20 rounded-md md:p-4 p-2 border border-vaccineGray-200/20 border-1">
       <div className="flex items-start justify-between gap-3">
         <div className="w-[70%]">
           <h3
             onClick={() => setOpen(!open)}
-            className="text-base font-semibold text-vaccinePurple hover:underline cursor-pointer"
+            className="text-2xl font-semibold text-vaccinePurple hover:underline cursor-pointer"
           >
             {item.name}
           </h3>
@@ -175,34 +156,42 @@ function ItemCard({ item, isAdmin, refetch }: ItemCardProps) {
 
             {item.temporary && (
               <span className="text-xs text-vaccineGray-400 border border-vaccineGray-200/20 rounded-md px-2 py-0.5">
-                Temporário
+                Temporario
               </span>
             )}
           </div>
         </div>
 
         {isAdmin && (
-          <div className="flex justify-gap-2">
+          <div className="flex mt-2 gap-2">
             <button
               type="button"
               onClick={onToggleVisibility}
               className="rounded-md px-2 py-1 text-xs text-white hover:opacity-90"
               title={item.hidden ? "Mostrar item" : "Ocultar item"}
             >
-              {item.hidden ? <LucideEyeOff /> : <LucideEye />}
+              {item.hidden ? (
+                <LucideEyeOff className="w-4 h-4" />
+              ) : (
+                <LucideEye className="w-4 h-4" />
+              )}
             </button>
 
             <button
               type="button"
               onClick={onToggleTemporary}
-              className="rounded-md px-2 py-1 mr-1 text-xs text-white hover:opacity-90"
+              className="rounded-md px-2 py-1 text-xs text-white hover:opacity-90"
               title={
                 item.temporary
-                  ? "Remover dos temporários"
-                  : "Marcar como temporário"
+                  ? "Remover dos temporarios"
+                  : "Marcar como temporario"
               }
             >
-              {item.temporary ? <LucideClock3 /> : <LucideClock />}
+              {item.temporary ? (
+                <LucideClock3 className="w-4 h-4" />
+              ) : (
+                <LucideClock className="w-4 h-4" />
+              )}
             </button>
 
             <UpdateItemModal itemData={item} refetch={refetch} />
@@ -223,13 +212,13 @@ function ItemCard({ item, isAdmin, refetch }: ItemCardProps) {
           open ? "max-h-screen" : "max-h-0 overflow-hidden opacity-0"
         }`}
       >
-        <p className="text-vaccineGray-400 mt-2">{item.description}</p>
+        <p className="text-vaccineGray-400">{item.description}</p>
 
         <div className="flex gap-4 mt-4 flex-wrap">
-          <InfoBadge label="Empilhável" value={item.stackable ? "Sim" : "Não"} />
-          <InfoBadge label="Equipável" value={item.equipable ? "Sim" : "Não"} />
+          <InfoBadge label="Empilhavel" value={item.stackable ? "Sim" : "Nao"} />
+          <InfoBadge label="Equipavel" value={item.equipable ? "Sim" : "Nao"} />
           <InfoBadge
-            label="Qtd. Máxima"
+            label="Qtd. Maxima"
             value={item.max_quantity ?? "Sem limite"}
           />
         </div>
@@ -240,7 +229,7 @@ function ItemCard({ item, isAdmin, refetch }: ItemCardProps) {
           {item.item_type === "artefact" && <ArtefactDetails item={item} />}
           {item.item_type === "utility" && (
             <p className="text-vaccineGray-600">
-              Item utilitário sem atributos extras.
+              Item utilitario sem atributos extras.
             </p>
           )}
         </div>
@@ -277,8 +266,8 @@ function WeaponDetails({
   return (
     <div className="flex gap-4 flex-wrap">
       <InfoBadge label="Dano" value={item.damage} />
-      <InfoBadge label="Perícia" value={item.pericia} />
-      <InfoBadge label="Crítico" value={item.critical} />
+      <InfoBadge label="Pericia" value={item.pericia} />
+      <InfoBadge label="Critico" value={item.critical} />
       <InfoBadge label="Alcance" value={item.range} />
     </div>
   );
@@ -292,9 +281,9 @@ function ArmorDetails({
   return (
     <div className="space-y-3">
       <div className="flex gap-4 flex-wrap">
-        <InfoBadge label="Resistência" value={item.resistance} />
-        <InfoBadge label="Redução" value={item.reduction} />
-        <InfoBadge label="Perícia" value={item.pericia} />
+        <InfoBadge label="Resistencia" value={item.resistance} />
+        <InfoBadge label="Reducao" value={item.reduction} />
+        <InfoBadge label="Pericia" value={item.pericia} />
         <InfoBadge label="Tamanho" value={item.size} />
       </div>
 
@@ -337,9 +326,8 @@ const itemTypes: {
   { type: "weapon", label: "Armas" },
   { type: "armor", label: "Armaduras" },
   { type: "artefact", label: "Artefatos" },
-  { type: "utility", label: "Utilitários" },
+  { type: "utility", label: "Utilitarios" },
 ];
-
 
 function ItemGroup({
   title,
@@ -378,8 +366,6 @@ function ItemGroup({
   );
 }
 
-
-
 type ItemTypeSectionProps = {
   title: string;
   items: Item[];
@@ -387,23 +373,26 @@ type ItemTypeSectionProps = {
   refetch: () => void;
 };
 
-function ItemTypeSection({ title, items, isAdmin, refetch }: ItemTypeSectionProps) {
+function ItemTypeSection({
+  title,
+  items,
+  isAdmin,
+  refetch,
+}: ItemTypeSectionProps) {
   const [open, setOpen] = useState(false);
 
   return (
-    <section className="rounded-md border border-vaccineGray-200/20 bg-vaccineBlueTones-1000/10">
+    <section className="space-y-2">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center cursor-pointer justify-between md:px-3 px-2 py-1 text-left"
+        className="flex w-full cursor-pointer items-center justify-between border-l-4 border-vaccinePurple md:px-3 px-2 py-1 text-left"
       >
         <span className="text-sm font-semibold text-vaccineGray-300">
           {title}
         </span>
 
-        <span className="text-xs text-vaccineGray-600">
-          {items.length}
-        </span>
+        <span className="text-xs text-vaccineGray-600">{items.length}</span>
       </button>
 
       <div
@@ -411,14 +400,17 @@ function ItemTypeSection({ title, items, isAdmin, refetch }: ItemTypeSectionProp
           open ? "max-h-[3000px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="space-y-1 px-2 pb-2">
+        <div className="space-y-2 pl-2">
           {items.length === 0 ? (
-            <p className="py-1 text-xs text-vaccineGray-600">
-              Nenhum item.
-            </p>
+            <p className="py-1 text-xs text-vaccineGray-600">Nenhum item.</p>
           ) : (
             items.map((item) => (
-              <ItemCard key={item.id} item={item} isAdmin={isAdmin} refetch={refetch} />
+              <ItemCard
+                key={item.id}
+                item={item}
+                isAdmin={isAdmin}
+                refetch={refetch}
+              />
             ))
           )}
         </div>
