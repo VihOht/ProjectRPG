@@ -1,6 +1,17 @@
-import { useMutation, useQuery, useQueryClient, type UseMutationResult, type UseQueryResult } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+  type UseMutationResult,
+} from '@tanstack/react-query';
 import { AxiosError } from 'axios';
+
+import { loreSessionsRepository } from '../repositories/gameDataRepositories';
 import { loreService } from '../services/lore';
+import {
+  createGetAllHookV2,
+  createGetByIdHookV2,
+} from './common';
 import type {
   CreateLoreDocumentRequest,
   CreateLoreDocumentResponse,
@@ -14,30 +25,49 @@ import type {
   DeleteLoreImageResponse,
   DeleteLoreSessionResponse,
   DeleteLoreSubdocumentResponse,
-  GetLoreSessionResponse,
-  GetLoreSessionsResponse,
 } from '../types/lore';
 
-export const useGetLoreSessions = (): UseQueryResult<GetLoreSessionsResponse, AxiosError> => {
-  return useQuery<GetLoreSessionsResponse, AxiosError>({
-    queryKey: ['lore-sessions'],
-    queryFn: loreService.getAllLoreSessions,
-    retry: 1,
-    staleTime: 5 * 60 * 1000,
-  });
-};
+const LORE_SESSIONS_QUERY_KEY = 'lore-sessions';
+const LORE_SESSION_QUERY_KEY = 'lore-session';
 
-export const useGetLoreSession = (
-  sessionId: number | null
-): UseQueryResult<GetLoreSessionResponse, AxiosError> => {
-  return useQuery<GetLoreSessionResponse, AxiosError>({
-    queryKey: ['lore-session', sessionId],
-    queryFn: () => loreService.getLoreSessionById(sessionId!),
-    enabled: !!sessionId,
-    retry: 1,
-    staleTime: 5 * 60 * 1000,
-  });
-};
+export const useLore =
+  createGetAllHookV2(
+    LORE_SESSIONS_QUERY_KEY,
+    loreSessionsRepository.getAll,
+    loreSessionsRepository.syncAll
+  );
+
+export const useLoreSession =
+  createGetByIdHookV2(
+    LORE_SESSION_QUERY_KEY,
+    loreSessionsRepository.getById,
+    loreSessionsRepository.syncById
+  );
+
+export const useGetLoreSessions = useLore;
+export const useGetLoreSession = useLoreSession;
+
+async function syncLoreCache(queryClient: QueryClient, sessionId?: number) {
+  try {
+    if (sessionId) {
+      await loreSessionsRepository.syncById(sessionId);
+    }
+
+    await loreSessionsRepository.syncAll();
+  } catch (error) {
+    console.error('Erro ao sincronizar o cache de lore:', error);
+  } finally {
+    queryClient.invalidateQueries({ queryKey: [LORE_SESSIONS_QUERY_KEY] });
+
+    if (sessionId) {
+      queryClient.invalidateQueries({
+        queryKey: [LORE_SESSION_QUERY_KEY, sessionId],
+      });
+    } else {
+      queryClient.invalidateQueries({ queryKey: [LORE_SESSION_QUERY_KEY] });
+    }
+  }
+}
 
 export const useCreateLoreSession = (): UseMutationResult<
   CreateLoreSessionResponse,
@@ -48,9 +78,7 @@ export const useCreateLoreSession = (): UseMutationResult<
 
   return useMutation({
     mutationFn: loreService.createLoreSession,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lore-sessions'] });
-    },
+    onSuccess: (data) => syncLoreCache(queryClient, data.session.id),
   });
 };
 
@@ -63,8 +91,12 @@ export const useDeleteLoreSession = (): UseMutationResult<
 
   return useMutation({
     mutationFn: loreService.deleteLoreSession,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lore-sessions'] });
+    onSuccess: (_, sessionId) => {
+      queryClient.removeQueries({
+        queryKey: [LORE_SESSION_QUERY_KEY, sessionId],
+      });
+
+      return syncLoreCache(queryClient);
     },
   });
 };
@@ -77,10 +109,10 @@ export const useCreateLoreDocument = (): UseMutationResult<
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ sessionId, data }) => loreService.createLoreDocument(sessionId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lore-sessions'] });
-    },
+    mutationFn: ({ sessionId, data }) =>
+      loreService.createLoreDocument(sessionId, data),
+    onSuccess: (_, variables) =>
+      syncLoreCache(queryClient, variables.sessionId),
   });
 };
 
@@ -93,9 +125,7 @@ export const useDeleteLoreDocument = (): UseMutationResult<
 
   return useMutation({
     mutationFn: loreService.deleteLoreDocument,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lore-sessions'] });
-    },
+    onSuccess: () => syncLoreCache(queryClient),
   });
 };
 
@@ -107,10 +137,10 @@ export const useCreateLoreImage = (): UseMutationResult<
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ sessionId, data }) => loreService.createLoreImage(sessionId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lore-sessions'] });
-    },
+    mutationFn: ({ sessionId, data }) =>
+      loreService.createLoreImage(sessionId, data),
+    onSuccess: (_, variables) =>
+      syncLoreCache(queryClient, variables.sessionId),
   });
 };
 
@@ -123,9 +153,7 @@ export const useDeleteLoreImage = (): UseMutationResult<
 
   return useMutation({
     mutationFn: loreService.deleteLoreImage,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lore-sessions'] });
-    },
+    onSuccess: () => syncLoreCache(queryClient),
   });
 };
 
@@ -137,10 +165,9 @@ export const useCreateLoreSubdocument = (): UseMutationResult<
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ documentId, data }) => loreService.createLoreSubdocument(documentId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lore-sessions'] });
-    },
+    mutationFn: ({ documentId, data }) =>
+      loreService.createLoreSubdocument(documentId, data),
+    onSuccess: () => syncLoreCache(queryClient),
   });
 };
 
@@ -153,8 +180,6 @@ export const useDeleteLoreSubdocument = (): UseMutationResult<
 
   return useMutation({
     mutationFn: loreService.deleteLoreSubdocument,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lore-sessions'] });
-    },
+    onSuccess: () => syncLoreCache(queryClient),
   });
 };

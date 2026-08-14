@@ -1,5 +1,6 @@
 import { db } from '../database/db';
 import { gameService } from '../services/gameService';
+import { loreService } from '../services/lore';
 import type * as T from '../types';
 import { createCachedResourceRepository } from './cachedResourceRepository';
 
@@ -200,4 +201,26 @@ export const itemsRepository = createCachedResourceRepository<
   getRemoteById: gameService.getItemById,
 });
 
+const loreSessionsCache = createCachedResourceRepository<
+  T.LoreSession,
+  'sessions',
+  'session',
+  T.GetLoreSessionsResponse,
+  T.GetLoreSessionResponse
+>({
+  table: db.loreSessions,
+  listKey: 'sessions',
+  detailKey: 'session',
+  getRemoteList: loreService.getAllLoreSessions,
+  getRemoteById: loreService.getLoreSessionById,
+});
 
+export const loreSessionsRepository = {
+  ...loreSessionsCache,
+
+  async syncAll() {
+    const remote = await loreService.getAllLoreSessions();
+    await db.loreSessions.clear();
+    await db.loreSessions.bulkPut(remote.sessions);
+  },
+};

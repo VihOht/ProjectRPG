@@ -64,6 +64,7 @@ export const db = new Dexie("insonia") as Dexie & {
     conversionRules: EntityTable<T.ConversionRuleItem, "id">;
     levelUpRules: EntityTable<T.LevelUpRuleItem, "id">;
     items: EntityTable<T.Item, "id">;
+    loreSessions: EntityTable<T.LoreSession, "id">;
     characterAttributes: EntityTable<CharacterAttributesEntity, "character_id">;
     inventories: EntityTable<CharacterInventoryEntity, "id">;
     inventoryItems: EntityTable<InventoryEntryEntity, "localId">;
@@ -93,3 +94,7 @@ db.version(1).stores({
     inventories: "id,characterId",
     inventoryItems: "localId,inventory_id,item_id",
 })
+
+db.version(2).stores({
+    loreSessions: "id",
+});
