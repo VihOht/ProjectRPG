@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import algo from "../assets/images/algo21.png";
+import clouds from "../assets/images/clouds.png";
 import { StarSky } from "../components/StarSky";
 
 type Fanart = {
@@ -110,11 +111,23 @@ export default function HomePage() {
             <h1 className="text-vaccinePurple font-myFont items-center justify-center text-center text-9xl pt-10">
                 Insonia
             </h1>
-            <img
-            src={algo}
-            alt="Algo"
-            className="w-full h-auto grayscale brightness-0"
-            />
+            <section className="relative left-1/2 w-screen -translate-x-1/2">
+                <img
+                src={clouds}
+                alt=""
+                aria-hidden="true"
+                className="pointer-events-none absolute left-0 top-[-18px] z-0 h-[clamp(280px,45vw,640px)] w-full max-w-none object-fill"
+                />
+                <img
+                src={algo}
+                alt="Algo"
+                className="relative z-10 h-[clamp(280px,45vw,640px)] w-full max-w-none object-fill"
+                />
+                <div
+                aria-hidden="true"
+                className="relative z-20 h-24 w-full bg-gradient-to-b from-black via-black/70 to-transparent"
+                />
+            </section>
             <h1 className="text-white">
                 fanart
             </h1>
