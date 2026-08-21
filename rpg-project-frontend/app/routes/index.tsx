@@ -7,20 +7,47 @@ import { useAuthProvider } from "../providers";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { onlineManager } from "@tanstack/react-query";
+import FrontPage from "./frontPage";
 
 export default function Index() {
+  // constantes necessárias antes de direcionar ao front page
   const { isAuthenticated, user, isReady } = useAuthProvider();
-  const navigate = useNavigate();
-  const [isDocumentOpening, setIsDocumentOpening] = useState(false);
-  const [isAccountOpening, setIsAccountOpening] = useState(false);
 
+  if (!isReady) {
+    return (
+      <div className="text-black text-4xl">
+        Calculando rotas dos sonhos...
+      </div>
+    );
+  }
 
-  const { mutate: createCharacter, isPending } = useCreateCharacter();
-  const { mutate: deleteCharacter } = useDeleteCharacter();
-  const { data: characterData, isLoading: characterLoading, refetch: refetchCharacters } =
-    useCharacters();
-  const { data: usersData } = useGetUsers(user?.role === "ADMIN");
-  const isAdmin = user?.role === "ADMIN";
+  if (!isAuthenticated) {
+    return <FrontPage />;
+  }
+
+  return <AuthenticatedHome />;
+}
+  function AuthenticatedHome() {
+    const { user } = useAuthProvider();
+
+    const navigate = useNavigate();
+
+    const [isDocumentOpening, setIsDocumentOpening] = useState(false);
+    const [isAccountOpening, setIsAccountOpening] = useState(false);
+
+    const { mutate: createCharacter, isPending } = useCreateCharacter();
+    const { mutate: deleteCharacter } = useDeleteCharacter();
+
+    const {
+      data: characterData,
+      isLoading: characterLoading,
+      refetch: refetchCharacters,
+    } = useCharacters();
+
+    const { data: usersData } = useGetUsers(user?.role === "ADMIN");
+
+    const isAdmin = user?.role === "ADMIN";
+
 
   const characters = useMemo(
     () => characterData?.characters ?? [],
@@ -63,11 +90,13 @@ export default function Index() {
       }
     });}
 
-    useEffect(() => {
-      if (!isAuthenticated && isReady) {
-        navigate("/auth/login");
-      }
-    }, [isAuthenticated, navigate, isReady]);
+    // useEffect(() => {
+    //   if (!isAuthenticated && isReady) {
+    //     navigate("/auth/login");
+    //   }
+    // }, [isAuthenticated, navigate, isReady]);
+
+    // leva à frontpage
 
 
   return (

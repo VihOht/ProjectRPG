@@ -6,6 +6,7 @@ import { AttributesTab } from "../components/documents/tabs/AttributesTab";
 import ConversionTab from "../components/documents/tabs/ConversionsTab";
 import RuleBookModal from "../components/documents/dialogs/RuleBookModal";
 import { ItemsTab } from "../components/documents/tabs/ItemsTab";
+import { LoreTab } from "../components/documents/tabs/LoreTab";
 import { useAuthProvider } from "../providers";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
@@ -45,6 +46,9 @@ export default function DocumentsPage() {
                         <TabsTrigger value="items" className="data-[state=active]:bg-vaccinePurple data-[state=active]:text-white text-vaccineGray-300 hover:text-vaccinePurple text-sm font-medium px-2 md:px-3 py-2 rounded-md">
                             Itens
                         </TabsTrigger>
+                        <TabsTrigger value="lore" className="data-[state=active]:bg-vaccinePurple data-[state=active]:text-white text-vaccineGray-300 hover:text-vaccinePurple text-sm font-medium px-2 md:px-3 py-2 rounded-md">
+                            Lore
+                        </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="classes">
@@ -60,6 +64,9 @@ export default function DocumentsPage() {
                     </TabsContent>
                     <TabsContent value="items">
                         <ItemsTab />
+                    </TabsContent>
+                    <TabsContent value="lore">
+                        <LoreTab />
                     </TabsContent>
                 </Tabs>
             </div>
