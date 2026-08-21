@@ -16,7 +16,7 @@ export default function Index() {
   if (!isReady) {
     return (
       <div className="text-black text-4xl">
-        O Deus dos sonhos verifica se te conhece...
+        Calculando rotas dos sonhos...
       </div>
     );
   }
