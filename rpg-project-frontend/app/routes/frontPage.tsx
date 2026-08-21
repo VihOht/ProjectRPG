@@ -140,7 +140,7 @@ export default function HomePage() {
                 </a>
             </div>
             </section>
-            <h1 className="text-vaccinePurple font-myFont items-center justify-center text-center text-9xl pt-10">
+            <h1 className="text-vaccinePurple font-myFont items-center justify-center text-center sm:text-9xl pt-10 text-6xl">
                 Insonia
             </h1>
             <section className="relative left-1/2 w-screen -translate-x-1/2">
